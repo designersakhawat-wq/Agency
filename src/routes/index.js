@@ -36,8 +36,10 @@ router.use('/brands', brandRoutes);
 router.use('/inquiries', inquiryRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/admin/media', mediaRoutes);
+router.use('/media', mediaRoutes);
 router.use('/invoices', invoiceRoutes);
 router.use('/settings', settingRoutes);
 router.use('/admin/dashboard', dashboardRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 module.exports = router;

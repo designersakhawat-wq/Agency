@@ -60,11 +60,10 @@ async function main() {
   ];
 
   for (const s of siteSettings) {
-    await prisma.siteSetting.upsert({
-      where: { key: s.key },
-      update: { value: s.value },
-      create: { key: s.key, value: s.value },
-    });
+    const existing = await prisma.siteSetting.findUnique({ where: { key: s.key } });
+    if (!existing) {
+      await prisma.siteSetting.create({ data: s });
+    }
   }
   console.log('✅ Site settings seeded.');
 
@@ -379,25 +378,15 @@ async function main() {
     let service = await prisma.service.findUnique({ where: { slug: serviceFields.slug } });
     if (!service) {
       service = await prisma.service.create({ data: serviceFields });
-    } else {
-      service = await prisma.service.update({
-        where: { id: service.id },
-        data: serviceFields,
-      });
     }
 
-    // Upsert packages for this service
+    // Create packages for this service if not already existing
     if (packages && packages.length > 0) {
       for (const p of packages) {
         const existingPkg = await prisma.package.findFirst({
           where: { serviceId: service.id, name: p.name },
         });
-        if (existingPkg) {
-          await prisma.package.update({
-            where: { id: existingPkg.id },
-            data: { ...p, serviceId: service.id },
-          });
-        } else {
+        if (!existingPkg) {
           await prisma.package.create({
             data: { ...p, serviceId: service.id },
           });
@@ -568,8 +557,6 @@ async function main() {
     const existing = await prisma.project.findUnique({ where: { slug: p.slug } });
     if (!existing) {
       await prisma.project.create({ data: p });
-    } else {
-      await prisma.project.update({ where: { id: existing.id }, data: p });
     }
   }
   console.log('✅ Verified portfolio projects seeded.');
