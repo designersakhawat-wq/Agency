@@ -1,0 +1,44 @@
+# Node.js dependencies
+node_modules/
+client/node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# Production builds
+dist/
+client/dist/
+build/
+
+# Local media uploads
+uploads/*
+!uploads/.gitkeep
+
+# Prisma SQLite local fallback (if generated)
+dev.db
+dev.db-journal
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE & Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.antigravity/
+.gemini/

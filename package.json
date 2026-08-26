@@ -1,0 +1,49 @@
+{
+  "name": "sakhawat-designer-portfolio",
+  "version": "1.0.0",
+  "description": "Production-Ready Full-Stack Designer Portfolio, Client Portal & Admin CMS for Md Sakhawat Hossain",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "dev:all": "concurrently \"node --watch server.js\" \"cd client && npm run dev\"",
+    "start": "node server.js",
+    "build": "cd client && npm install && npm run build",
+    "install:all": "npm install && cd client && npm install",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:push": "npx prisma db push",
+    "prisma:seed": "node prisma/seed.js",
+    "prisma:studio": "npx prisma studio"
+  },
+  "keywords": [
+    "portfolio",
+    "designer",
+    "react",
+    "express",
+    "prisma",
+    "mysql",
+    "tailwind",
+    "hostinger",
+    "fullstack"
+  ],
+  "author": "Md Sakhawat Hossain",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.10.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prisma": "^6.4.1"
+  }
+}

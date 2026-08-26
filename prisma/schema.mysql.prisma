@@ -1,0 +1,242 @@
+// Prisma Schema for Production-Ready Designer Portfolio & Client Portal
+// Database: MySQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum InquiryStatus {
+  UNREAD
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum MediaSource {
+  LOCAL
+  CLOUDINARY
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(ADMIN)
+  avatar    String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Project {
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  category      String   // e.g. "UI/UX Design", "Web Development", "Mobile App", "Brand Identity", "Design System"
+  client        String?
+  year          String?
+  summary       String   @db.Text
+  description   String   @db.LongText
+  coverImage    String   @db.Text
+  galleryImages Json?    // Array of image URLs/objects
+  liveUrl       String?
+  githubUrl     String?
+  figmaUrl      String?
+  behanceUrl    String?
+  dribbbleUrl   String?
+  featured      Boolean  @default(false)
+  order         Int      @default(0)
+  tags          Json?    // Array of string tags ["Figma", "React", "Tailwind", "Next.js", "Design System"]
+  challenges    String?  @db.LongText
+  solutions     String?  @db.LongText
+  results       String?  @db.LongText
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([category])
+  @@index([featured])
+  @@index([order])
+  @@map("projects")
+}
+
+model Service {
+  id          String    @id @default(uuid())
+  title       String
+  slug        String    @unique
+  tagline     String?
+  description String    @db.Text
+  icon        String?   // Lucide icon identifier or SVG
+  features    Json?     // Array of feature strings
+  deliverables Json?    // Array of deliverables
+  order       Int       @default(0)
+  active      Boolean   @default(true)
+  packages    Package[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([order])
+  @@map("services")
+}
+
+model Package {
+  id            String   @id @default(uuid())
+  serviceId     String?
+  service       Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  name          String   // e.g. "Starter Kit", "Professional", "Enterprise Custom"
+  description   String?  @db.Text
+  price         Decimal  @db.Decimal(10, 2)
+  billingPeriod String   @default("one-time") // "one-time", "monthly", "per-project"
+  features      Json     // Array of included features
+  excludedFeatures Json? // Array of excluded features
+  isPopular     Boolean  @default(false)
+  order         Int      @default(0)
+  active        Boolean  @default(true)
+  ctaText       String   @default("Book Package")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([serviceId])
+  @@index([order])
+  @@map("packages")
+}
+
+model Testimonial {
+  id            String   @id @default(uuid())
+  clientName    String
+  clientRole    String   // e.g. "CEO", "Head of Product", "Founder"
+  clientCompany String
+  clientAvatar  String?  @db.Text
+  content       String   @db.Text
+  rating        Int      @default(5)
+  projectTitle  String?
+  featured      Boolean  @default(false)
+  active        Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([featured])
+  @@index([order])
+  @@map("testimonials")
+}
+
+model Faq {
+  id        String   @id @default(uuid())
+  question  String   @db.Text
+  answer    String   @db.LongText
+  category  String   @default("General") // "General", "Process", "Pricing", "Deliverables"
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([order])
+  @@map("faqs")
+}
+
+model ClientBrand {
+  id         String   @id @default(uuid())
+  name       String
+  logoUrl    String   @db.Text
+  websiteUrl String?
+  order      Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([order])
+  @@map("client_brands")
+}
+
+model ContactInquiry {
+  id        String        @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  service   String?
+  budget    String?
+  message   String        @db.LongText
+  status    InquiryStatus @default(UNREAD)
+  notes     String?       @db.Text
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_inquiries")
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  serviceName String?
+  date        String        // Format: YYYY-MM-DD
+  timeSlot    String        // Format: 10:00 AM, 02:30 PM
+  timezone    String        @default("UTC")
+  duration    Int           @default(30) // in minutes
+  status      BookingStatus @default(PENDING)
+  notes       String?       @db.Text
+  meetingLink String?       // Google Meet / Zoom link assigned by admin
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+  @@index([date])
+  @@map("bookings")
+}
+
+model Media {
+  id        String      @id @default(uuid())
+  fileName  String
+  fileUrl   String      @db.Text
+  publicId  String?     // Cloudinary public ID if applicable
+  fileType  String      // image/png, image/jpeg, image/webp, application/pdf
+  fileSize  Int         // Size in bytes
+  width     Int?
+  height    Int?
+  altText   String?
+  source    MediaSource @default(LOCAL)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([source])
+  @@index([createdAt])
+  @@map("media")
+}
+
+model SiteSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String   @db.LongText
+  type      String   @default("text") // "text", "json", "boolean", "image"
+  group     String   @default("general") // "general", "hero", "social", "seo", "contact"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group])
+  @@map("site_settings")
+}

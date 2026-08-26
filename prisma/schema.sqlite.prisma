@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("ADMIN")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  category      String
+  client        String?
+  year          String?
+  summary       String
+  description   String
+  coverImage    String
+  galleryImages String?
+  liveUrl       String?
+  githubUrl     String?
+  figmaUrl      String?
+  behanceUrl    String?
+  dribbbleUrl   String?
+  featured      Boolean  @default(false)
+  order         Int      @default(0)
+  tags          String?
+  challenges    String?
+  solutions     String?
+  results       String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Service {
+  id           String    @id @default(uuid())
+  title        String
+  slug         String    @unique
+  tagline      String?
+  description  String
+  icon         String?
+  features     String?
+  deliverables String?
+  order        Int       @default(0)
+  active       Boolean   @default(true)
+  packages     Package[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Package {
+  id               String   @id @default(uuid())
+  serviceId        String?
+  service          Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  name             String
+  description      String?
+  price            Decimal
+  billingPeriod    String   @default("per-project")
+  features         String
+  excludedFeatures String?
+  isPopular        Boolean  @default(false)
+  order            Int      @default(0)
+  active           Boolean  @default(true)
+  ctaText          String   @default("Book Package")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Testimonial {
+  id            String   @id @default(uuid())
+  clientName    String
+  clientRole    String?
+  clientCompany String
+  clientAvatar  String?
+  content       String
+  rating        Int      @default(5)
+  projectTitle  String?
+  featured      Boolean  @default(false)
+  active        Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Faq {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  category  String   @default("General")
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ClientBrand {
+  id         String   @id @default(uuid())
+  name       String
+  logoUrl    String
+  websiteUrl String?
+  order      Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ContactInquiry {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  service   String?
+  budget    String?
+  subject   String?
+  message   String
+  status    String   @default("UNREAD")
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Booking {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  company     String?
+  serviceName String?
+  date        String
+  timeSlot    String
+  meetingLink String?
+  notes       String?
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Media {
+  id        String   @id @default(uuid())
+  fileName  String
+  fileUrl   String
+  fileType  String
+  fileSize  Int
+  altText   String?
+  source    String   @default("LOCAL")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
