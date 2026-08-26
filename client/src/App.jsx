@@ -49,14 +49,14 @@ import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
 // Protected Admin Route Guard
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (loading && !user && !localStorage.getItem('sakhawat_admin_token')) {
     return <Loader message="Verifying security credentials..." fullScreen />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !loading) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 

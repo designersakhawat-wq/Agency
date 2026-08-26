@@ -1,12 +1,18 @@
 const prisma = require('../config/db');
 const { successResponse } = require('../utils/apiResponse');
 
+let cachedDashboardStats = null;
+let lastDashboardFetch = 0;
+
 /**
  * Admin: Get dashboard analytics, metrics, and recent activity
  * GET /api/admin/dashboard/stats
  */
 const getDashboardStats = async (req, res, next) => {
   try {
+    if (cachedDashboardStats && Date.now() - lastDashboardFetch < 10000) {
+      return successResponse(res, cachedDashboardStats, 'Dashboard metrics retrieved (cached).');
+    }
     const [
       totalProjects,
       featuredProjects,
