@@ -155,9 +155,9 @@ if (resolvedDistPath) {
 // Global Error Handling Middleware
 app.use(errorHandler);
 
-const PORT = env.PORT || 5000;
+const PORT = process.env.PORT || env.PORT || 5000;
 
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
 const prisma = require('./src/config/db');
 
 async function bootstrapDatabase() {
@@ -166,14 +166,14 @@ async function bootstrapDatabase() {
     await prisma.user.findFirst();
   } catch (err) {
     if (err.message && (err.message.includes('does not exist') || err.message.includes('no such table') || err.message.includes('table `main.User` does not exist'))) {
-      console.log('📦 Database tables missing. Running automatic schema migration and seed on start...');
-      try {
-        execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
-        execSync('node prisma/seed.js', { stdio: 'inherit' });
-        console.log('✅ Database schema synchronized & seeded successfully!');
-      } catch (pushErr) {
-        console.error('❌ Database push failed:', pushErr.message);
-      }
+      console.log('📦 Database tables missing. Running automatic schema migration in background...');
+      exec('npx prisma db push --accept-data-loss && node prisma/seed.js', (error, stdout, stderr) => {
+        if (error) {
+          console.error('❌ Background DB sync error:', error.message);
+        } else {
+          console.log('✅ Database schema synchronized & seeded successfully!');
+        }
+      });
     }
   }
 
@@ -181,23 +181,26 @@ async function bootstrapDatabase() {
   try {
     const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
     if (adminCount === 0) {
-      console.log('🌱 No admin account detected. Running seed script...');
-      execSync('node prisma/seed.js', { stdio: 'inherit' });
+      console.log('🌱 No admin account detected. Seeding admin in background...');
+      exec('node prisma/seed.js', (error) => {
+        if (!error) console.log('✅ Admin account verified & seeded.');
+      });
     }
   } catch (e) {
     // handled above
   }
 }
 
-// Start server after ensuring DB
-bootstrapDatabase().finally(() => {
-  app.listen(PORT, () => {
-    console.log('\n======================================================');
-    console.log(`🚀 Production Server running on port: ${PORT}`);
-    console.log(`🌍 Environment: ${env.NODE_ENV}`);
-    console.log(`📡 API Base: http://localhost:${PORT}/api`);
-    console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
-    console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
-    console.log('======================================================\n');
-  });
+// Start listening immediately on 0.0.0.0 for Hostinger reverse proxy compatibility
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('\n======================================================');
+  console.log(`🚀 Production Server running on port: ${PORT}`);
+  console.log(`🌍 Environment: ${env.NODE_ENV}`);
+  console.log(`📡 API Base: http://localhost:${PORT}/api`);
+  console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
+  console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
+  console.log('======================================================\n');
+
+  // Run non-blocking DB check in background
+  bootstrapDatabase();
 });
