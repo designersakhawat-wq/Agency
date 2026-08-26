@@ -55,7 +55,13 @@ const request = async (endpoint, options = {}) => {
     try {
       data = await response.json();
     } catch (err) {
-      data = { success: false, message: 'Invalid response from server.' };
+      if (response.status === 403) {
+        data = { success: false, message: 'Server deployment is initializing on Hostinger. Please allow 30 seconds and retry.' };
+      } else if (response.status === 502 || response.status === 503 || response.status === 504) {
+        data = { success: false, message: 'Hostinger Node process is rebooting. Please retry in a few seconds.' };
+      } else {
+        data = { success: false, message: 'Invalid response from server.' };
+      }
     }
 
     if (!response.ok) {
