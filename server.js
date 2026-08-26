@@ -157,12 +157,47 @@ app.use(errorHandler);
 
 const PORT = env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log('\n======================================================');
-  console.log(`🚀 Production Server running on port: ${PORT}`);
-  console.log(`🌍 Environment: ${env.NODE_ENV}`);
-  console.log(`📡 API Base: http://localhost:${PORT}/api`);
-  console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
-  console.log('⚡ Cache-Control: Strict Anti-Caching Activated');
-  console.log('======================================================\n');
+const { execSync } = require('child_process');
+const prisma = require('./src/config/db');
+
+async function bootstrapDatabase() {
+  try {
+    // Quick test if tables exist
+    await prisma.user.findFirst();
+  } catch (err) {
+    if (err.message && (err.message.includes('does not exist') || err.message.includes('no such table') || err.message.includes('table `main.User` does not exist'))) {
+      console.log('📦 Database tables missing. Running automatic schema migration and seed on start...');
+      try {
+        execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
+        execSync('node prisma/seed.js', { stdio: 'inherit' });
+        console.log('✅ Database schema synchronized & seeded successfully!');
+      } catch (pushErr) {
+        console.error('❌ Database push failed:', pushErr.message);
+      }
+    }
+  }
+
+  // Ensure default admin exists
+  try {
+    const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
+    if (adminCount === 0) {
+      console.log('🌱 No admin account detected. Running seed script...');
+      execSync('node prisma/seed.js', { stdio: 'inherit' });
+    }
+  } catch (e) {
+    // handled above
+  }
+}
+
+// Start server after ensuring DB
+bootstrapDatabase().finally(() => {
+  app.listen(PORT, () => {
+    console.log('\n======================================================');
+    console.log(`🚀 Production Server running on port: ${PORT}`);
+    console.log(`🌍 Environment: ${env.NODE_ENV}`);
+    console.log(`📡 API Base: http://localhost:${PORT}/api`);
+    console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
+    console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
+    console.log('======================================================\n');
+  });
 });

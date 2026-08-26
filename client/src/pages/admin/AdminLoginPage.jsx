@@ -10,8 +10,8 @@ const AdminLoginPage = () => {
   const { success, error } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('admin@sakhawat.design');
-  const [password, setPassword] = useState('admin123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -59,7 +59,7 @@ const AdminLoginPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@sakhawat.design"
+                placeholder="Enter your admin email"
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 text-sm transition-colors"
                 required
               />
@@ -74,7 +74,7 @@ const AdminLoginPage = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="Enter your secure password"
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 text-sm transition-colors"
                 required
               />
@@ -92,12 +92,6 @@ const AdminLoginPage = () => {
               Sign In to Dashboard
             </Button>
           </form>
-
-          {/* Demo Hint */}
-          <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80 text-[11px] text-zinc-400 text-center">
-            Default seeded credentials: <br />
-            <strong className="text-zinc-200">admin@sakhawat.design</strong> / <strong className="text-zinc-200">admin123456</strong>
-          </div>
 
           <div className="text-center">
             <Link to="/" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
