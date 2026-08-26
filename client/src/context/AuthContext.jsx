@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : null;
   });
   const [token, setToken] = useState(() => localStorage.getItem('sakhawat_admin_token'));
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('sakhawat_admin_token') && !localStorage.getItem('sakhawat_admin_user')));
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -21,8 +21,10 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('sakhawat_admin_user', JSON.stringify(res.data.user));
           }
         } catch (err) {
-          console.warn('Session expired or invalid:', err.message);
-          logout();
+          if (err.status === 401) {
+            console.warn('Session expired:', err.message);
+            logout();
+          }
         }
       }
       setLoading(false);
@@ -35,10 +37,11 @@ export const AuthProvider = ({ children }) => {
     const res = await api.post('/auth/login', { email, password });
     if (res.success && res.data) {
       const { token: jwtToken, user: userData } = res.data;
-      setToken(jwtToken);
-      setUser(userData);
       localStorage.setItem('sakhawat_admin_token', jwtToken);
       localStorage.setItem('sakhawat_admin_user', JSON.stringify(userData));
+      setToken(jwtToken);
+      setUser(userData);
+      setLoading(false);
       return userData;
     }
     throw new Error(res.message || 'Login failed.');

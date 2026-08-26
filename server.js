@@ -13,6 +13,9 @@ const { errorHandler } = require('./src/middleware/errorMiddleware');
 
 const app = express();
 
+// Trust Hostinger reverse proxy headers for real client IPs & SSL
+app.set('trust proxy', 1);
+
 // High Performance Gzip / Brotli compression for all text/JSON/assets
 app.use(compression());
 
