@@ -177,6 +177,17 @@ const updateBooking = async (req, res, next) => {
       data: updateData,
     });
 
+    // If meeting link was assigned or status confirmed, notify client via email
+    if (meetingLink || status === 'CONFIRMED') {
+      try {
+        if (emailService && typeof emailService.sendMeetingLinkEmail === 'function') {
+          emailService.sendMeetingLinkEmail(updated);
+        }
+      } catch (mailErr) {
+        console.warn('Meeting link email notification error:', mailErr.message);
+      }
+    }
+
     return successResponse(res, updated, 'Booking updated successfully.');
   } catch (err) {
     next(err);

@@ -281,6 +281,90 @@ class EmailService {
       console.error('Booking email non-fatal failure:', e.message);
     }
   }
+
+  /**
+   * Dispatch Direct Meeting Link & Confirmation to Client
+   */
+  async sendMeetingLinkEmail(booking) {
+    if (!booking.email) return;
+
+    const meetUrl = booking.meetingLink || 'https://meet.google.com';
+
+    const clientHtml = `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; color: #18181b; border-radius: 16px; overflow: hidden; border: 1px solid #e4e4e7; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+        <!-- Header -->
+        <div style="background: #09090b; padding: 32px 28px; text-align: center; color: white;">
+          <div style="display: inline-block; background: rgba(204, 255, 0, 0.15); border: 1px solid #ccff00; color: #ccff00; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+            Consultation Confirmed
+          </div>
+          <h2 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700;">Your Video Meeting Link is Ready!</h2>
+          <p style="color: #a1a1aa; margin: 6px 0 0 0; font-size: 14px;">1-on-1 Discovery Call with Md Sakhawat Hossain</p>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 32px 28px;">
+          <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">Hello <strong>${booking.name}</strong>,</p>
+          <p style="font-size: 15px; line-height: 1.6; color: #3f3f46;">
+            I have confirmed your appointment. Below are your meeting details and the direct video call link:
+          </p>
+
+          <!-- Schedule Card -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 24px 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 6px 0; color: #64748b; font-size: 14px; font-weight: 600; width: 110px;">📅 Date:</td>
+                <td style="padding: 6px 0; color: #0f172a; font-size: 15px; font-weight: 700;">${booking.date}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #64748b; font-size: 14px; font-weight: 600;">⏰ Time:</td>
+                <td style="padding: 6px 0; color: #0f172a; font-size: 15px; font-weight: 700;">${booking.timeSlot}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #64748b; font-size: 14px; font-weight: 600;">🎯 Focus:</td>
+                <td style="padding: 6px 0; color: #059669; font-size: 15px; font-weight: 700;">${booking.serviceName || 'Design Consultation'}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Join Meeting Action -->
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${meetUrl}" target="_blank" style="background: #09090b; color: #ccff00; border: 2px solid #ccff00; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-size: 16px; font-weight: 700; display: inline-block; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+              🎥 Join Video Meeting
+            </a>
+            <p style="margin: 12px 0 0 0; font-size: 12px; color: #94a3b8;">
+              Direct Link: <a href="${meetUrl}" style="color: #2563eb; text-decoration: underline;">${meetUrl}</a>
+            </p>
+          </div>
+
+          <!-- Notes / Tips -->
+          <div style="background: #f1f5f9; border-radius: 10px; padding: 16px; font-size: 13px; color: #475569; line-height: 1.5;">
+            💡 <strong>Preparation Tip:</strong> Please join 2 minutes before the scheduled time. If you have reference files or brand materials, please feel free to have them ready.
+          </div>
+
+          <p style="font-size: 15px; margin-top: 28px; margin-bottom: 0; color: #18181b;">
+            Looking forward to discussing your project,<br>
+            <strong>Md Sakhawat Hossain</strong><br>
+            <span style="color: #64748b; font-size: 13px;">Creative Graphic Designer</span>
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;">
+          Need to reschedule? Reply directly to this email or visit <a href="https://scaaleminte.com" style="color: #64748b; text-decoration: underline;">scaaleminte.com</a>
+        </div>
+      </div>
+    `;
+
+    try {
+      await this.sendMail({
+        to: booking.email,
+        subject: `🎥 Meeting Link & Confirmation - Md Sakhawat Hossain (${booking.date})`,
+        html: clientHtml,
+      });
+    } catch (e) {
+      console.error('Meeting link email dispatch error:', e.message);
+    }
+  }
 }
 
 module.exports = new EmailService();
