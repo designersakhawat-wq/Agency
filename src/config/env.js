@@ -5,7 +5,7 @@ module.exports = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   APP_URL: process.env.APP_URL || 'http://localhost:5000',
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
-  DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_URL: process.env.DATABASE_URL || 'file:./prisma/dev.db',
   
   // JWT
   JWT_SECRET: process.env.JWT_SECRET || 'fallback_secret_sakhawat_design_portfolio_2026',
