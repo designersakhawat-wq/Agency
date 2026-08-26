@@ -17,9 +17,12 @@ build/
 uploads/*
 !uploads/.gitkeep
 
-# Prisma SQLite local fallback (if generated)
+# Prisma SQLite database
 dev.db
 dev.db-journal
+*.db-shm
+*.db-wal
+!prisma/dev.db
 
 # Logs
 logs/

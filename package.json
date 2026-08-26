@@ -8,7 +8,7 @@
     "dev:all": "concurrently \"node --watch server.js\" \"cd client && npm run dev\"",
     "start": "node server.js",
     "build": "cd client && npm install --include=dev && npm run build",
-    "postinstall": "npm run build && npx prisma generate",
+    "postinstall": "npm run build && npx prisma generate && npx prisma db push --accept-data-loss && node prisma/seed.js",
     "install:all": "npm install && cd client && npm install",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev",
