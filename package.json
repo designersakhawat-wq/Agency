@@ -7,7 +7,7 @@
     "dev": "node --watch server.js",
     "dev:all": "concurrently \"node --watch server.js\" \"cd client && npm run dev\"",
     "start": "node server.js",
-    "build": "cd client && npm install && npm run build",
+    "build": "cd client && npm install --include=dev && npm run build",
     "postinstall": "npm run build && npx prisma generate",
     "install:all": "npm install && cd client && npm install",
     "prisma:generate": "npx prisma generate",
