@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const compression = require('compression');
 const fs = require('fs');
 
 const env = require('./src/config/env');
@@ -11,6 +12,9 @@ const { apiLimiter } = require('./src/middleware/rateLimiter');
 const { errorHandler } = require('./src/middleware/errorMiddleware');
 
 const app = express();
+
+// High Performance Gzip / Brotli compression for all text/JSON/assets
+app.use(compression());
 
 // Security Middlewares
 app.use(
@@ -53,21 +57,33 @@ if (env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-// Ensure uploads directory exists and serve statically
+// Ensure uploads directory exists and serve with browser caching
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
-app.use('/uploads', express.static(uploadsDir));
+app.use(
+  '/uploads',
+  express.static(uploadsDir, {
+    maxAge: '7d',
+    etag: true,
+  })
+);
 
-// Mount REST API with strict anti-caching headers so live changes reflect instantly
+// Mount REST API with Intelligent Tiered Caching
 app.use(
   '/api',
   (req, res, next) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.setHeader('Surrogate-Control', 'no-store');
+    // Only cache public GET queries (like projects, services, faqs, settings)
+    // Keep admin, auth, and state modifications strictly realtime
+    if (req.method === 'GET' && !req.url.startsWith('/admin') && !req.url.startsWith('/auth')) {
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    } else {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.setHeader('Surrogate-Control', 'no-store');
+    }
     next();
   },
   apiLimiter,
@@ -89,13 +105,16 @@ if (resolvedDistPath) {
   console.log(`📦 Serving static frontend from: ${resolvedDistPath}`);
   app.use(
     express.static(resolvedDistPath, {
-      etag: false,
-      lastModified: false,
+      etag: true,
+      lastModified: true,
       setHeaders: (res, filePath) => {
         if (filePath.endsWith('.html')) {
           res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
           res.setHeader('Pragma', 'no-cache');
           res.setHeader('Expires', '0');
+        } else if (filePath.match(/\.(js|css|woff2|woff|ttf|png|jpg|jpeg|svg|webp|ico)$/)) {
+          // Immutable long-term caching for hashed bundle assets
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         }
       },
     })
