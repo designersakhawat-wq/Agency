@@ -28,6 +28,7 @@ import {
 import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
+import { safeSetItem } from '../../utils/safeStorage';
 
 export const AdminSettingsPage = () => {
   const { user, updateCurrentUser } = useAuth();
@@ -207,18 +208,18 @@ export const AdminSettingsPage = () => {
       };
 
       // 1. Instant Optimistic Client Save (0.001s - 100% Reliable & Non-blocking)
-      localStorage.setItem('sakhawat_cached_settings', JSON.stringify(payload));
-      localStorage.setItem('sakhawat_site_settings', JSON.stringify(payload));
-      localStorage.setItem(
+      safeSetItem('sakhawat_cached_settings', payload);
+      safeSetItem('sakhawat_site_settings', payload);
+      safeSetItem(
         'sakhawat_cached_brand',
-        JSON.stringify({
+        {
           site_logo: payload.site_logo || '',
           site_favicon: payload.site_favicon || '',
           brand_primary_color: payload.brand_primary_color,
           brand_secondary_color: payload.brand_secondary_color,
           brand_button_text_mode: payload.brand_button_text_mode,
           theme_preset: payload.theme_preset,
-        })
+        }
       );
       // Clear all stale cache items so the homepage & other pages fetch fresh data immediately
       localStorage.removeItem('sakhawat_cached_homepage');

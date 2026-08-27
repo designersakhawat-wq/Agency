@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { safeSetItem } from '../utils/safeStorage';
 
 const BrandContext = createContext(null);
 
@@ -311,21 +312,18 @@ export const BrandProvider = ({ children }) => {
         updateDocumentMeta(d);
 
         // Cache brand settings locally for 0ms instant load
-        localStorage.setItem(
-          'sakhawat_cached_brand',
-          JSON.stringify({
-            site_logo: d.site_logo || '',
-            site_favicon: d.site_favicon || '',
-            site_title: d.site_title || '',
-            site_description: d.site_description || '',
-            designer_name: d.designer_name || 'Md Sakhawat Hossain',
-            designer_title: d.designer_title || 'Creative Graphic Designer',
-            brand_primary_color: pColor,
-            brand_secondary_color: sColor,
-            brand_button_text_mode: bTextMode,
-            theme_preset: preset,
-          })
-        );
+        safeSetItem('sakhawat_cached_brand', {
+          site_logo: d.site_logo || '',
+          site_favicon: d.site_favicon || '',
+          site_title: d.site_title || '',
+          site_description: d.site_description || '',
+          designer_name: d.designer_name || 'Md Sakhawat Hossain',
+          designer_title: d.designer_title || 'Creative Graphic Designer',
+          brand_primary_color: pColor,
+          brand_secondary_color: sColor,
+          brand_button_text_mode: bTextMode,
+          theme_preset: preset,
+        });
       }
     } catch (err) {
       console.error('Failed to load branding settings:', err);
@@ -382,16 +380,13 @@ export const BrandProvider = ({ children }) => {
           setSecondaryColor(s);
           setButtonTextMode(tm);
           applyGlobalThemeCSS(p, s, tm);
-          localStorage.setItem(
-            'sakhawat_cached_brand',
-            JSON.stringify({
-              site_logo: siteLogo,
-              site_favicon: siteFavicon,
-              brand_primary_color: p,
-              brand_secondary_color: s,
-              brand_button_text_mode: tm,
-            })
-          );
+          safeSetItem('sakhawat_cached_brand', {
+            site_logo: siteLogo,
+            site_favicon: siteFavicon,
+            brand_primary_color: p,
+            brand_secondary_color: s,
+            brand_button_text_mode: tm,
+          });
         },
         refreshBranding: (force = true) => fetchBrandSettings(force),
         loading,

@@ -22,6 +22,7 @@ import {
 import Button from '../../components/common/Button';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { safeSetItem } from '../../utils/safeStorage';
 
 export const AdminSiteIdentityPage = () => {
   const { success, error } = useToast();
@@ -178,8 +179,8 @@ export const AdminSiteIdentityPage = () => {
       const res = await api.post('/settings/admin/bulk', { settings: payload });
       if (res.success) {
         success('Site identity & positioning saved! Live website updated instantly.');
-        // Update local cache
-        localStorage.setItem('sakhawat_cached_settings', JSON.stringify(payload));
+        // Update local cache safely
+        safeSetItem('sakhawat_cached_settings', payload);
       } else {
         error(res.message || 'Failed to save settings.');
       }
