@@ -38,17 +38,29 @@ const DEFAULT_SETTINGS = {
   currency_symbol: '$',
   usd_to_bdt_rate: '120',
   email: 'designersakhawat@gmail.com',
-  phone: '+880 1700-000000',
-  location: 'Dhaka, Bangladesh',
+  phone: '01781955355',
+  location: 'Ishurdi, Pabna, Rajshahi, Bangladesh',
+  hero_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+  about_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+  site_logo: '',
+  site_favicon: '',
 };
 
-// Helper: Get local settings
+// Helper: Get local settings with self-repairing image fallbacks
 const getStoredSettings = () => {
   const stored = safeGetItem('sakhawat_site_settings', null);
+  const base = { ...DEFAULT_SETTINGS };
   if (stored && typeof stored === 'object') {
-    return { ...DEFAULT_SETTINGS, ...stored };
+    const merged = { ...base, ...stored };
+    if (merged.about_image === '/placeholder-cleaned.png' || !merged.about_image) {
+      merged.about_image = base.about_image;
+    }
+    if (merged.hero_image === '/placeholder-cleaned.png' || !merged.hero_image) {
+      merged.hero_image = base.hero_image;
+    }
+    return merged;
   }
-  return { ...DEFAULT_SETTINGS };
+  return base;
 };
 
 // Helper: Save local settings
