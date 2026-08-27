@@ -18,10 +18,14 @@
     <meta property="og:description" content="Senior Creative Graphic Designer specializing in brand identity, high-converting social ad creatives, UGC video reels, and digital storefront branding." />
     <meta property="og:image" content="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80" />
 
-    <!-- Google Fonts: Archivo (English & Numerics) & Hind Siliguri (Bangla Typography) -->
+    <!-- Async High-Performance Non-Blocking Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+    </noscript>
   </head>
   <body class="bg-[#09090b] text-zinc-100 font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-300 min-h-screen overflow-x-hidden">
     <div id="root"></div>

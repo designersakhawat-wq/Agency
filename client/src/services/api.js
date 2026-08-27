@@ -379,9 +379,9 @@ const request = async (endpoint, options = {}) => {
       headers['Content-Type'] = 'application/json';
     }
 
-    // Smart 8-second timeout for server response before ultra-fast resilient local fallback
+    // Smart 3.5-second timeout for server response before ultra-fast resilient local fallback
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
 
     let response;
     try {
