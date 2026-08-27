@@ -74,72 +74,97 @@ const getServiceBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
 
-    const service = await prisma.service.findUnique({
-      where: { slug },
-      include: {
-        packages: {
-          where: { active: true },
-          orderBy: { order: 'asc' },
-        },
-      },
-    });
-
-    if (!service || (!service.active && (!req.user || req.user.role !== 'ADMIN'))) {
-      return errorResponse(res, 'Service not found.', 404);
-    }
-
-    // 1. Fetch projects EXPLICITLY assigned or created for this service
-    let serviceProjects = await prisma.project.findMany({
-      where: {
-        active: true,
-        OR: [
-          { serviceId: service.id },
-          { serviceSlug: service.slug },
-          { category: service.title },
-          { category: { contains: service.title } },
-        ],
-      },
-      orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
-    });
-
-    // 2. If the service has no explicitly attached projects, fetch flexible keyword matches
-    if (serviceProjects.length === 0) {
-      const keywords = service.title.toLowerCase().split(/[\s&,-]+/).filter((w) => w.length > 2);
-      if (keywords.length > 0) {
-        serviceProjects = await prisma.project.findMany({
-          where: {
-            active: true,
-            OR: keywords.map((kw) => ({ category: { contains: kw } })),
+    let service = null;
+    try {
+      service = await prisma.service.findUnique({
+        where: { slug },
+        include: {
+          packages: {
+            where: { active: true },
+            orderBy: { order: 'asc' },
           },
-          take: 12,
-          orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
-        });
-      }
+        },
+      });
+    } catch (dbErr) {
+      console.warn('DB Service lookup error:', dbErr.message);
     }
 
-    const finalProjects = serviceProjects;
+    if (!service) {
+      // Look for case-insensitive match
+      try {
+        const all = await prisma.service.findMany({
+          include: {
+            packages: {
+              where: { active: true },
+              orderBy: { order: 'asc' },
+            },
+          },
+        });
+        service = all.find((s) => s.slug === slug || s.slug?.toLowerCase() === slug?.toLowerCase());
+      } catch (e) {}
+    }
+
+    // 1. Fetch projects explicitly assigned or created for this service
+    let serviceProjects = [];
+    try {
+      const allProjects = await prisma.project.findMany({
+        where: { active: true },
+        orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
+      });
+
+      serviceProjects = allProjects.filter((p) => {
+        if (!service) {
+          const pCat = (p.category || '').toLowerCase();
+          return pCat.includes(slug.toLowerCase()) || p.serviceSlug === slug;
+        }
+        if (p.serviceId === service.id) return true;
+        if (p.serviceSlug === service.slug) return true;
+        if (p.category === service.title) return true;
+        const pCat = (p.category || '').toLowerCase().trim();
+        const sTitle = service.title.toLowerCase().trim();
+        const sSlug = service.slug.toLowerCase().trim();
+        if (pCat === sTitle) return true;
+        if (sSlug.includes('logo') && (pCat.includes('logo') || pCat.includes('brand'))) return true;
+        if (sSlug.includes('ads') && (pCat.includes('ads') || pCat.includes('social') || pCat.includes('post') || pCat.includes('creative'))) return true;
+        if (sSlug.includes('ugc') && (pCat.includes('ugc') || pCat.includes('video') || pCat.includes('motion') || pCat.includes('reel'))) return true;
+        if (sSlug.includes('cover') && (pCat.includes('cover') || pCat.includes('banner') || pCat.includes('header'))) return true;
+        return false;
+      });
+    } catch (projErr) {
+      console.warn('Projects lookup error:', projErr.message);
+    }
 
     // Fetch relevant FAQs
-    const faqs = await prisma.faq.findMany({
-      where: { active: true },
-      orderBy: { order: 'asc' },
-      take: 6,
-    });
+    let faqs = [];
+    try {
+      faqs = await prisma.faq.findMany({
+        where: { active: true },
+        orderBy: { order: 'asc' },
+        take: 6,
+      });
+    } catch (faqErr) {}
+
+    const safeService = service ? formatService(service) : {
+      title: slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+      slug,
+      description: 'Professional visual creative design service.',
+      features: ['High-Converting Visuals', '100% Vector & Source Files', 'Direct Fast Turnaround'],
+    };
 
     return successResponse(
       res,
       {
-        service: formatService(service),
-        projects: finalProjects.map((p) => ({
+        service: safeService,
+        projects: serviceProjects.map((p) => ({
           ...p,
           tags: parseJsonField(p.tags),
           galleryImages: parseJsonField(p.galleryImages),
         })),
-        packages: service.packages.map((p) => ({
+        packages: service?.packages ? service.packages.map((p) => ({
           ...p,
           features: parseJsonField(p.features),
           excludedFeatures: parseJsonField(p.excludedFeatures),
-        })),
+        })) : [],
         faqs,
       },
       'Service details retrieved.'
