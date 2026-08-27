@@ -1,4 +1,4 @@
-import{j as e}from"./vendor-motion-BOj3xha2.js";import{a}from"./vendor-react-DmKbO9UP.js";import{f as Y,b as I,B as P,q as Q}from"./index-DRuTwf2k.js";import{r as W,aE as F,ap as J,aF as L,j as X,t as R,x as Z,ao as ee,ar as se,y as te}from"./vendor-icons-CCrA3mYi.js";import"./vendor-utils-oQXWb4Lk.js";const $=`About Md Sakhawat Hossain:
+import{j as e}from"./vendor-motion-BOj3xha2.js";import{a}from"./vendor-react-DmKbO9UP.js";import{f as Y,b as I,B as P,q as Q}from"./index-kLGb_Ec8.js";import{r as W,aE as F,ap as J,aF as L,j as X,t as R,x as Z,ao as ee,ar as se,y as te}from"./vendor-icons-CCrA3mYi.js";import"./vendor-utils-oQXWb4Lk.js";const $=`About Md Sakhawat Hossain:
 Experienced Senior Creative Graphic Designer with 3+ years of professional track record delivering high-converting ad creatives, distinctive brand identities, and UGC video content for 150+ global brands across Bangladesh, Dubai, and the United States.
 
 Services & Creative Disciplines:

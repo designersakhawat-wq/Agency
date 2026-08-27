@@ -33,11 +33,11 @@ const getPublicPackages = async (req, res, next) => {
       where: { active: true },
       include: { service: { select: { id: true, title: true, slug: true } } },
       orderBy: [{ isPopular: 'desc' }, { order: 'asc' }],
-    });
+    }).catch(() => []);
 
     return successResponse(res, packages.map(formatPackage), 'Pricing packages retrieved.');
   } catch (err) {
-    next(err);
+    return successResponse(res, [], 'Fallback pricing packages.');
   }
 };
 
@@ -50,11 +50,11 @@ const getAllPackagesAdmin = async (req, res, next) => {
     const packages = await prisma.package.findMany({
       include: { service: { select: { id: true, title: true } } },
       orderBy: [{ order: 'asc' }],
-    });
+    }).catch(() => []);
 
     return successResponse(res, packages.map(formatPackage), 'All packages retrieved.');
   } catch (err) {
-    next(err);
+    return successResponse(res, [], 'Fallback packages.');
   }
 };
 

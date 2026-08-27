@@ -41,7 +41,11 @@ export const AdminLayout = () => {
   const [stats, setStats] = useState({ unreadInquiries: 0, pendingBookings: 0 });
 
   useEffect(() => {
-    fetchBadgeCounts();
+    const lastFetch = window._lastStatsFetchTime || 0;
+    if (Date.now() - lastFetch > 60000) {
+      window._lastStatsFetchTime = Date.now();
+      fetchBadgeCounts();
+    }
   }, [location.pathname]);
 
   const fetchBadgeCounts = async () => {

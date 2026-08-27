@@ -1,4 +1,4 @@
-import{j as e,A as u,m as l}from"./vendor-motion-BOj3xha2.js";import{c as f}from"./vendor-react-DmKbO9UP.js";import{u as g}from"./index-DRuTwf2k.js";import{X as j,x as v,b as w,S as N,ai as y,A as n,c as k}from"./vendor-icons-CCrA3mYi.js";const $=({isOpen:o,onClose:s,serviceName:a="Creative Graphic Design",pkg:t=null,whatsappNumber:c="8801781955355"})=>{const d=f(),{formatAmount:x}=g();if(!o||!t)return null;const r=(c||"01781955355").replace(/[^\d]/g,""),m=r.startsWith("88")?r:`88${r}`,i=x(t.price),h=encodeURIComponent(`Hi Sakhawat! 👋
+import{j as e,A as u,m as l}from"./vendor-motion-BOj3xha2.js";import{c as f}from"./vendor-react-DmKbO9UP.js";import{u as g}from"./index-kLGb_Ec8.js";import{X as j,x as v,b as w,S as N,ai as y,A as n,c as k}from"./vendor-icons-CCrA3mYi.js";const $=({isOpen:o,onClose:s,serviceName:a="Creative Graphic Design",pkg:t=null,whatsappNumber:c="8801781955355"})=>{const d=f(),{formatAmount:x}=g();if(!o||!t)return null;const r=(c||"01781955355").replace(/[^\d]/g,""),m=r.startsWith("88")?r:`88${r}`,i=x(t.price),h=encodeURIComponent(`Hi Sakhawat! 👋
 
 I want to order/discuss the following package on your website:
 

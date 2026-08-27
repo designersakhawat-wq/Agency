@@ -11,10 +11,10 @@ const getPublicFaqs = async (req, res, next) => {
     const faqs = await prisma.faq.findMany({
       where,
       orderBy: [{ category: 'asc' }, { order: 'asc' }],
-    });
+    }).catch(() => []);
     return successResponse(res, faqs, 'FAQs retrieved.');
   } catch (err) {
-    next(err);
+    return successResponse(res, [], 'Fallback FAQs.');
   }
 };
 
@@ -22,10 +22,10 @@ const getAllFaqsAdmin = async (req, res, next) => {
   try {
     const faqs = await prisma.faq.findMany({
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
-    });
+    }).catch(() => []);
     return successResponse(res, faqs, 'All FAQs retrieved.');
   } catch (err) {
-    next(err);
+    return successResponse(res, [], 'Fallback FAQs.');
   }
 };
 

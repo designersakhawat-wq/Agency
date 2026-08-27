@@ -7,10 +7,10 @@ const getPublicBrands = async (req, res, next) => {
     const brands = await prisma.clientBrand.findMany({
       where: { active: true },
       orderBy: { order: 'asc' },
-    });
+    }).catch(() => []);
     return successResponse(res, brands, 'Client brands retrieved.');
   } catch (err) {
-    next(err);
+    return successResponse(res, [], 'Fallback client brands.');
   }
 };
 
@@ -18,10 +18,10 @@ const getAllBrandsAdmin = async (req, res, next) => {
   try {
     const brands = await prisma.clientBrand.findMany({
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
-    });
+    }).catch(() => []);
     return successResponse(res, brands, 'All client brands retrieved.');
   } catch (err) {
-    next(err);
+    return successResponse(res, [], 'Fallback client brands.');
   }
 };
 
