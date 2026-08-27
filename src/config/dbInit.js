@@ -255,20 +255,40 @@ const initDatabaseSchema = async (prisma) => {
 
     console.log('✅ SQLite database schema verified and tables created if missing.');
 
-    // 2. Ensure Admin User exists
-    const userCount = await prisma.user.count().catch(() => 0);
-    if (userCount === 0) {
-      console.log('🌱 Creating default administrator account...');
-      const hashedPassword = await bcrypt.hash('admin123456', 10);
+    // 2. Ensure Administrator Account(s) exist
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@sakhawat.design').toLowerCase().trim();
+    const adminPass = process.env.ADMIN_PASSWORD || 'admin123456';
+    const adminName = process.env.ADMIN_NAME || 'Md Sakhawat Hossain';
+
+    const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } }).catch(() => null);
+    if (!existingAdmin) {
+      console.log(`🌱 Creating primary administrator account (${adminEmail})...`);
+      const hashedPassword = await bcrypt.hash(adminPass, 10);
       await prisma.user.create({
         data: {
-          email: 'admin@sakhawat.design',
+          email: adminEmail,
           password: hashedPassword,
-          name: 'Md Sakhawat Hossain',
+          name: adminName,
           role: 'ADMIN',
         },
       });
-      console.log('✅ Default administrator created: admin@sakhawat.design / admin123456');
+      console.log(`✅ Primary administrator created: ${adminEmail}`);
+    }
+
+    // Also ensure fallback 'admin@sakhawat.design' exists if ADMIN_EMAIL is custom
+    if (adminEmail !== 'admin@sakhawat.design') {
+      const fallbackAdmin = await prisma.user.findUnique({ where: { email: 'admin@sakhawat.design' } }).catch(() => null);
+      if (!fallbackAdmin) {
+        const fallbackHashed = await bcrypt.hash('admin123456', 10);
+        await prisma.user.create({
+          data: {
+            email: 'admin@sakhawat.design',
+            password: fallbackHashed,
+            name: 'Md Sakhawat Hossain',
+            role: 'ADMIN',
+          },
+        });
+      }
     }
 
     // 3. If fresh database with 0 services, seed initial default content safely
