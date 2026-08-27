@@ -47,16 +47,13 @@ import AdminEstimatorPage from './pages/admin/AdminEstimatorPage';
 import AdminInvoicesPage from './pages/admin/AdminInvoicesPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
-// Protected Admin Route Guard
+// Protected Admin Route Guard - 100% Non-Blocking
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const location = useLocation();
+  const hasToken = Boolean(localStorage.getItem('sakhawat_admin_token'));
 
-  if (loading && !user && !localStorage.getItem('sakhawat_admin_token')) {
-    return <Loader message="Verifying security credentials..." fullScreen />;
-  }
-
-  if (!isAuthenticated && !loading) {
+  if (!isAuthenticated && !hasToken) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
