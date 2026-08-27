@@ -113,7 +113,7 @@ const PortfolioPage = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl glass-card border border-zinc-800">
             {/* Category Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
-              {categories.map((cat) => (
+              {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
@@ -143,7 +143,7 @@ const PortfolioPage = () => {
         </div>
 
         {/* Projects Grid */}
-        {filteredProjects.length === 0 && !loading ? (
+        {projects.length === 0 && !loading ? (
           <div className="text-center py-24 glass-card rounded-3xl border border-zinc-800 space-y-4">
             <FolderKanban className="w-12 h-12 text-zinc-600 mx-auto" />
             <h3 className="text-base font-bold text-white">No Projects Found</h3>
