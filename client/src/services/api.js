@@ -93,7 +93,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
   // 1. Authentication Login
   if (endpoint.includes('/auth/login') && method === 'POST') {
     let creds = {};
-    try { creds = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
+    try { creds = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) { }
     const email = creds.email || 'admin@sakhawat.design';
     const token = 'session_token_' + Date.now();
     const user = {
@@ -114,7 +114,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
   // 2. Settings Bulk Update
   if ((endpoint.includes('/settings/admin/bulk') || endpoint.includes('/admin/settings/bulk')) && method === 'POST') {
     let payload = {};
-    try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
+    try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) { }
     const settings = payload.settings || {};
     const updated = saveStoredSettings(settings);
 
@@ -201,7 +201,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
 
     if (method === 'POST') {
       let payload = {};
-      try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
+      try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) { }
       const newProject = {
         id: 'proj_' + Date.now(),
         title: payload.title || 'Untitled Project',
@@ -231,7 +231,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
 
     if (method === 'PUT') {
       let payload = {};
-      try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
+      try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) { }
       const id = endpoint.split('/').pop();
       storedProjects = storedProjects.map((p) => (p && (p.id === id || p.id === payload.id) ? { ...p, ...payload } : p));
       safeSetItem('sakhawat_cached_all_projects', storedProjects);
@@ -260,13 +260,13 @@ const handleLocalFallback = async (endpoint, options = {}) => {
     try {
       const raw = localStorage.getItem('sakhawat_cached_services');
       cachedServices = raw ? JSON.parse(raw) : [];
-    } catch (e) {}
+    } catch (e) { }
 
     let storedProjects = [];
     try {
       const raw = localStorage.getItem('sakhawat_cached_all_projects');
       storedProjects = raw ? JSON.parse(raw) : [];
-    } catch (e) {}
+    } catch (e) { }
 
     // Check if looking for single service e.g. /services/logo-branding
     const parts = endpoint.split('/').filter(Boolean);
@@ -319,7 +319,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
     try {
       const raw = localStorage.getItem('sakhawat_cached_all_projects');
       storedProjects = raw ? JSON.parse(raw) : [];
-    } catch (e) {}
+    } catch (e) { }
     return {
       success: true,
       message: 'Homepage data retrieved.',
@@ -337,7 +337,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
 
   // Default fallback for any other admin POST/PUT
   let parsedPayload = {};
-  try { parsedPayload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
+  try { parsedPayload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) { }
   return {
     success: true,
     message: 'Operation processed successfully.',
