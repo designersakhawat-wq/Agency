@@ -8,6 +8,8 @@ router.get('/', settingController.getPublicSettings);
 
 // Admin Protected
 router.get('/admin/all', requireAuth, requireRole(['ADMIN']), settingController.getAllSettingsAdmin);
+router.get('/all', requireAuth, requireRole(['ADMIN']), settingController.getAllSettingsAdmin);
 router.post('/admin/bulk', requireAuth, requireRole(['ADMIN']), settingController.updateSettingsBulk);
+router.post('/bulk', requireAuth, requireRole(['ADMIN']), settingController.updateSettingsBulk);
 
 module.exports = router;

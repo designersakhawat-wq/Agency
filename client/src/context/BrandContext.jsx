@@ -276,13 +276,22 @@ export const BrandProvider = ({ children }) => {
   const [secondaryColor, setSecondaryColor] = useState(initial.secondaryColor);
   const [themePreset, setThemePreset] = useState(initial.themePreset);
   const [buttonTextMode, setButtonTextMode] = useState(initial.buttonTextMode);
+  const [settings, setSettings] = useState(() => {
+    try {
+      const raw = localStorage.getItem('sakhawat_cached_settings');
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  });
   const [loading, setLoading] = useState(false);
 
-  const fetchBrandSettings = async () => {
+  const fetchBrandSettings = async (force = false) => {
     try {
-      const res = await api.get('/settings');
+      const res = await api.get('/settings', {}, { forceRefresh: force });
       if (res.success && res.data) {
         const d = res.data;
+        setSettings(d);
         if (d.site_logo) setSiteLogo(d.site_logo);
         if (d.site_favicon) {
           setSiteFavicon(d.site_favicon);
@@ -299,6 +308,7 @@ export const BrandProvider = ({ children }) => {
         setThemePreset(preset);
 
         applyGlobalThemeCSS(pColor, sColor, bTextMode);
+        updateDocumentMeta(d);
 
         // Cache brand settings locally for 0ms instant load
         localStorage.setItem(
@@ -306,6 +316,10 @@ export const BrandProvider = ({ children }) => {
           JSON.stringify({
             site_logo: d.site_logo || '',
             site_favicon: d.site_favicon || '',
+            site_title: d.site_title || '',
+            site_description: d.site_description || '',
+            designer_name: d.designer_name || 'Md Sakhawat Hossain',
+            designer_title: d.designer_title || 'Creative Graphic Designer',
             brand_primary_color: pColor,
             brand_secondary_color: sColor,
             brand_button_text_mode: bTextMode,
@@ -317,6 +331,24 @@ export const BrandProvider = ({ children }) => {
       console.error('Failed to load branding settings:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateDocumentMeta = (data) => {
+    if (!data) return;
+    const name = data.designer_name || data.hero_designer_name || 'Md Sakhawat Hossain';
+    const title = data.designer_title || data.hero_designer_title || 'Creative Graphic Designer';
+    const siteTitle = data.site_title || `${name} — ${title}`;
+
+    document.title = siteTitle;
+
+    const metaDesc = document.querySelector("meta[name='description']");
+    if (metaDesc && (data.site_description || data.hero_subtitle)) {
+      metaDesc.content = data.site_description || data.hero_subtitle;
+    }
+    const ogTitle = document.querySelector("meta[property='og:title']");
+    if (ogTitle) {
+      ogTitle.content = siteTitle;
     }
   };
 
@@ -344,6 +376,7 @@ export const BrandProvider = ({ children }) => {
         secondaryColor,
         themePreset,
         buttonTextMode,
+        settings,
         applyTheme: (p, s, tm = 'auto') => {
           setPrimaryColor(p);
           setSecondaryColor(s);
@@ -360,7 +393,7 @@ export const BrandProvider = ({ children }) => {
             })
           );
         },
-        refreshBranding: fetchBrandSettings,
+        refreshBranding: (force = true) => fetchBrandSettings(force),
         loading,
       }}
     >
@@ -379,6 +412,7 @@ export const useBrand = () => {
       secondaryColor: '#06b6d4',
       themePreset: 'cyber_teal',
       buttonTextMode: 'auto',
+      settings: {},
       applyTheme: (p, s, tm = 'auto') => applyGlobalThemeCSS(p, s, tm),
       refreshBranding: () => {},
       loading: false,

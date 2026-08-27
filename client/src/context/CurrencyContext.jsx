@@ -1,43 +1,90 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 
 const CurrencyContext = createContext();
 
 export const CurrencyProvider = ({ children }) => {
-  const [currencySymbol, setCurrencySymbol] = useState('$');
-  const [currencyCode, setCurrencyCode] = useState('USD');
-  const [currencyMode, setCurrencyMode] = useState('DIRECT'); // DIRECT | AUTO_CONVERT
-  const [usdToBdtRate, setUsdToBdtRate] = useState(120);
-  const [loading, setLoading] = useState(true);
+  // Read initial cached currency settings to prevent initial $ flash
+  const getInitialState = () => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_settings');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const code = parsed.currency_code || 'USD';
+        const sym = (parsed.currency_symbol && parsed.currency_symbol !== '?') ? parsed.currency_symbol : (code === 'BDT' ? '৳' : '$');
+        return {
+          symbol: sym,
+          code: code,
+          mode: parsed.currency_mode || 'DIRECT',
+          rate: Number(parsed.usd_to_bdt_rate) || 120,
+        };
+      }
+    } catch (e) {}
+    return { symbol: '৳', code: 'BDT', mode: 'DIRECT', rate: 120 };
+  };
 
-  // Fetch settings from API
-  const fetchCurrencySettings = async () => {
+  const initial = getInitialState();
+  const [currencySymbol, setCurrencySymbol] = useState(initial.symbol);
+  const [currencyCode, setCurrencyCode] = useState(initial.code);
+  const [currencyMode, setCurrencyMode] = useState(initial.mode); // DIRECT | AUTO_CONVERT
+  const [usdToBdtRate, setUsdToBdtRate] = useState(initial.rate);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch settings from API and update state & local cache
+  const fetchCurrencySettings = useCallback(async () => {
     try {
       const res = await api.get('/settings');
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         const d = res.data;
-        if (d.currency_symbol) setCurrencySymbol(d.currency_symbol);
-        if (d.currency_code) setCurrencyCode(d.currency_code);
-        if (d.currency_mode) setCurrencyMode(d.currency_mode);
-        if (d.usd_to_bdt_rate) setUsdToBdtRate(Number(d.usd_to_bdt_rate) || 120);
+        const code = d.currency_code || 'BDT';
+        const sym = (d.currency_symbol && d.currency_symbol !== '?') ? d.currency_symbol : (code === 'BDT' ? '৳' : '$');
+        const mode = d.currency_mode || 'DIRECT';
+        const rate = Number(d.usd_to_bdt_rate) || 120;
+
+        setCurrencySymbol(sym);
+        setCurrencyCode(code);
+        setCurrencyMode(mode);
+        setUsdToBdtRate(rate);
+
+        // Update cached settings
+        try {
+          const cached = localStorage.getItem('sakhawat_cached_settings');
+          const prev = cached ? JSON.parse(cached) : {};
+          localStorage.setItem(
+            'sakhawat_cached_settings',
+            JSON.stringify({ ...prev, ...d, currency_symbol: sym, currency_code: code, currency_mode: mode, usd_to_bdt_rate: rate })
+          );
+        } catch (e) {}
       }
     } catch (e) {
       console.error('Failed to load currency settings:', e);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCurrencySettings();
-  }, []);
+
+    // Listen to custom currency update event
+    const handleCurrencyEvent = () => {
+      fetchCurrencySettings();
+    };
+
+    window.addEventListener('currency-settings-changed', handleCurrencyEvent);
+    window.addEventListener('storage', handleCurrencyEvent);
+
+    return () => {
+      window.removeEventListener('currency-settings-changed', handleCurrencyEvent);
+      window.removeEventListener('storage', handleCurrencyEvent);
+    };
+  }, [fetchCurrencySettings]);
 
   /**
-   * Helper function to format any number/price amount
+   * Helper function to format any number/price amount throughout the site
    * @param {number|string} amount
    * @param {object} options
    */
   const formatAmount = (amount, options = {}) => {
+    if (amount === undefined || amount === null || amount === '') return `${currencySymbol}0`;
     const numeric = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
 
     let finalAmount = numeric;
@@ -79,7 +126,6 @@ export const CurrencyProvider = ({ children }) => {
 export const useCurrency = () => {
   const context = useContext(CurrencyContext);
   if (!context) {
-    // Fallback if not inside Provider
     return {
       currencySymbol: '$',
       currencyCode: 'USD',

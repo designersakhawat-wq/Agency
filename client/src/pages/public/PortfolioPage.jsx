@@ -1,296 +1,655 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
 import {
   Sparkles,
   Search,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
-  FolderKanban,
   Eye,
-  Filter,
+  X,
+  Layers,
+  Calendar,
+  Zap,
+  Star,
+  CheckCircle2,
+  FolderKanban,
+  Maximize2,
+  Palette,
+  Megaphone,
+  Video,
+  Layout,
+  Flame,
+  Play,
+  Film,
+  Smartphone,
+  Tv,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
-import { Loader } from '../../components/common/Loader';
 import Modal from '../../components/common/Modal';
-import { DEFAULT_PROJECTS, DEFAULT_SETTINGS } from '../../data/defaultData';
+import { DEFAULT_PROJECTS, DEFAULT_SERVICES } from '../../data/defaultData';
 
-const CATEGORIES = [
-  'All',
-  'Logo & Branding',
-  'Ads Creative',
-  'UGC Video',
-  'Cover Branding',
-  'E-Commerce',
-  'Social Media',
-  'Product Design',
-  'Thumbnail',
-  'Print Design',
-  'AI Video',
-];
-
-const getLocalJson = (key, fallback) => {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch (e) {
-    return fallback;
-  }
+// Helper to extract clean YouTube Embed URL
+export const getYouTubeEmbedUrl = (url) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11
+    ? `https://www.youtube-nocookie.com/embed/${match[2]}?autoplay=1&rel=0&modestbranding=1`
+    : null;
 };
 
-const PortfolioPage = () => {
-  const initialProjects = getLocalJson(
-    'sakhawat_cached_all_projects',
-    getLocalJson('sakhawat_cached_featured_projects', DEFAULT_PROJECTS)
-  );
-  const [projects, setProjects] = useState(initialProjects);
-  const [settings, setSettings] = useState(() => getLocalJson('sakhawat_cached_settings', DEFAULT_SETTINGS));
-  const [loading, setLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [quickViewProject, setQuickViewProject] = useState(null);
+// Helper to auto-detect whether a video is 9:16 vertical (Shorts / Reels / TikTok / UGC)
+export const isVerticalVideo = (project) => {
+  if (!project) return false;
+  const url = (project.liveUrl || '').toLowerCase();
+  const cat = (project.category || '').toLowerCase();
+  const tags = Array.isArray(project.tags) ? project.tags.map((t) => t.toLowerCase()) : [];
+
+  if (url.includes('shorts') || url.includes('reel') || url.includes('tiktok') || url.includes('vertical')) {
+    return true;
+  }
+  if (cat.includes('ugc') || cat.includes('reels') || cat.includes('shorts') || cat.includes('tiktok') || cat.includes('video')) {
+    return true;
+  }
+  if (tags.some((t) => t.includes('short') || t.includes('reel') || t.includes('vertical') || t.includes('9:16') || t.includes('ugc'))) {
+    return true;
+  }
+  return false;
+};
+
+// Map icons to service slugs
+const getServiceIcon = (slug) => {
+  if (slug.includes('logo') || slug.includes('brand')) return Palette;
+  if (slug.includes('ads') || slug.includes('social')) return Megaphone;
+  if (slug.includes('video') || slug.includes('ugc')) return Video;
+  if (slug.includes('cover') || slug.includes('banner')) return Layout;
+  return Sparkles;
+};
+
+// Reusable Smooth Horizontal Service Slider Component (60 FPS Native CSS Smooth Scrolling)
+const ServicePortfolioSlider = ({ service, projects, onOpenLightbox }) => {
+  const scrollContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const IconComponent = getServiceIcon(service.slug || '');
+
+  const checkScrollability = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+  };
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const res = await api.get('/settings').catch(() => ({ success: false }));
-        if (res.success && res.data && Object.keys(res.data).length > 0) {
-          setSettings(res.data);
-          localStorage.setItem('sakhawat_cached_settings', JSON.stringify(res.data));
-        }
-      } catch (err) {
-        console.error('Error loading settings:', err);
-      }
+    checkScrollability();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollability, { passive: true });
+      window.addEventListener('resize', checkScrollability);
+    }
+    return () => {
+      if (container) container.removeEventListener('scroll', checkScrollability);
+      window.removeEventListener('resize', checkScrollability);
     };
-    fetchSettings();
-  }, []);
+  }, [projects]);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      if (projects.length === 0) setLoading(true);
-      try {
-        const res = await api.get('/projects', {
-          category: selectedCategory !== 'All' ? selectedCategory : undefined,
-          search: searchQuery || undefined,
-        });
-        if (res.success && res.data) {
-          setProjects(res.data);
-          if (selectedCategory === 'All' && !searchQuery) {
-            localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(res.data));
-          }
-        }
-      } catch (err) {
-        console.error('Error loading projects:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleScroll = (direction) => {
+    if (!scrollContainerRef.current) return;
+    const scrollAmount = Math.max(scrollContainerRef.current.clientWidth * 0.75, 320);
+    scrollContainerRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
 
-    fetchProjects();
-  }, [selectedCategory, searchQuery]);
+  if (!projects || projects.length === 0) return null;
 
   return (
-    <div className="pt-32 pb-24 min-h-screen relative overflow-hidden">
-      {/* Background glow */}
-      <div className="ambient-glow-teal top-20 right-1/4 opacity-20 pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            {settings.portfolio_header_badge || 'Selected Portfolio Case Studies'}
+    <section
+      id={service.slug}
+      className="scroll-mt-32 p-6 sm:p-8 rounded-3xl bg-zinc-950/70 border border-white/[0.08] backdrop-blur-xl shadow-2xl space-y-6 transition-all duration-300 hover:border-teal-500/30"
+    >
+      {/* 1. SECTION HEADER WITH SERVICE INFO & SLIDER ARROWS */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800/80">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500/20 to-teal-400/10 border border-teal-500/30 text-teal-300 flex items-center justify-center shadow-lg shadow-teal-950/40 shrink-0">
+            <IconComponent className="w-6 h-6" />
           </div>
-          <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight">
-            {settings.portfolio_header_title || 'Creative Graphic Design Showcase'}
-          </h1>
-          <p className="text-base sm:text-lg text-zinc-300">
-            {settings.portfolio_header_subtitle || 'Explore commercial brand identities, high-converting social ad creatives, e-commerce product designs, and dynamic video edits.'}
-          </p>
-        </div>
 
-        {/* Filter & Search Bar */}
-        <div className="space-y-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl glass-card border border-zinc-800">
-            {/* Category Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 ${
-                    selectedCategory === cat
-                      ? 'bg-teal-600 text-white shadow-md shadow-teal-950/40 font-bold'
-                      : 'bg-zinc-900/60 text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-800/80'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-xl sm:text-2xl font-black font-display text-white tracking-tight">
+                {service.title}
+              </h2>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/20">
+                🟢 {projects.length} Works
+              </span>
             </div>
-
-            {/* Live Search */}
-            <div className="relative w-full md:w-64 shrink-0">
-              <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search projects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-9 pr-4 py-1.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-teal-500 transition-colors"
-              />
-            </div>
+            {service.tagline && (
+              <p className="text-xs sm:text-sm text-zinc-400 font-medium mt-0.5">
+                {service.tagline}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Projects Grid */}
-        {projects.length === 0 && !loading ? (
-          <div className="text-center py-24 glass-card rounded-3xl border border-zinc-800 space-y-4">
-            <FolderKanban className="w-12 h-12 text-zinc-600 mx-auto" />
-            <h3 className="text-base font-bold text-white">No Projects Found</h3>
-            <p className="text-xs text-zinc-400">
-              Try adjusting your category filter or search query.
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedCategory('All');
-                setSearchQuery('');
-              }}
+        {/* Slider Navigation Arrows */}
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+          <button
+            type="button"
+            onClick={() => handleScroll('left')}
+            disabled={!canScrollLeft}
+            className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
+              canScrollLeft
+                ? 'bg-zinc-900 border-zinc-700 text-white hover:bg-teal-500 hover:text-zinc-950 hover:border-teal-400 shadow-md active:scale-95'
+                : 'bg-zinc-950 border-zinc-900 text-zinc-700 cursor-not-allowed opacity-40'
+            }`}
+            aria-label="Previous items"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleScroll('right')}
+            disabled={!canScrollRight}
+            className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
+              canScrollRight
+                ? 'bg-zinc-900 border-zinc-700 text-white hover:bg-teal-500 hover:text-zinc-950 hover:border-teal-400 shadow-md active:scale-95'
+                : 'bg-zinc-950 border-zinc-900 text-zinc-700 cursor-not-allowed opacity-40'
+            }`}
+            aria-label="Next items"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* 2. ULTRA-SMOOTH HORIZONTAL SNAP SLIDER TRACK */}
+      <div
+        ref={scrollContainerRef}
+        className="flex items-stretch gap-5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-2 -mx-2 px-2"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        {projects.map((project, idx) => {
+          const hasVideo = Boolean(getYouTubeEmbedUrl(project.liveUrl));
+          const isVertical = isVerticalVideo(project);
+
+          return (
+            <div
+              key={project.id || idx}
+              className="w-[280px] sm:w-[320px] md:w-[340px] shrink-0 snap-start rounded-2xl bg-zinc-900/90 border border-zinc-800/80 hover:border-teal-500/50 overflow-hidden flex flex-col justify-between group transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/10"
             >
-              Reset Filters
-            </Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((proj) => (
+              {/* Thumbnail Image / Video Trigger */}
               <div
-                key={proj.id}
-                className="rounded-3xl glass-card border border-zinc-800 overflow-hidden hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between group"
+                className="relative aspect-square w-full bg-zinc-950 overflow-hidden cursor-pointer"
+                onClick={() => onOpenLightbox(project)}
               >
-                <div>
-                  {/* Thumbnail Cover */}
-                  <div className="aspect-[16/10] overflow-hidden bg-zinc-900 relative">
-                    <img
-                      src={proj.coverImage}
-                      alt={proj.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                <img
+                  src={project.coverImage}
+                  alt={project.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                  onError={(e) => {
+                    e.target.src =
+                      'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600&auto=format&fit=crop&q=80';
+                  }}
+                />
 
-                    {/* Category pill */}
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/10 text-[10px] font-bold text-teal-300 uppercase tracking-wider">
-                        {proj.category}
-                      </span>
-                    </div>
-
-                    {/* Quick View Button */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => setQuickViewProject(proj)}
-                        className="px-3.5 py-1.5 rounded-xl bg-zinc-900/90 text-white text-xs font-semibold hover:bg-teal-600 transition-colors flex items-center gap-1.5 backdrop-blur-md"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Quick View</span>
-                      </button>
+                {/* Video Play Button Overlay if YouTube Video */}
+                {hasVideo ? (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
+                    <div className="w-14 h-14 rounded-full bg-teal-500/90 text-zinc-950 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-teal-400 transition-all">
+                      <Play className="w-6 h-6 fill-zinc-950 ml-0.5" />
                     </div>
                   </div>
+                ) : (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                    <span className="px-3.5 py-1.5 rounded-xl bg-zinc-950/90 backdrop-blur-md border border-white/20 text-white font-bold text-xs flex items-center gap-1.5 shadow-xl">
+                      <Eye className="w-3.5 h-3.5 text-teal-400" />
+                      <span>Click to Preview</span>
+                    </span>
+                  </div>
+                )}
 
-                  {/* Body Content */}
-                  <div className="p-6 space-y-3">
-                    <div className="flex items-center justify-between text-xs text-zinc-500">
-                      <span>{proj.client || 'Featured Project'}</span>
-                      <span>{proj.year || '2024'}</span>
-                    </div>
+                {/* Badges */}
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 pointer-events-none flex-wrap">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-zinc-950/80 backdrop-blur-md text-teal-300 border border-white/10">
+                    {project.category || service.title}
+                  </span>
+                  {hasVideo && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-600/90 text-white flex items-center gap-1 shadow-md">
+                      <Film className="w-2.5 h-2.5" /> {isVertical ? '9:16 Reel' : 'Video'}
+                    </span>
+                  )}
+                </div>
+              </div>
 
-                    <Link to={`/portfolio/${proj.slug}`}>
-                      <h3 className="text-xl font-bold font-display text-white group-hover:text-teal-300 transition-colors leading-snug">
-                        {proj.title}
-                      </h3>
-                    </Link>
-
-                    <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">
-                      {proj.summary}
+              {/* Content & Action */}
+              <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold font-display text-white group-hover:text-teal-300 transition-colors line-clamp-1">
+                    {project.title}
+                  </h4>
+                  {project.client && (
+                    <p className="text-[11px] text-zinc-400 font-medium line-clamp-1">
+                      Client: <span className="text-zinc-300">{project.client}</span>
                     </p>
-
-                    {/* Tags */}
-                    {Array.isArray(proj.tags) && proj.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-2">
-                        {proj.tags.slice(0, 3).map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="text-[10px] px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
 
-                {/* Footer Link */}
-                <div className="p-6 pt-0">
-                  <Link
-                    to={`/portfolio/${proj.slug}`}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-400 hover:text-teal-300 transition-colors"
+                <div className="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-xs">
+                  <button
+                    type="button"
+                    onClick={() => onOpenLightbox(project)}
+                    className="text-teal-400 hover:text-teal-300 font-bold flex items-center gap-1 cursor-pointer"
                   >
-                    <span>Read Full Case Study</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    {hasVideo ? (
+                      <>
+                        <Play className="w-3 h-3 fill-teal-400" />
+                        <span>Watch {isVertical ? 'Reel' : 'Video'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Quick View</span>
+                        <Maximize2 className="w-3 h-3" />
+                      </>
+                    )}
+                  </button>
+
+                  <Link
+                    to={`/portfolio/${project.slug}`}
+                    className="text-zinc-400 hover:text-white font-semibold flex items-center gap-1"
+                  >
+                    <span>Case Study</span>
+                    <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          );
+        })}
+      </div>
 
-        {/* Quick View Modal */}
-        {quickViewProject && (
-          <Modal
-            isOpen={Boolean(quickViewProject)}
-            onClose={() => setQuickViewProject(null)}
-            title={quickViewProject.title}
-            subtitle={`${quickViewProject.category} • ${quickViewProject.client || 'Brand Project'}`}
-            maxWidth="max-w-3xl"
-          >
-            <div className="space-y-6">
-              <div className="rounded-2xl overflow-hidden aspect-[16/9] bg-zinc-900 border border-zinc-800">
+      {/* 3. SECTION FOOTER: VIEW MORE IN SERVICE BUTTON */}
+      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <span className="text-zinc-400">
+          Showing {projects.length} curated works for <strong>{service.title}</strong>
+        </span>
+
+        <Link
+          to={`/services/${service.slug}`}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-teal-500 hover:bg-teal-400 text-zinc-950 font-black text-xs transition-all shadow-md hover:shadow-teal-500/20 hover:scale-[1.02] active:scale-98 cursor-pointer"
+        >
+          <span>View More on {service.title} Page</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+    </section>
+  );
+};
+
+export const PortfolioPage = () => {
+  const [projects, setProjects] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_all_projects');
+      return cached ? JSON.parse(cached) : DEFAULT_PROJECTS;
+    } catch (e) {
+      return DEFAULT_PROJECTS;
+    }
+  });
+  const [services, setServices] = useState(DEFAULT_SERVICES);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [lightboxProject, setLightboxProject] = useState(null);
+  const [videoAspect, setVideoAspect] = useState('vertical');
+
+  // Fetch projects and services from backend
+  const fetchData = async () => {
+    try {
+      const [projRes, servRes] = await Promise.all([
+        api.get('/projects').catch(() => null),
+        api.get('/services').catch(() => null),
+      ]);
+
+      if (projRes && projRes.success && Array.isArray(projRes.data)) {
+        setProjects(projRes.data);
+        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(projRes.data));
+      }
+
+      if (servRes && servRes.success && Array.isArray(servRes.data) && servRes.data.length > 0) {
+        setServices(servRes.data);
+      }
+    } catch (err) {
+      console.error('Error loading portfolio data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Open Lightbox with auto-detected aspect ratio
+  const handleOpenLightbox = (project) => {
+    setLightboxProject(project);
+    setVideoAspect(isVerticalVideo(project) ? 'vertical' : 'horizontal');
+  };
+
+  // Filter projects by search query
+  const searchedProjects = useMemo(() => {
+    if (!searchQuery.trim()) return projects;
+    const q = searchQuery.toLowerCase().trim();
+    return projects.filter((p) => {
+      const titleMatch = p.title && p.title.toLowerCase().includes(q);
+      const clientMatch = p.client && p.client.toLowerCase().includes(q);
+      const catMatch = p.category && p.category.toLowerCase().includes(q);
+      const tagMatch = p.tags && Array.isArray(p.tags) && p.tags.some((t) => t.toLowerCase().includes(q));
+      return titleMatch || clientMatch || catMatch || tagMatch;
+    });
+  }, [projects, searchQuery]);
+
+  // Group projects by service
+  const serviceSections = useMemo(() => {
+    return services.map((service) => {
+      const serviceProjects = searchedProjects.filter((p) => {
+        if (p.serviceId === service.id) return true;
+        if (p.serviceSlug === service.slug) return true;
+        if (p.category === service.title) return true;
+        if (p.category && p.category.toLowerCase().includes(service.title.toLowerCase())) return true;
+        if (
+          service.slug.includes('logo') &&
+          (p.category?.toLowerCase().includes('logo') || p.category?.toLowerCase().includes('brand'))
+        )
+          return true;
+        if (
+          service.slug.includes('ads') &&
+          (p.category?.toLowerCase().includes('ads') || p.category?.toLowerCase().includes('social'))
+        )
+          return true;
+        if (
+          service.slug.includes('ugc') &&
+          (p.category?.toLowerCase().includes('ugc') || p.category?.toLowerCase().includes('video'))
+        )
+          return true;
+        if (
+          service.slug.includes('cover') &&
+          (p.category?.toLowerCase().includes('cover') || p.category?.toLowerCase().includes('banner'))
+        )
+          return true;
+        return false;
+      });
+
+      return {
+        service,
+        projects: serviceProjects,
+      };
+    });
+  }, [services, searchedProjects]);
+
+  // Projects that don't belong to the above 4 primary services
+  const generalProjects = useMemo(() => {
+    const assignedIds = new Set();
+    serviceSections.forEach((sec) => {
+      sec.projects.forEach((p) => assignedIds.add(p.id));
+    });
+    return searchedProjects.filter((p) => !assignedIds.has(p.id));
+  }, [serviceSections, searchedProjects]);
+
+  const scrollToSection = (slug) => {
+    const el = document.getElementById(slug);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const youtubeEmbedUrl = useMemo(() => {
+    return lightboxProject ? getYouTubeEmbedUrl(lightboxProject.liveUrl) : null;
+  }, [lightboxProject]);
+
+  return (
+    <div className="pt-44 sm:pt-48 pb-28 min-h-screen relative overflow-hidden bg-black text-white">
+      {/* Background Glow Highlights */}
+      <div className="ambient-glow-teal top-24 right-1/4 opacity-20 pointer-events-none" />
+      <div className="ambient-glow-lime bottom-48 left-12 opacity-15 pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+        {/* =========================================================================
+            1. HERO HEADER SECTION
+            ========================================================================= */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Interactive Multi-Service Showcase</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-white leading-tight">
+            Design Craft & <br />
+            <span className="text-gradient">Portfolio By Service</span>
+          </h1>
+
+          <p className="text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+            Browse high-converting design deliverables and UGC video content organized by service. Click to preview works or explore full service details and pricing.
+          </p>
+        </div>
+
+        {/* =========================================================================
+            2. QUICK SERVICE JUMP BAR & SEARCH
+            ========================================================================= */}
+        <div className="p-3.5 rounded-3xl bg-zinc-950/80 border border-white/[0.08] backdrop-blur-2xl shadow-xl flex flex-col lg:flex-row items-center justify-between gap-3 sticky top-24 z-30">
+          {/* Quick Jump Buttons */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full lg:w-auto py-1">
+            <span className="text-xs font-bold text-zinc-400 hidden sm:inline pl-2 pr-1">Jump to:</span>
+            {services.map((s) => {
+              const matchedSection = serviceSections.find((sec) => sec.service.id === s.id);
+              const count = matchedSection ? matchedSection.projects.length : 0;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => scrollToSection(s.slug)}
+                  className="px-4 py-2 rounded-2xl bg-zinc-900/90 border border-zinc-800 text-zinc-300 hover:text-white hover:border-teal-500/50 hover:bg-teal-500/10 text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0 active:scale-95"
+                >
+                  <span>{s.title}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-teal-300 font-bold">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Search */}
+          <div className="relative w-full lg:w-64 shrink-0">
+            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search all works..."
+              className="w-full pl-9 pr-8 py-2 rounded-2xl bg-zinc-900 border border-zinc-800 text-white text-xs font-medium focus:border-teal-500 focus:outline-none placeholder-zinc-500"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* =========================================================================
+            3. DEDICATED SECTIONS FOR EACH SERVICE (With Left/Right Slider)
+            ========================================================================= */}
+        <div className="space-y-12">
+          {serviceSections.map(({ service, projects: sProjects }) => (
+            <ServicePortfolioSlider
+              key={service.id}
+              service={service}
+              projects={sProjects}
+              onOpenLightbox={handleOpenLightbox}
+            />
+          ))}
+
+          {/* General Design / Other Showcase Section if any */}
+          {generalProjects.length > 0 && (
+            <ServicePortfolioSlider
+              service={{
+                id: 'general-design',
+                title: 'General & Commercial Projects',
+                slug: 'general-design',
+                tagline: 'Multi-disciplinary digital branding and commercial marketing collateral.',
+              }}
+              projects={generalProjects}
+              onOpenLightbox={handleOpenLightbox}
+            />
+          )}
+        </div>
+
+        {/* =========================================================================
+            4. BOTTOM CTA BANNER
+            ========================================================================= */}
+        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-teal-950/80 via-zinc-950 to-teal-950/80 border border-teal-500/30 text-center space-y-6 shadow-2xl relative overflow-hidden">
+          <div className="space-y-2 relative z-10">
+            <h2 className="text-2xl sm:text-3xl font-black font-display text-white">
+              Ready to Upgrade Your Visual Creatives?
+            </h2>
+            <p className="text-sm text-zinc-300 max-w-xl mx-auto">
+              Get in touch today for high-converting brand identity, advertising assets, and video creative solutions.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 relative z-10">
+            <Link to="/book-a-meeting">
+              <Button variant="primary" size="lg" icon={Calendar} className="font-black px-8">
+                Book Discovery Call
+              </Button>
+            </Link>
+            <Link to="/services">
+              <Button variant="secondary" size="lg" icon={Layers}>
+                Explore All Services
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* =========================================================================
+          5. CLEAN & SIMPLE HIGH-RESOLUTION PREVIEW MODAL
+          ========================================================================= */}
+      <Modal
+        isOpen={!!lightboxProject}
+        onClose={() => setLightboxProject(null)}
+        title={lightboxProject?.title || 'Preview'}
+        size="2xl"
+      >
+        {lightboxProject && (
+          <div className="space-y-4">
+            {/* If YouTube video is linked: Display dynamic aspect ratio player */}
+            {youtubeEmbedUrl ? (
+              <div className="space-y-3">
+                {/* Aspect Ratio Switcher Controls */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold text-zinc-400">Player Size:</span>
+                  <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800">
+                    <button
+                      type="button"
+                      onClick={() => setVideoAspect('vertical')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        videoAspect === 'vertical'
+                          ? 'bg-teal-500 text-zinc-950 font-black shadow-md'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      <Smartphone className="w-3.5 h-3.5" />
+                      <span>9:16 Reel</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setVideoAspect('horizontal')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        videoAspect === 'horizontal'
+                          ? 'bg-teal-500 text-zinc-950 font-black shadow-md'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      <Tv className="w-3.5 h-3.5" />
+                      <span>16:9 Landscape</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Video Player Container */}
+                <div className="flex items-center justify-center py-1">
+                  <div
+                    className={`relative overflow-hidden bg-black border-2 border-teal-500/50 shadow-2xl transition-all duration-300 ${
+                      videoAspect === 'vertical'
+                        ? 'w-full max-w-[320px] sm:max-w-[340px] aspect-[9/16] max-h-[66vh] rounded-3xl'
+                        : 'w-full aspect-video rounded-2xl max-h-[66vh]'
+                    }`}
+                  >
+                    <iframe
+                      src={youtubeEmbedUrl}
+                      title={lightboxProject.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* High-Res Image Showcase */
+              <div className="relative rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 aspect-[16/10] max-h-[66vh] flex items-center justify-center">
                 <img
-                  src={quickViewProject.coverImage}
-                  alt={quickViewProject.title}
-                  className="w-full h-full object-cover"
+                  src={lightboxProject.coverImage}
+                  alt={lightboxProject.title}
+                  className="w-full h-full object-contain bg-zinc-950"
                 />
               </div>
+            )}
 
-              <div className="space-y-4">
-                <p className="text-sm text-zinc-300 leading-relaxed">
-                  {quickViewProject.description}
-                </p>
-
-                {quickViewProject.results && (
-                  <div className="p-4 rounded-xl bg-teal-500/10 border border-teal-500/20 text-xs">
-                    <span className="font-bold text-teal-300 block mb-1">Key Results:</span>
-                    <p className="text-zinc-300">{quickViewProject.results}</p>
-                  </div>
+            {/* Simple Compact Footer Bar */}
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-zinc-800 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold">
+                  {lightboxProject.category}
+                </span>
+                {lightboxProject.client && (
+                  <span className="text-xs text-zinc-400">
+                    {lightboxProject.client}
+                  </span>
                 )}
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
-                <Button variant="ghost" size="sm" onClick={() => setQuickViewProject(null)}>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setLightboxProject(null)}
+                >
                   Close
                 </Button>
-                <Link to={`/portfolio/${quickViewProject.slug}`}>
-                  <Button variant="primary" size="sm" icon={ArrowRight} iconPosition="right">
-                    View Complete Case Study
+                <Link
+                  to="/book-a-meeting"
+                  onClick={() => setLightboxProject(null)}
+                >
+                  <Button variant="primary" size="sm" icon={Zap} className="font-bold">
+                    Order Similar Work
                   </Button>
                 </Link>
               </div>
             </div>
-          </Modal>
+          </div>
         )}
-      </div>
+      </Modal>
     </div>
   );
 };

@@ -111,17 +111,28 @@ export const ServicesGrid = ({ services = [], onOpenBooking }) => {
                   )}
                 </div>
 
-                <div className="pt-6 border-t border-zinc-800/80 flex items-center justify-between">
-                  <Link to={`/services/${s.slug}`}>
-                    <Button variant="outline" size="sm" icon={ArrowRight} iconPosition="right">
-                      Service Details
-                    </Button>
-                  </Link>
+                <div className="pt-6 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Link to={`/services/${s.slug}`}>
+                      <Button variant="primary" size="sm" icon={ArrowRight} iconPosition="right" className="text-xs font-bold">
+                        Service Scope & Pricing
+                      </Button>
+                    </Link>
+                    <Link
+                      to={`/portfolio#${s.slug}`}
+                      className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-medium transition-colors"
+                      title="View live portfolio slider"
+                    >
+                      Portfolio Works 🖼️
+                    </Link>
+                  </div>
+
                   <button
+                    type="button"
                     onClick={() => onOpenBooking && onOpenBooking(s)}
-                    className="text-xs font-semibold text-zinc-400 hover:text-teal-300 transition-colors cursor-pointer"
+                    className="text-xs font-bold text-teal-400 hover:text-teal-300 transition-colors cursor-pointer"
                   >
-                    Start Project →
+                    Book Call →
                   </button>
                 </div>
               </motion.div>

@@ -12,7 +12,7 @@ import { Badge } from '../../components/common/Badge';
 import { DEFAULT_PACKAGES, DEFAULT_SERVICES } from '../../data/defaultData';
 
 export const AdminPackagesPage = () => {
-  const { formatAmount, currencySymbol } = useCurrency();
+  const { formatAmount, currencySymbol, currencyCode } = useCurrency();
   const [packages, setPackages] = useState(() => {
     try {
       const cached = localStorage.getItem('sakhawat_cached_packages');
@@ -277,12 +277,12 @@ export const AdminPackagesPage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1">Price (USD) *</label>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1">Price ({currencyCode} {currencySymbol}) *</label>
               <input
                 type="number"
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500 font-bold text-teal-400"
                 required
               />
             </div>

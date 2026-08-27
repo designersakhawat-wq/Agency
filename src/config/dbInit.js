@@ -2,6 +2,17 @@ const bcrypt = require('bcryptjs');
 
 const initDatabaseSchema = async (prisma) => {
   try {
+    // 0. Enable SQLite WAL mode & memory cache optimizations for high concurrent traffic on Hostinger
+    try {
+      await prisma.$queryRawUnsafe(`PRAGMA journal_mode = WAL;`).catch(() => {});
+      await prisma.$queryRawUnsafe(`PRAGMA synchronous = NORMAL;`).catch(() => {});
+      await prisma.$queryRawUnsafe(`PRAGMA cache_size = 10000;`).catch(() => {});
+      await prisma.$queryRawUnsafe(`PRAGMA temp_store = MEMORY;`).catch(() => {});
+      await prisma.$queryRawUnsafe(`PRAGMA foreign_keys = ON;`).catch(() => {});
+    } catch (e) {
+      // Non-blocking fallback for other drivers
+    }
+
     // 1. Create all SQLite tables if they do not exist
     const createTableStatements = [
       `CREATE TABLE IF NOT EXISTS "User" (

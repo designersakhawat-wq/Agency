@@ -2,6 +2,14 @@ const prisma = require('../config/db');
 const mediaService = require('../services/mediaService');
 const { successResponse, errorResponse, paginatedResponse } = require('../utils/apiResponse');
 
+const formatMedia = (m) => {
+  if (!m) return null;
+  return {
+    ...m,
+    url: m.fileUrl,
+  };
+};
+
 /**
  * Admin: Upload single or multiple files
  * POST /api/admin/media/upload
@@ -16,14 +24,14 @@ const uploadMedia = async (req, res, next) => {
 
     if (req.file) {
       const media = await mediaService.processUpload(req.file, altText);
-      return successResponse(res, media, 'File uploaded successfully.', 201);
+      return successResponse(res, formatMedia(media), 'File uploaded successfully.', 201);
     }
 
     if (req.files && req.files.length > 0) {
       const results = [];
       for (const file of req.files) {
         const item = await mediaService.processUpload(file, altText);
-        results.push(item);
+        results.push(formatMedia(item));
       }
       return successResponse(res, results, 'Files uploaded successfully.', 201);
     }
@@ -61,14 +69,21 @@ const getAllMediaAdmin = async (req, res, next) => {
       prisma.media.count({ where }),
     ]);
 
-    return paginatedResponse(res, mediaItems, total, page, limit, 'Media assets retrieved.');
+    return paginatedResponse(
+      res,
+      mediaItems.map(formatMedia),
+      total,
+      parseInt(page, 10),
+      parseInt(limit, 10),
+      'Media assets retrieved.'
+    );
   } catch (err) {
     next(err);
   }
 };
 
 /**
- * Admin: Update media metadata (alt text, etc.)
+ * Admin: Update media asset metadata
  * PUT /api/admin/media/:id
  */
 const updateMedia = async (req, res, next) => {
@@ -77,14 +92,18 @@ const updateMedia = async (req, res, next) => {
     const { altText } = req.body;
 
     const media = await prisma.media.findUnique({ where: { id } });
-    if (!media) return errorResponse(res, 'Media asset not found.', 404);
+    if (!media) {
+      return errorResponse(res, 'Media asset not found.', 404);
+    }
 
     const updated = await prisma.media.update({
       where: { id },
-      data: { altText },
+      data: {
+        altText: altText !== undefined ? altText : media.altText,
+      },
     });
 
-    return successResponse(res, updated, 'Media metadata updated.');
+    return successResponse(res, formatMedia(updated), 'Media updated successfully.');
   } catch (err) {
     next(err);
   }
@@ -97,8 +116,12 @@ const updateMedia = async (req, res, next) => {
 const deleteMedia = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await mediaService.deleteMedia(id);
-    return successResponse(res, null, 'Media asset deleted successfully.');
+    const deleted = await mediaService.deleteMedia(id);
+    if (!deleted) {
+      return errorResponse(res, 'Media asset not found.', 404);
+    }
+
+    return successResponse(res, null, 'Media deleted successfully.');
   } catch (err) {
     next(err);
   }

@@ -15,6 +15,8 @@ const invoiceRoutes = require('./invoiceRoutes');
 const settingRoutes = require('./settingRoutes');
 const dashboardRoutes = require('./dashboardRoutes');
 
+const { getHomepageData } = require('../controllers/homepageController');
+
 // API Health Check
 router.get('/health', (req, res) => {
   res.json({
@@ -24,6 +26,9 @@ router.get('/health', (req, res) => {
     uptime: process.uptime(),
   });
 });
+
+// Consolidated Homepage Bootstrap (1 HTTP request instead of 7)
+router.get('/homepage', getHomepageData);
 
 // Mount Routes
 router.use('/auth', authRoutes);
@@ -39,6 +44,7 @@ router.use('/admin/media', mediaRoutes);
 router.use('/media', mediaRoutes);
 router.use('/invoices', invoiceRoutes);
 router.use('/settings', settingRoutes);
+router.use('/admin/settings', settingRoutes);
 router.use('/admin/dashboard', dashboardRoutes);
 router.use('/dashboard', dashboardRoutes);
 

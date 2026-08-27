@@ -11,11 +11,23 @@
     --brand-secondary-rgb: 6, 182, 212;
     --brand-glow: rgba(20, 184, 166, 0.22);
     --brand-text-on-primary: #ffffff;
+    --font-primary: 'Archivo', 'Hind Siliguri', 'Noto Sans Bengali', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  html {
+    font-family: var(--font-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply bg-[#09090b] text-zinc-100 font-sans antialiased;
+    @apply bg-[#09090b] text-zinc-200 antialiased;
+    font-family: var(--font-primary);
     overflow-x: hidden;
+    letter-spacing: -0.011em;
+    line-height: 1.65;
   }
 
   ::selection {
@@ -24,7 +36,16 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight text-white;
+    font-family: var(--font-primary);
+    @apply font-bold tracking-tight text-white;
+    letter-spacing: -0.024em;
+    line-height: 1.22;
+  }
+
+  p {
+    @apply text-zinc-300;
+    line-height: 1.68;
+    letter-spacing: -0.006em;
   }
 }
 

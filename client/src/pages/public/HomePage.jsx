@@ -12,6 +12,8 @@ import ContactSection from '../../components/home/ContactSection';
 import BookingModal from '../../components/home/BookingModal';
 import InteractiveProjectEstimator from '../../components/home/InteractiveProjectEstimator';
 import BeforeAfterSlider from '../../components/home/BeforeAfterSlider';
+import CreativeGatewayHub from '../../components/home/CreativeGatewayHub';
+import InterconnectedExploreHub from '../../components/home/InterconnectedExploreHub';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import { api } from '../../services/api';
@@ -47,56 +49,77 @@ const HomePage = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedServiceForBooking, setSelectedServiceForBooking] = useState('');
   const [previewProject, setPreviewProject] = useState(null);
-
   useEffect(() => {
-    // Fetch all public page data in parallel with automatic background cache update
+    // Fetch consolidated homepage data in 1 single HTTP request
     const fetchData = async () => {
       try {
-        const [
-          settingsRes,
-          projectsRes,
-          servicesRes,
-          packagesRes,
-          testimonialsRes,
-          faqsRes,
-          brandsRes,
-        ] = await Promise.all([
-          api.get('/settings').catch(() => ({ success: false })),
-          api.get('/projects?featured=true').catch(() => ({ success: false })),
-          api.get('/services').catch(() => ({ success: false })),
-          api.get('/packages').catch(() => ({ success: false })),
-          api.get('/testimonials').catch(() => ({ success: false })),
-          api.get('/faqs').catch(() => ({ success: false })),
-          api.get('/brands').catch(() => ({ success: false })),
-        ]);
+        const res = await api.get('/homepage').catch(() => null);
+        if (res && res.success && res.data) {
+          const d = res.data;
+          if (d.settings && Object.keys(d.settings).length > 0) {
+            setSettings(d.settings);
+            localStorage.setItem('sakhawat_cached_settings', JSON.stringify(d.settings));
+          }
+          if (Array.isArray(d.projects) && d.projects.length > 0) {
+            setProjects(d.projects);
+            localStorage.setItem('sakhawat_cached_featured_projects', JSON.stringify(d.projects));
+          }
+          if (Array.isArray(d.services) && d.services.length > 0) {
+            setServices(d.services);
+            localStorage.setItem('sakhawat_cached_services', JSON.stringify(d.services));
+          }
+          if (Array.isArray(d.packages) && d.packages.length > 0) {
+            setPackages(d.packages);
+            localStorage.setItem('sakhawat_cached_packages', JSON.stringify(d.packages));
+          }
+          if (Array.isArray(d.testimonials) && d.testimonials.length > 0) {
+            setTestimonials(d.testimonials);
+            localStorage.setItem('sakhawat_cached_testimonials', JSON.stringify(d.testimonials));
+          }
+          if (Array.isArray(d.faqs) && d.faqs.length > 0) {
+            setFaqs(d.faqs);
+            localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(d.faqs));
+          }
+          if (Array.isArray(d.brands) && d.brands.length > 0) {
+            setBrands(d.brands);
+            localStorage.setItem('sakhawat_cached_brands', JSON.stringify(d.brands));
+          }
+          return;
+        }
 
-        if (settingsRes.success && settingsRes.data && Object.keys(settingsRes.data).length > 0) {
+        // Fallback to parallel requests if /homepage is not available
+        const [settingsRes, projectsRes, servicesRes, packagesRes, testimonialsRes, faqsRes, brandsRes] =
+          await Promise.all([
+            api.get('/settings').catch(() => ({ success: false })),
+            api.get('/projects?featured=true').catch(() => ({ success: false })),
+            api.get('/services').catch(() => ({ success: false })),
+            api.get('/packages').catch(() => ({ success: false })),
+            api.get('/testimonials').catch(() => ({ success: false })),
+            api.get('/faqs').catch(() => ({ success: false })),
+            api.get('/brands').catch(() => ({ success: false })),
+          ]);
+
+        if (settingsRes.success && settingsRes.data) {
           setSettings(settingsRes.data);
           localStorage.setItem('sakhawat_cached_settings', JSON.stringify(settingsRes.data));
         }
-        if (projectsRes.success && Array.isArray(projectsRes.data) && projectsRes.data.length > 0) {
+        if (projectsRes.success && Array.isArray(projectsRes.data)) {
           setProjects(projectsRes.data);
-          localStorage.setItem('sakhawat_cached_featured_projects', JSON.stringify(projectsRes.data));
         }
-        if (servicesRes.success && Array.isArray(servicesRes.data) && servicesRes.data.length > 0) {
+        if (servicesRes.success && Array.isArray(servicesRes.data)) {
           setServices(servicesRes.data);
-          localStorage.setItem('sakhawat_cached_services', JSON.stringify(servicesRes.data));
         }
-        if (packagesRes.success && Array.isArray(packagesRes.data) && packagesRes.data.length > 0) {
+        if (packagesRes.success && Array.isArray(packagesRes.data)) {
           setPackages(packagesRes.data);
-          localStorage.setItem('sakhawat_cached_packages', JSON.stringify(packagesRes.data));
         }
-        if (testimonialsRes.success && Array.isArray(testimonialsRes.data) && testimonialsRes.data.length > 0) {
+        if (testimonialsRes.success && Array.isArray(testimonialsRes.data)) {
           setTestimonials(testimonialsRes.data);
-          localStorage.setItem('sakhawat_cached_testimonials', JSON.stringify(testimonialsRes.data));
         }
-        if (faqsRes.success && Array.isArray(faqsRes.data) && faqsRes.data.length > 0) {
+        if (faqsRes.success && Array.isArray(faqsRes.data)) {
           setFaqs(faqsRes.data);
-          localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(faqsRes.data));
         }
-        if (brandsRes.success && Array.isArray(brandsRes.data) && brandsRes.data.length > 0) {
+        if (brandsRes.success && Array.isArray(brandsRes.data)) {
           setBrands(brandsRes.data);
-          localStorage.setItem('sakhawat_cached_brands', JSON.stringify(brandsRes.data));
         }
       } catch (err) {
         console.error('Error fetching homepage data:', err);
@@ -122,6 +145,9 @@ const HomePage = () => {
       {/* Stats */}
       <StatsSection settings={settings} />
 
+      {/* Multi-Page Creative Gateway Hub (Connecting to Services & Portfolio) */}
+      <CreativeGatewayHub />
+
       {/* Featured Projects */}
       <FeaturedProjects
         projects={projects}
@@ -130,12 +156,6 @@ const HomePage = () => {
 
       {/* Interactive Project Cost & ROI Estimator */}
       <InteractiveProjectEstimator onOpenBooking={handleOpenBooking} />
-
-      {/* Services Grid */}
-      <ServicesGrid
-        services={services}
-        onOpenBooking={(s) => handleOpenBooking(s?.title)}
-      />
 
       {/* Interactive Before & After Transformation Slider */}
       <BeforeAfterSlider onOpenBooking={handleOpenBooking} />
@@ -154,6 +174,9 @@ const HomePage = () => {
 
       {/* FAQs */}
       <FaqAccordion faqs={faqs} />
+
+      {/* Interconnected Discovery Roadmap Hub */}
+      <InterconnectedExploreHub />
 
       {/* Contact & Inquiries */}
       <ContactSection />

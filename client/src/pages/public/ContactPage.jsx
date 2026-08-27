@@ -56,7 +56,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="pt-32 pb-24 min-h-screen relative overflow-hidden">
+    <div className="pt-44 sm:pt-48 pb-24 min-h-screen relative overflow-hidden">
       {/* Ambient background glow */}
       <div className="ambient-glow-teal top-20 left-1/4 opacity-20 pointer-events-none" />
 

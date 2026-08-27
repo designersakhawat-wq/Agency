@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
@@ -22,24 +22,18 @@ import {
   Tag,
   Calendar,
   User,
+  UploadCloud,
+  ToggleLeft,
+  ToggleRight,
+  Filter,
+  Video,
+  Play,
+  Film,
 } from 'lucide-react';
 import { Badge } from '../../components/common/Badge';
 import { Loader } from '../../components/common/Loader';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
-
-const CATEGORY_OPTIONS = [
-  'Social Media & Ads',
-  'Logo & Brand Identity',
-  'Product Packaging',
-  'Banner & Hero Web Ads',
-  'UI/UX Design',
-  'UGC Video / Motion',
-  'E-Commerce Creatives',
-  'Print & Marketing',
-];
-
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
 
 export const AdminProjectsPage = () => {
@@ -51,51 +45,64 @@ export const AdminProjectsPage = () => {
       return DEFAULT_PROJECTS;
     }
   });
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [search, setSearch] = useState('');
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Quick Upload Form State
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [quickTitle, setQuickTitle] = useState('');
+  const [quickCategory, setQuickCategory] = useState('Logo & Branding');
+  const [quickCoverPreview, setQuickCoverPreview] = useState('');
+  const [quickVideoUrl, setQuickVideoUrl] = useState('');
+  const [quickFeatured, setQuickFeatured] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
+
+  // Edit / Full Details Modal State
   const [editorOpen, setEditorOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
-  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
-  const fileInputRef = useRef(null);
-  const { showToast } = useToast();
-
-  // Form State for Create / Edit Modal
-  const [formData, setFormData] = useState({
+  const [editFormData, setEditFormData] = useState({
     id: null,
     title: '',
     slug: '',
-    category: 'Social Media & Ads',
+    category: 'Logo & Branding',
     client: '',
     year: new Date().getFullYear().toString(),
     summary: '',
     description: '',
     coverImage: '',
-    galleryImages: [],
     liveUrl: '',
-    githubUrl: '',
-    figmaUrl: '',
-    behanceUrl: '',
-    dribbbleUrl: '',
+    galleryImages: [],
+    tags: [],
     featured: false,
-    order: 0,
-    tags: ['Ad Creative', 'Branding', 'Figma'],
-    challenges: '',
-    solutions: '',
-    results: '',
     active: true,
   });
-
   const [tagInput, setTagInput] = useState('');
 
-  const fetchProjects = async () => {
+  const { showToast } = useToast();
+  const success = (msg) => showToast(msg, 'success');
+  const error = (msg) => showToast(msg, 'error');
+
+  // Fetch all projects & services from backend
+  const fetchAllData = async () => {
     try {
-      const res = await api.get('/projects/admin/all').catch(() => null);
-      if (res && res.success && Array.isArray(res.data)) {
-        setProjects(res.data);
-        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(res.data));
+      const [projRes, servRes] = await Promise.all([
+        api.get('/projects/admin/all').catch(() => null),
+        api.get('/services/admin/all').catch(() => null),
+      ]);
+
+      if (projRes && projRes.success && Array.isArray(projRes.data)) {
+        setProjects(projRes.data);
+        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(projRes.data));
+      }
+
+      if (servRes && servRes.success && Array.isArray(servRes.data)) {
+        setServices(servRes.data);
+        if (servRes.data.length > 0 && !quickCategory) {
+          setQuickCategory(servRes.data[0].title);
+        }
       }
     } catch (err) {
       console.error('Projects fetch error:', err);
@@ -104,628 +111,790 @@ export const AdminProjectsPage = () => {
     }
   };
 
-  const [searchParams, setSearchParams] = useSearchParams();
-
   useEffect(() => {
-    fetchProjects();
+    fetchAllData();
   }, []);
 
-  useEffect(() => {
-    if (searchParams.get('create') === 'true' || searchParams.get('new') === 'true') {
-      openCreateModal();
-      setSearchParams({}, { replace: true });
-    }
-  }, [searchParams]);
-
-  const openCreateModal = () => {
-    setFormData({
-      id: null,
-      title: '',
-      slug: '',
-      category: 'Social Media & Ads',
-      client: '',
-      year: new Date().getFullYear().toString(),
-      summary: '',
-      description: '',
-      coverImage: '',
-      galleryImages: [],
-      liveUrl: '',
-      githubUrl: '',
-      figmaUrl: '',
-      behanceUrl: '',
-      dribbbleUrl: '',
-      featured: false,
-      order: 0,
-      tags: ['Social Media', 'Creative Design'],
-      challenges: '',
-      solutions: '',
-      results: '',
-      active: true,
+  // Category counts
+  const categoryCounts = useMemo(() => {
+    const counts = { All: projects.length };
+    projects.forEach((p) => {
+      const cat = p.category || 'General Design';
+      counts[cat] = (counts[cat] || 0) + 1;
     });
-    setTagInput('');
-    setEditorOpen(true);
-  };
+    return counts;
+  }, [projects]);
 
-  const openEditModal = (proj) => {
-    let parsedTags = proj.tags;
-    if (typeof parsedTags === 'string') {
-      try {
-        parsedTags = JSON.parse(parsedTags);
-      } catch (e) {
-        parsedTags = parsedTags.split(',').map((t) => t.trim()).filter(Boolean);
-      }
-    }
-    let parsedGallery = proj.galleryImages;
-    if (typeof parsedGallery === 'string') {
-      try {
-        parsedGallery = JSON.parse(parsedGallery);
-      } catch (e) {
-        parsedGallery = [];
-      }
-    }
+  // Unique categories list
+  const categoryList = useMemo(() => {
+    const list = ['All'];
+    const serviceTitles = services.map((s) => s.title);
+    const existingCats = Object.keys(categoryCounts).filter((c) => c !== 'All');
+    return ['All', ...Array.from(new Set([...serviceTitles, ...existingCats]))];
+  }, [categoryCounts, services]);
 
-    setFormData({
-      id: proj.id,
-      title: proj.title || '',
-      slug: proj.slug || '',
-      category: proj.category || 'Social Media & Ads',
-      client: proj.client || '',
-      year: proj.year || new Date().getFullYear().toString(),
-      summary: proj.summary || '',
-      description: proj.description || '',
-      coverImage: proj.coverImage || '',
-      galleryImages: Array.isArray(parsedGallery) ? parsedGallery : [],
-      liveUrl: proj.liveUrl || '',
-      githubUrl: proj.githubUrl || '',
-      figmaUrl: proj.figmaUrl || '',
-      behanceUrl: proj.behanceUrl || '',
-      dribbbleUrl: proj.dribbbleUrl || '',
-      featured: Boolean(proj.featured),
-      order: Number(proj.order) || 0,
-      tags: Array.isArray(parsedTags) ? parsedTags : [],
-      challenges: proj.challenges || '',
-      solutions: proj.solutions || '',
-      results: proj.results || '',
-      active: proj.active !== false,
+  // Filtered projects
+  const filteredProjects = useMemo(() => {
+    return projects.filter((p) => {
+      if (selectedCategory !== 'All') {
+        const match =
+          p.category === selectedCategory ||
+          (p.category && p.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+        if (!match) return false;
+      }
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+        const titleMatch = p.title && p.title.toLowerCase().includes(q);
+        const clientMatch = p.client && p.client.toLowerCase().includes(q);
+        const catMatch = p.category && p.category.toLowerCase().includes(q);
+        if (!titleMatch && !clientMatch && !catMatch) return false;
+      }
+      return true;
     });
-    setTagInput('');
-    setEditorOpen(true);
-  };
+  }, [projects, selectedCategory, search]);
 
-  const generateSlug = (title) => {
-    return title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  };
-
-  const handleTitleChange = (e) => {
-    const val = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      title: val,
-      slug: !prev.id ? generateSlug(val) : prev.slug,
-    }));
-  };
-
-  const handleCoverUpload = async (e) => {
-    const file = e.target.files?.[0];
+  // 1-Click File Upload for Quick Add
+  const handleFileUpload = async (file) => {
     if (!file) return;
+
+    const cleanName = file.name
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[-_]+/g, ' ')
+      .replace(/\b\w/g, (l) => l.toUpperCase());
+
+    if (!quickTitle) {
+      setQuickTitle(cleanName);
+    }
+
     setUploadingCover(true);
-    const data = new FormData();
-    data.append('file', file);
-    data.append('altText', formData.title || 'Project Cover Image');
+    const uploadForm = new FormData();
+    uploadForm.append('file', file);
+
     try {
-      const res = await api.upload('/admin/media/upload', data);
-      if (res.success && res.data?.fileUrl) {
-        setFormData((prev) => ({ ...prev, coverImage: res.data.fileUrl }));
-        showToast('Cover image uploaded successfully!', 'success');
+      const res = await api.upload('/admin/media/upload', uploadForm);
+      const uploadedUrl = res?.data?.url || res?.data?.fileUrl;
+      if (res && res.success && uploadedUrl) {
+        setQuickCoverPreview(uploadedUrl);
+        success('Image uploaded! Set category and click "+ Publish Project"');
+      } else {
+        error(res?.message || 'Failed to upload image.');
       }
     } catch (err) {
-      showToast('Image upload failed: ' + err.message, 'error');
+      error('Upload error: ' + err.message);
     } finally {
       setUploadingCover(false);
     }
   };
 
-  const handleAddTag = (e) => {
-    if (e.key === 'Enter' || e.type === 'click') {
-      e.preventDefault();
-      if (!tagInput.trim()) return;
-      if (!formData.tags.includes(tagInput.trim())) {
-        setFormData((prev) => ({ ...prev, tags: [...prev.tags, tagInput.trim()] }));
-      }
-      setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((t) => t !== tagToRemove),
-    }));
-  };
-
-  const handleSavePrompt = (e) => {
-    e.preventDefault();
-    if (!formData.title || !formData.category || !formData.coverImage) {
-      showToast('Title, Category, and Cover Image are required.', 'error');
+  // Publish Quick Project
+  const handlePublishQuickProject = async (e) => {
+    e?.preventDefault();
+    if (!quickCoverPreview) {
+      error('Please select an image first.');
       return;
     }
-    setConfirmSaveOpen(true);
-  };
 
-  const executeSaveProject = async () => {
-    setSaving(true);
+    const title = quickTitle.trim() || `New ${quickCategory} Project`;
+    const slug =
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') + '-' + Date.now().toString().slice(-4);
+
+    const matchedService = services.find((s) => s.title === quickCategory);
+
+    const payload = {
+      title,
+      slug,
+      category: quickCategory,
+      serviceId: matchedService?.id || null,
+      serviceSlug: matchedService?.slug || null,
+      client: 'Commercial Client',
+      year: new Date().getFullYear().toString(),
+      summary: `Commercial showcase project for ${quickCategory}.`,
+      description: `Delivered high-converting visual design deliverables for ${title}.`,
+      coverImage: quickCoverPreview,
+      liveUrl: quickVideoUrl.trim() || null,
+      galleryImages: [quickCoverPreview],
+      featured: Boolean(quickFeatured),
+      order: projects.length + 1,
+      tags: [quickCategory, 'Commercial'],
+      active: true,
+    };
+
     try {
-      const payload = {
-        ...formData,
-        tags: JSON.stringify(formData.tags),
-        galleryImages: JSON.stringify(formData.galleryImages),
-      };
-
-      let res;
-      if (formData.id) {
-        res = await api.put(`/projects/admin/${formData.id}`, payload);
+      const res = await api.post('/projects/admin', payload);
+      if (res && res.success) {
+        success(`"${title}" published to Portfolio!`);
+        setProjects((prev) => [res.data, ...prev]);
+        setQuickTitle('');
+        setQuickCoverPreview('');
+        setQuickVideoUrl('');
+        setQuickFeatured(false);
       } else {
-        res = await api.post('/projects/admin', payload);
-      }
-
-      if (res.success) {
-        showToast(formData.id ? 'Project updated successfully!' : 'Project created successfully!', 'success');
-        setEditorOpen(false);
-        setConfirmSaveOpen(false);
-        fetchProjects();
-      } else {
-        showToast(res.message || 'Failed to save project.', 'error');
+        error(res?.message || 'Could not save project.');
       }
     } catch (err) {
-      showToast('Error saving project: ' + err.message, 'error');
+      error('Error saving project: ' + err.message);
+    }
+  };
+
+  // Toggle Active (ON/OFF)
+  const handleToggleActive = async (project) => {
+    const nextState = !project.active;
+    try {
+      const res = await api.put(`/projects/admin/${project.id}`, {
+        ...project,
+        active: nextState,
+      });
+      if (res && res.success) {
+        setProjects((prev) =>
+          prev.map((p) => (p.id === project.id ? { ...p, active: nextState } : p))
+        );
+        success(nextState ? `🟢 "${project.title}" is now LIVE (ON)!` : `⚪ "${project.title}" is now HIDDEN (OFF).`);
+      }
+    } catch (err) {
+      error('Failed to change status.');
+    }
+  };
+
+  // Toggle ⭐ Featured on Homepage
+  const handleToggleFeatured = async (project) => {
+    const nextFeatured = !project.featured;
+    try {
+      const res = await api.put(`/projects/admin/${project.id}`, {
+        ...project,
+        featured: nextFeatured,
+      });
+      if (res && res.success) {
+        setProjects((prev) =>
+          prev.map((p) => (p.id === project.id ? { ...p, featured: nextFeatured } : p))
+        );
+        success(
+          nextFeatured
+            ? `⭐ "${project.title}" is now Featured on Homepage!`
+            : `"${project.title}" removed from Homepage Featured.`
+        );
+      }
+    } catch (err) {
+      error('Failed to update featured status.');
+    }
+  };
+
+  // Delete Project
+  const handleDeleteProject = async (project) => {
+    if (!window.confirm(`Are you sure you want to permanently delete "${project.title}"?`)) {
+      return;
+    }
+    try {
+      const res = await api.delete(`/projects/admin/${project.id}`);
+      if (res && res.success) {
+        setProjects((prev) => prev.filter((p) => p.id !== project.id));
+        success(`"${project.title}" deleted.`);
+      }
+    } catch (err) {
+      error('Delete failed: ' + err.message);
+    }
+  };
+
+  // Open Edit Details Modal
+  const openEditModal = (project) => {
+    setEditFormData({
+      id: project.id,
+      title: project.title || '',
+      slug: project.slug || '',
+      category: project.category || 'Logo & Branding',
+      client: project.client || '',
+      year: project.year || new Date().getFullYear().toString(),
+      summary: project.summary || '',
+      description: project.description || '',
+      coverImage: project.coverImage || '',
+      galleryImages: Array.isArray(project.galleryImages) ? project.galleryImages : [],
+      tags: Array.isArray(project.tags) ? project.tags : [],
+      featured: Boolean(project.featured),
+      active: project.active !== false,
+    });
+    setEditorOpen(true);
+  };
+
+  // Save Full Edit Details
+  const handleSaveEditDetails = async (e) => {
+    e?.preventDefault();
+    if (!editFormData.title.trim()) {
+      error('Project title is required.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const matchedService = services.find((s) => s.title === editFormData.category);
+      const payload = {
+        ...editFormData,
+        serviceId: matchedService?.id || null,
+        serviceSlug: matchedService?.slug || null,
+      };
+
+      const res = await api.put(`/projects/admin/${editFormData.id}`, payload);
+      if (res && res.success) {
+        setProjects((prev) =>
+          prev.map((p) => (p.id === editFormData.id ? { ...p, ...payload } : p))
+        );
+        success(`"${editFormData.title}" updated successfully!`);
+        setEditorOpen(false);
+      } else {
+        error(res?.message || 'Failed to update.');
+      }
+    } catch (err) {
+      error('Update error: ' + err.message);
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    setDeleteLoading(true);
-    try {
-      const res = await api.delete(`/projects/admin/${deleteTarget.id}`);
-      if (res.success) {
-        showToast('Project deleted successfully.', 'success');
-        setProjects((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-        setDeleteTarget(null);
-      } else {
-        showToast(res.message || 'Failed to delete project.', 'error');
-      }
-    } catch (err) {
-      showToast(err.message || 'Failed to delete project.', 'error');
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
-
-  const filtered = projects.filter((p) => {
-    return (
-      !search ||
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.category.toLowerCase().includes(search.toLowerCase()) ||
-      p.client?.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  const totalCount = projects.length;
+  const liveCount = projects.filter((p) => p.active !== false).length;
+  const featuredCount = projects.filter((p) => p.featured).length;
+  const hiddenCount = projects.filter((p) => p.active === false).length;
 
   return (
-    <div className="space-y-6">
-      {/* Hidden Upload Input */}
+    <div className="space-y-8 max-w-7xl mx-auto pb-20">
+      {/* Hidden File Input */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        onChange={handleCoverUpload}
         className="hidden"
+        onChange={(e) => handleFileUpload(e.target.files?.[0])}
       />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+      {/* =========================================================================
+          1. TOP HEADER & METRIC CARDS
+          ========================================================================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold font-display text-white">Portfolio Projects</h1>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            Manage showcase case studies, live links, and featured works.
+          <h1 className="text-3xl font-black font-display text-white tracking-tight flex items-center gap-3">
+            <FolderKanban className="w-8 h-8 text-teal-400" />
+            Portfolio Projects Manager
+          </h1>
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+            Easily upload, categorize, toggle ON/OFF, and star featured works for your portfolio and homepage.
           </p>
         </div>
 
-        <Button
-          type="button"
-          variant="primary"
-          size="md"
-          icon={Plus}
-          onClick={openCreateModal}
-          className="cursor-pointer font-bold shadow-lg"
+        <a
+          href="/portfolio"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-zinc-900 border border-zinc-800 text-teal-400 hover:text-teal-300 hover:border-teal-500/50 text-xs font-bold transition-all w-fit"
         >
-          Add New Project
-        </Button>
+          <span>View Live Public Portfolio</span>
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
       </div>
 
-      {/* Filter / Search Bar */}
-      <div className="flex items-center justify-between gap-4 p-4 rounded-xl glass-card border border-zinc-800">
-        <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search projects by title, category, or client..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-teal-500"
-          />
+      {/* Metric Counters */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Total Projects</span>
+          <p className="text-2xl font-black font-display text-white">{totalCount}</p>
         </div>
-        <span className="text-xs text-zinc-400 font-mono">Total: {filtered.length} Projects</span>
+
+        <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+          <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">🟢 Live on Site</span>
+          <p className="text-2xl font-black font-display text-emerald-400">{liveCount}</p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+          <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">⭐ Home Featured</span>
+          <p className="text-2xl font-black font-display text-amber-400">{featuredCount}</p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+          <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">⚪ Hidden / Draft</span>
+          <p className="text-2xl font-black font-display text-zinc-400">{hiddenCount}</p>
+        </div>
       </div>
 
-      {/* Table / List */}
-      {filtered.length === 0 && !loading ? (
-        <div className="text-center py-16 glass-card rounded-2xl border border-zinc-800 space-y-3">
-          <FolderKanban className="w-10 h-10 text-zinc-600 mx-auto" />
-          <h3 className="text-sm font-bold text-white">No Projects Found</h3>
-          <p className="text-xs text-zinc-400">Create your first portfolio project to showcase on your website.</p>
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            icon={Plus}
-            onClick={openCreateModal}
-            className="cursor-pointer"
-          >
-            Add First Project
-          </Button>
-        </div>
-      ) : (
-        <div className="glass-card rounded-2xl border border-zinc-800 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold font-mono text-[11px]">
-                <tr>
-                  <th className="p-4">Project</th>
-                  <th className="p-4">Category</th>
-                  <th className="p-4">Client / Year</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-800/60 text-zinc-300">
-                {filtered.map((proj) => (
-                  <tr key={proj.id} className="hover:bg-zinc-900/40 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={proj.coverImage}
-                          alt={proj.title}
-                          className="w-14 h-10 rounded-lg object-cover bg-zinc-800 shrink-0 border border-zinc-700"
-                        />
-                        <div>
-                          <span className="font-bold text-white text-sm block">{proj.title}</span>
-                          <span className="text-[11px] text-zinc-500 font-mono">/{proj.slug}</span>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="p-4">
-                      <Badge variant="teal" size="sm">
-                        {proj.category}
-                      </Badge>
-                    </td>
-
-                    <td className="p-4">
-                      <span className="font-medium text-white block">{proj.client || '—'}</span>
-                      <span className="text-[11px] text-zinc-500">{proj.year || '2025'}</span>
-                    </td>
-
-                    <td className="p-4">
-                      <div className="flex items-center gap-1.5">
-                        {proj.featured && (
-                          <Badge variant="amber" size="sm" dot>
-                            Featured
-                          </Badge>
-                        )}
-                        <Badge variant={proj.active ? 'emerald' : 'default'} size="sm">
-                          {proj.active ? 'Published' : 'Draft'}
-                        </Badge>
-                      </div>
-                    </td>
-
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <a
-                          href={`/portfolio/${proj.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors inline-flex items-center justify-center cursor-pointer"
-                          title="View Live Page"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(proj)}
-                          className="p-2 rounded-lg bg-teal-500/15 text-teal-300 hover:bg-teal-500 hover:text-white transition-colors inline-flex items-center justify-center cursor-pointer shadow"
-                          title="Edit Project"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteTarget(proj)}
-                          className="p-2 rounded-lg bg-rose-500/15 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors inline-flex items-center justify-center cursor-pointer shadow"
-                          title="Delete Project"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* FULL INSTANT PROJECT EDITOR MODAL */}
-      <Modal
-        isOpen={editorOpen}
-        onClose={() => setEditorOpen(false)}
-        title={formData.id ? `Edit Project: ${formData.title}` : 'Create New Portfolio Project'}
-        size="xl"
-      >
-        <form onSubmit={handleSavePrompt} className="space-y-6 max-h-[78vh] overflow-y-auto pr-1">
-          {/* Section 1: Basic Info */}
-          <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">1. Core Information</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-[11px] text-zinc-300 font-semibold block mb-1">Project Title *</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={handleTitleChange}
-                  placeholder="e.g. ORA Organic E-Commerce Ad Creatives"
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-400"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] text-zinc-300 font-semibold block mb-1">URL Slug *</label>
-                <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: generateSlug(e.target.value) })}
-                  placeholder="e.g. ora-organic-ad-creatives"
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-teal-300 font-mono focus:outline-none focus:border-teal-400"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="text-[11px] text-zinc-300 font-semibold block mb-1">Category *</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-400 cursor-pointer"
-                >
-                  {CATEGORY_OPTIONS.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[11px] text-zinc-300 font-semibold block mb-1">Client Name</label>
-                <input
-                  type="text"
-                  value={formData.client}
-                  onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                  placeholder="e.g. ORA Organic (Dubai)"
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] text-zinc-300 font-semibold block mb-1">Year</label>
-                <input
-                  type="text"
-                  value={formData.year}
-                  onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                  placeholder="2025"
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-400 font-mono"
-                />
-              </div>
-            </div>
-
+      {/* =========================================================================
+          2. 1-CLICK EASY UPLOAD & CREATOR ZONE
+          ========================================================================= */}
+      <div className="p-6 rounded-3xl bg-zinc-950/80 border border-teal-500/30 backdrop-blur-2xl shadow-xl space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-teal-500/10 text-teal-400">
+              <UploadCloud className="w-5 h-5" />
+            </span>
             <div>
-              <label className="text-[11px] text-zinc-300 font-semibold block mb-1">Summary / Tagline *</label>
-              <input
-                type="text"
-                value={formData.summary}
-                onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                placeholder="High-impact visual advertising campaign delivering 4.8x ROAS"
-                className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-400"
-                required
-              />
+              <h3 className="text-base font-bold text-white">1-Click Quick Portfolio Upload</h3>
+              <p className="text-xs text-zinc-400">Drop an image to instantly add a new showcase piece.</p>
             </div>
           </div>
+        </div>
 
-          {/* Section 2: Cover Image & Media */}
-          <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">2. Cover Image & Visuals</h4>
-            <div className="space-y-2">
-              <label className="text-[11px] text-zinc-300 font-semibold block">Cover Image URL *</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={formData.coverImage}
-                  onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                  placeholder="e.g. /uploads/project.jpg or https://..."
-                  className="flex-1 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-teal-400 font-mono"
-                  required
+        {/* Drag & Drop Box */}
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            handleFileUpload(e.dataTransfer.files?.[0]);
+          }}
+          className={`p-6 rounded-2xl border-2 border-dashed transition-all text-center space-y-3 ${
+            dragOver
+              ? 'border-teal-400 bg-teal-500/10'
+              : quickCoverPreview
+              ? 'border-teal-500/50 bg-zinc-900'
+              : 'border-zinc-800 hover:border-teal-500/50 bg-zinc-900/50'
+          }`}
+        >
+          {!quickCoverPreview ? (
+            <div className="space-y-3 py-2">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-400 flex items-center justify-center">
+                <UploadCloud className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-white">
+                  Drag & Drop Image or Click Below
+                </h4>
+                <p className="text-[11px] text-zinc-500">Supports PNG, JPG, WebP (Square 1:1 or 4:3 recommended)</p>
+              </div>
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                icon={Upload}
+                isLoading={uploadingCover}
+                onClick={() => fileInputRef.current?.click()}
+                className="font-bold px-6 cursor-pointer"
+              >
+                Choose Image from Device
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4 text-left">
+              <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-zinc-950 border border-teal-500/40">
+                <img
+                  src={quickCoverPreview}
+                  alt="Preview"
+                  className="w-24 h-24 rounded-2xl object-cover border-2 border-teal-500 bg-zinc-900 shrink-0"
                 />
+                <div className="flex-1 w-full space-y-3">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-teal-400 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Image Ready
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-zinc-300 block mb-1">Project Title</label>
+                      <input
+                        type="text"
+                        value={quickTitle}
+                        onChange={(e) => setQuickTitle(e.target.value)}
+                        placeholder="e.g. Nordic Labs Logo"
+                        className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-zinc-300 block mb-1">Select Service / Category</label>
+                      <select
+                        value={quickCategory}
+                        onChange={(e) => setQuickCategory(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none"
+                      >
+                        {categoryList
+                          .filter((c) => c !== 'All')
+                          .map((cat) => (
+                            <option key={cat} value={cat}>
+                              {cat}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* YouTube Video URL Field (Optional) */}
+                  <div>
+                    <label className="text-xs font-semibold text-zinc-300 block mb-1 flex items-center gap-1.5">
+                      <Video className="w-3.5 h-3.5 text-teal-400" />
+                      <span>YouTube / Video URL (Optional — Plays embedded in frontend)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={quickVideoUrl}
+                      onChange={(e) => setQuickVideoUrl(e.target.value)}
+                      placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                      className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none placeholder-zinc-600"
+                    />
+                  </div>
+
+                  {/* Feature on Homepage Checkbox */}
+                  <label className="flex items-center gap-2 text-xs font-bold text-zinc-300 cursor-pointer pt-1 select-none">
+                    <input
+                      type="checkbox"
+                      checked={quickFeatured}
+                      onChange={(e) => setQuickFeatured(e.target.checked)}
+                      className="w-4 h-4 rounded text-teal-500 focus:ring-0 bg-zinc-900 border-zinc-700 cursor-pointer"
+                    />
+                    <span className="flex items-center gap-1.5">
+                      <Star className={`w-3.5 h-3.5 ${quickFeatured ? 'text-amber-400 fill-amber-400' : 'text-zinc-500'}`} />
+                      <span className={quickFeatured ? 'text-amber-300 font-bold' : 'text-zinc-400'}>
+                        Feature on Homepage (Featured Design Craft & Case Studies)
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2">
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
-                  icon={Upload}
-                  isLoading={uploadingCover}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="cursor-pointer shrink-0"
+                  onClick={() => {
+                    setQuickCoverPreview('');
+                    setQuickTitle('');
+                    setQuickFeatured(false);
+                  }}
                 >
-                  Upload File
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  icon={Check}
+                  onClick={handlePublishQuickProject}
+                  className="font-bold shadow-lg"
+                >
+                  + Publish Project to Portfolio
                 </Button>
               </div>
-
-              {formData.coverImage && (
-                <div className="p-2 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center gap-3 mt-2">
-                  <img
-                    src={formData.coverImage}
-                    alt="Preview"
-                    className="w-20 h-14 object-cover rounded-lg border border-zinc-700"
-                  />
-                  <div className="text-[11px] text-emerald-400 font-mono">Cover Thumbnail Active</div>
-                </div>
-              )}
             </div>
+          )}
+        </div>
+      </div>
 
-            {/* External Links */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <div>
-                <label className="text-[11px] text-zinc-400 block mb-1">Live Case Study / Web URL</label>
-                <input
-                  type="text"
-                  value={formData.liveUrl}
-                  onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] text-zinc-400 block mb-1">Figma / Design URL</label>
-                <input
-                  type="text"
-                  value={formData.figmaUrl}
-                  onChange={(e) => setFormData({ ...formData, figmaUrl: e.target.value })}
-                  placeholder="https://figma.com/..."
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-400"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Tags & Toggles */}
-          <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-4">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">3. Tags & Visibility</h4>
-            
-            {/* Tags Manager */}
-            <div>
-              <label className="text-[11px] text-zinc-300 font-semibold block mb-1.5">Project Tags</label>
-              <div className="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleAddTag}
-                  placeholder="Type tag and press Enter..."
-                  className="flex-1 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-teal-400"
-                />
-                <Button type="button" variant="secondary" size="sm" onClick={handleAddTag}>
-                  Add Tag
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5">
-                {formData.tags.map((t) => (
+      {/* =========================================================================
+          3. INTERACTIVE CATEGORY FILTER & PROJECT CARD GRID
+          ========================================================================= */}
+      <div className="space-y-4">
+        <div className="p-4 rounded-3xl bg-zinc-900/60 border border-zinc-800 flex flex-col lg:flex-row items-center justify-between gap-4">
+          {/* Category Switcher Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full lg:w-auto py-1">
+            {categoryList.map((cat) => {
+              const isActive = selectedCategory === cat;
+              const count = categoryCounts[cat] || 0;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
+                    isActive
+                      ? 'bg-teal-500 text-zinc-950 font-black shadow-md'
+                      : 'bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <span>{cat}</span>
                   <span
-                    key={t}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-300 text-xs font-mono"
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      isActive ? 'bg-zinc-950/30 text-zinc-950' : 'bg-zinc-800 text-zinc-500'
+                    }`}
                   >
-                    {t}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(t)}
-                      className="hover:text-rose-400 cursor-pointer"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
+                    {count}
                   </span>
-                ))}
-              </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search Box */}
+          <div className="relative w-full lg:w-64 shrink-0">
+            <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search projects..."
+              className="w-full pl-9 pr-4 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-xs font-medium focus:border-teal-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Project Cards Grid */}
+        {filteredProjects.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredProjects.map((p) => {
+              const isLive = p.active !== false;
+              const isFeatured = Boolean(p.featured);
+
+              return (
+                <div
+                  key={p.id}
+                  className={`p-4 rounded-3xl border transition-all flex flex-col justify-between space-y-4 group ${
+                    isLive
+                      ? 'bg-zinc-950/80 border-zinc-800 hover:border-teal-500/50 shadow-lg'
+                      : 'bg-zinc-950/40 border-zinc-900 opacity-60'
+                  }`}
+                >
+                  {/* Thumbnail & Badges */}
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800/80">
+                    <img
+                      src={p.coverImage}
+                      alt={p.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.src =
+                          'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600&auto=format&fit=crop&q=80';
+                      }}
+                    />
+
+                    {/* Category Badge */}
+                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-zinc-950/90 backdrop-blur-md text-teal-300 border border-white/10 shadow-sm">
+                        {p.category || 'Design'}
+                      </span>
+                    </div>
+
+                    {/* Status Overlays */}
+                    {!isLive && (
+                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                        <span className="px-3 py-1 rounded-xl bg-zinc-900 text-zinc-300 text-xs font-bold">
+                          ⚪ HIDDEN / DRAFT
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Title & Info */}
+                  <div className="space-y-1.5 flex-1">
+                    <h4 className="text-sm font-bold font-display text-white line-clamp-1 group-hover:text-teal-300 transition-colors">
+                      {p.title}
+                    </h4>
+                    {p.summary && (
+                      <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+                        {p.summary}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Controls & Actions Bar */}
+                  <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between gap-2">
+                    {/* Left: ON/OFF and Star Controls */}
+                    <div className="flex items-center gap-1.5">
+                      {/* Live ON/OFF Switch */}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(p)}
+                        className={`p-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1 font-bold text-xs ${
+                          isLive
+                            ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/20'
+                            : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-white'
+                        }`}
+                        title={isLive ? 'Live on Site: Click to Hide (OFF)' : 'Hidden: Click to Make Live (ON)'}
+                      >
+                        {isLive ? (
+                          <ToggleRight className="w-5 h-5 text-emerald-400" />
+                        ) : (
+                          <ToggleLeft className="w-5 h-5 text-zinc-500" />
+                        )}
+                        <span className="text-[10px] hidden sm:inline">{isLive ? 'ON' : 'OFF'}</span>
+                      </button>
+
+                      {/* Homepage Featured Star */}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleFeatured(p)}
+                        className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                          isFeatured
+                            ? 'bg-amber-500/20 border-amber-500/50 text-amber-400 hover:bg-amber-500/30'
+                            : 'bg-zinc-900 border-zinc-800 text-zinc-600 hover:text-zinc-300'
+                        }`}
+                        title={
+                          isFeatured
+                            ? '⭐ Featured on Homepage Case Studies. Click to remove.'
+                            : '☆ Click to Feature on Homepage Case Studies.'
+                        }
+                      >
+                        <Star className={`w-3.5 h-3.5 ${isFeatured ? 'fill-amber-400 text-amber-400' : 'text-zinc-500'}`} />
+                      </button>
+                    </div>
+
+                    {/* Right: Edit & Delete Buttons */}
+                    <div className="flex items-center gap-1.5">
+                      <a
+                        href={`/portfolio/${p.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 transition-colors"
+                        title="View Public Page"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </a>
+
+                      <button
+                        onClick={() => openEditModal(p)}
+                        className="p-2 rounded-xl bg-teal-500/10 hover:bg-teal-500 text-teal-400 hover:text-zinc-950 transition-all font-bold cursor-pointer"
+                        title="Edit Full Details"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteProject(p)}
+                        className="p-2 rounded-xl bg-zinc-900 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 border border-zinc-800 transition-colors cursor-pointer"
+                        title="Delete Project"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="p-12 rounded-3xl bg-zinc-950/60 border border-dashed border-zinc-800 text-center space-y-2">
+            <FolderKanban className="w-8 h-8 text-zinc-600 mx-auto" />
+            <h4 className="text-sm font-bold text-white">No Projects Found in this Filter</h4>
+            <p className="text-xs text-zinc-500">Upload a project above or reset your category filter.</p>
+          </div>
+        )}
+      </div>
+
+      {/* =========================================================================
+          4. FULL DETAILS EDIT MODAL
+          ========================================================================= */}
+      <Modal
+        isOpen={editorOpen}
+        onClose={() => setEditorOpen(false)}
+        title={`Edit: ${editFormData.title}`}
+        size="2xl"
+      >
+        <form onSubmit={handleSaveEditDetails} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-zinc-300 block mb-1">Project Title</label>
+              <input
+                type="text"
+                value={editFormData.title}
+                onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none"
+              />
             </div>
 
-            {/* Toggles */}
-            <div className="flex items-center gap-6 pt-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                  className="w-4 h-4 rounded text-amber-500 bg-zinc-950 border-zinc-700 accent-amber-500"
-                />
-                <span className="text-xs font-bold text-white">⭐ Featured on Homepage</span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.active}
-                  onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                  className="w-4 h-4 rounded text-emerald-500 bg-zinc-950 border-zinc-700 accent-emerald-500"
-                />
-                <span className="text-xs font-bold text-white">🟢 Published (Live)</span>
-              </label>
+            <div>
+              <label className="text-xs font-bold text-zinc-300 block mb-1">Category / Service</label>
+              <select
+                value={editFormData.category}
+                onChange={(e) => setEditFormData({ ...editFormData, category: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none"
+              >
+                {categoryList
+                  .filter((c) => c !== 'All')
+                  .map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+              </select>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button type="button" variant="ghost" size="sm" onClick={() => setEditorOpen(false)}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-zinc-300 block mb-1">Client Name</label>
+              <input
+                type="text"
+                value={editFormData.client}
+                onChange={(e) => setEditFormData({ ...editFormData, client: e.target.value })}
+                placeholder="e.g. Nordic Labs LLC"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-zinc-300 block mb-1">Year</label>
+              <input
+                type="text"
+                value={editFormData.year}
+                onChange={(e) => setEditFormData({ ...editFormData, year: e.target.value })}
+                className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-zinc-300 block mb-1">Cover Image URL</label>
+            <input
+              type="text"
+              value={editFormData.coverImage}
+              onChange={(e) => setEditFormData({ ...editFormData, coverImage: e.target.value })}
+              className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-zinc-300 block mb-1 flex items-center gap-1.5">
+              <Video className="w-3.5 h-3.5 text-teal-400" />
+              <span>YouTube Video URL (Optional — Plays embedded in frontend)</span>
+            </label>
+            <input
+              type="text"
+              value={editFormData.liveUrl || ''}
+              onChange={(e) => setEditFormData({ ...editFormData, liveUrl: e.target.value })}
+              placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+              className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none placeholder-zinc-600"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-zinc-300 block mb-1">Short Summary (Shown on Grid)</label>
+            <textarea
+              rows={2}
+              value={editFormData.summary}
+              onChange={(e) => setEditFormData({ ...editFormData, summary: e.target.value })}
+              className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs focus:border-teal-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-zinc-300 block mb-1">Full Description & Deliverables</label>
+            <textarea
+              rows={3}
+              value={editFormData.description}
+              onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+              className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs focus:border-teal-500 focus:outline-none"
+            />
+          </div>
+
+          {/* Modal Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setEditorOpen(false)}
+            >
               Cancel
             </Button>
-            <Button type="submit" variant="primary" size="md" isLoading={saving}>
-              {formData.id ? 'Save Project Changes' : 'Create & Publish Project'}
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              icon={Check}
+              isLoading={saving}
+              className="font-bold"
+            >
+              Save Project Changes
             </Button>
           </div>
         </form>
       </Modal>
-
-      {/* Confirm Save Modal */}
-      <ConfirmDialog
-        isOpen={confirmSaveOpen}
-        onClose={() => setConfirmSaveOpen(false)}
-        onConfirm={executeSaveProject}
-        title={formData.id ? 'Save Project Changes?' : 'Create & Publish Project?'}
-        message={`Are you sure you want to save "${formData.title}"?`}
-        confirmText="Yes, Save Project"
-        cancelText="Review Again"
-        isLoading={saving}
-        variant="primary"
-      />
-
-      {/* Confirm Delete Dialog */}
-      <ConfirmDialog
-        isOpen={Boolean(deleteTarget)}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDelete}
-        title="Delete Portfolio Project"
-        message={`Are you sure you want to permanently delete "${deleteTarget?.title}"? This action cannot be undone.`}
-        confirmText="Yes, Delete Project"
-        cancelText="Cancel"
-        isLoading={deleteLoading}
-        variant="danger"
-      />
     </div>
   );
 };

@@ -82,26 +82,32 @@ const getServiceBySlug = async (req, res, next) => {
       return errorResponse(res, 'Service not found.', 404);
     }
 
-    // Fetch related portfolio projects for this service
-    const relatedProjects = await prisma.project.findMany({
+    // 1. Fetch projects EXPLICITLY assigned or created for this service
+    let serviceProjects = await prisma.project.findMany({
       where: {
         active: true,
         OR: [
           { serviceId: service.id },
           { serviceSlug: service.slug },
-          { category: { contains: service.title } },
           { category: service.title },
-          { title: { contains: service.title } },
         ],
       },
-      take: 6,
       orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
     });
 
-    // Fallback: If no direct service match, fetch latest active projects
-    const finalProjects = relatedProjects.length > 0
-      ? relatedProjects
-      : await prisma.project.findMany({ where: { active: true }, take: 4, orderBy: { order: 'asc' } });
+    // 2. If the service has no explicitly attached projects, fetch direct category matches
+    if (serviceProjects.length === 0) {
+      serviceProjects = await prisma.project.findMany({
+        where: {
+          active: true,
+          category: { contains: service.title },
+        },
+        take: 6,
+        orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
+      });
+    }
+
+    const finalProjects = serviceProjects;
 
     // Fetch relevant FAQs
     const faqs = await prisma.faq.findMany({
@@ -119,9 +125,14 @@ const getServiceBySlug = async (req, res, next) => {
           tags: parseJsonField(p.tags),
           galleryImages: parseJsonField(p.galleryImages),
         })),
+        packages: service.packages.map((p) => ({
+          ...p,
+          features: parseJsonField(p.features),
+          excludedFeatures: parseJsonField(p.excludedFeatures),
+        })),
         faqs,
       },
-      'Service details retrieved successfully.'
+      'Service details retrieved.'
     );
   } catch (err) {
     next(err);
@@ -130,7 +141,7 @@ const getServiceBySlug = async (req, res, next) => {
 
 /**
  * Admin: Get all services
- * GET /api/admin/services
+ * GET /api/admin/services/all
  */
 const getAllServicesAdmin = async (req, res, next) => {
   try {
@@ -163,6 +174,11 @@ const createService = async (req, res, next) => {
 
     const finalSlug = slug ? generateSlug(slug) : generateSlug(title);
 
+    const existing = await prisma.service.findUnique({ where: { slug: finalSlug } });
+    if (existing) {
+      return errorResponse(res, 'A service with this slug already exists.', 409);
+    }
+
     const service = await prisma.service.create({
       data: {
         title: title.trim(),
@@ -177,7 +193,34 @@ const createService = async (req, res, next) => {
       },
     });
 
-    return successResponse(res, formatService(service), 'Service created successfully.', 201);
+    // Save initial packages if provided
+    if (Array.isArray(req.body.packages) && req.body.packages.length > 0) {
+      for (let i = 0; i < req.body.packages.length; i++) {
+        const pkg = req.body.packages[i];
+        if (!pkg.name) continue;
+        await prisma.package.create({
+          data: {
+            serviceId: service.id,
+            name: pkg.name.trim(),
+            description: pkg.description || null,
+            price: parseFloat(pkg.price) || 0,
+            billingPeriod: pkg.billingPeriod || 'per project',
+            features: formatJsonField(pkg.features) || '[]',
+            isPopular: Boolean(pkg.isPopular),
+            order: i + 1,
+            active: true,
+            ctaText: pkg.ctaText || 'Select & Order Package',
+          },
+        }).catch(() => null);
+      }
+    }
+
+    const finalCreated = await prisma.service.findUnique({
+      where: { id: service.id },
+      include: { packages: { orderBy: { order: 'asc' } } },
+    });
+
+    return successResponse(res, formatService(finalCreated || service), 'Service created successfully.', 201);
   } catch (err) {
     next(err);
   }
@@ -208,12 +251,52 @@ const updateService = async (req, res, next) => {
     if (order !== undefined) updateData.order = parseInt(order, 10);
     if (active !== undefined) updateData.active = Boolean(active);
 
-    const updated = await prisma.service.update({
+    // Save service core updates in SQLite
+    const updatedService = await prisma.service.update({
       where: { id },
       data: updateData,
     });
 
-    return successResponse(res, formatService(updated), 'Service updated successfully.');
+    // Atomically synchronize packages if provided
+    if (Array.isArray(req.body.packages) && req.body.packages.length > 0) {
+      for (let i = 0; i < req.body.packages.length; i++) {
+        const pkg = req.body.packages[i];
+        if (!pkg.name) continue;
+        const pkgData = {
+          serviceId: id,
+          name: pkg.name.trim(),
+          description: pkg.description || null,
+          price: parseFloat(pkg.price) || 0,
+          billingPeriod: pkg.billingPeriod || 'per project',
+          features: formatJsonField(pkg.features) || '[]',
+          isPopular: Boolean(pkg.isPopular),
+          order: i + 1,
+          active: true,
+          ctaText: pkg.ctaText || 'Select & Order Package',
+        };
+
+        if (pkg.id && !pkg.id.startsWith('pkg-')) {
+          await prisma.package.upsert({
+            where: { id: pkg.id },
+            update: pkgData,
+            create: pkgData,
+          }).catch(() => null);
+        } else {
+          await prisma.package.create({ data: pkgData }).catch(() => null);
+        }
+      }
+    }
+
+    const finalUpdated = await prisma.service.findUnique({
+      where: { id },
+      include: {
+        packages: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    return successResponse(res, formatService(finalUpdated || updatedService), 'Service updated successfully.');
   } catch (err) {
     next(err);
   }

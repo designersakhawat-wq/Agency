@@ -163,6 +163,44 @@ export const HeroSection = ({ settings, onOpenBooking }) => {
               </motion.div>
             </motion.div>
 
+            {/* Quick Interactive Direct Gateway Route Pills */}
+            <motion.div
+              variants={itemVariants}
+              className={`flex flex-wrap items-center ${showHeroImage ? 'justify-center lg:justify-start' : 'justify-center'} gap-2 pt-2`}
+            >
+              <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mr-1 flex items-center gap-1">
+                <Zap className="w-3 h-3 text-teal-400" />
+                <span>Jump to:</span>
+              </span>
+              <Link
+                to="/services/logo-branding"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 hover:bg-teal-500/10 border border-zinc-800 hover:border-teal-500/50 text-zinc-300 hover:text-white text-xs font-semibold transition-all hover:scale-105"
+              >
+                <span>🎨 Logo Design</span>
+                <ArrowRight className="w-3 h-3 text-teal-400" />
+              </Link>
+              <Link
+                to="/services/ads-creative"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 hover:bg-teal-500/10 border border-zinc-800 hover:border-teal-500/50 text-zinc-300 hover:text-white text-xs font-semibold transition-all hover:scale-105"
+              >
+                <span>⚡ Ads Creatives</span>
+                <ArrowRight className="w-3 h-3 text-teal-400" />
+              </Link>
+              <Link
+                to="/services/ugc-video"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 hover:bg-teal-500/10 border border-zinc-800 hover:border-teal-500/50 text-zinc-300 hover:text-white text-xs font-semibold transition-all hover:scale-105"
+              >
+                <span>🎬 UGC Reels</span>
+                <ArrowRight className="w-3 h-3 text-teal-400" />
+              </Link>
+              <Link
+                to="/portfolio"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/40 text-teal-300 hover:text-white text-xs font-bold transition-all hover:scale-105"
+              >
+                <span>📁 Full Portfolio →</span>
+              </Link>
+            </motion.div>
+
             {/* Trust Markers with Subtle Badges */}
             {(heroTrustBadge1 || heroTrustBadge2) && (
               <motion.div

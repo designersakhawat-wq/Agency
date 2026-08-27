@@ -47,15 +47,21 @@ const getPublicProjects = async (req, res, next) => {
   try {
     const { category, serviceId, serviceSlug, featured, search, limit } = req.query;
 
+    const isValid = (val) => val && val !== 'undefined' && val !== 'null' && typeof val === 'string' && val.trim() !== '';
+
     const where = { active: true };
 
-    if (category && category !== 'All') {
-      where.category = category;
+    if (isValid(category) && category !== 'All') {
+      where.OR = [
+        { category: category },
+        { category: { contains: category } },
+        { tags: { contains: category } },
+      ];
     }
 
-    if (serviceId) {
+    if (isValid(serviceId)) {
       where.serviceId = serviceId;
-    } else if (serviceSlug) {
+    } else if (isValid(serviceSlug)) {
       where.serviceSlug = serviceSlug;
     }
 
@@ -63,12 +69,14 @@ const getPublicProjects = async (req, res, next) => {
       where.featured = true;
     }
 
-    if (search) {
+    if (isValid(search)) {
+      const s = search.trim();
       where.OR = [
-        { title: { contains: search } },
-        { summary: { contains: search } },
-        { client: { contains: search } },
-        { category: { contains: search } },
+        { title: { contains: s } },
+        { summary: { contains: s } },
+        { client: { contains: s } },
+        { category: { contains: s } },
+        { tags: { contains: s } },
       ];
     }
 

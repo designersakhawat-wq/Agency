@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import confetti from 'canvas-confetti';
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
+import { useCurrency } from '../../context/CurrencyContext';
 
 const timeSlots = [
   '09:00 AM',
@@ -36,10 +38,17 @@ const meetingTypes = [
 ];
 
 const BookingPage = () => {
+  const location = useLocation();
   const { success, error } = useToast();
+  const { formatAmount, currencySymbol } = useCurrency();
   const [loading, setLoading] = useState(false);
   const [busySlots, setBusySlots] = useState([]);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+
+  const initialServiceName = location.state?.serviceName || 'Logo & Branding';
+  const initialNotes = location.state?.packageName
+    ? `Interested in package: ${location.state.packageName} (${formatAmount(location.state.packagePrice || 0)})`
+    : '';
 
   // Form State
   const [formData, setFormData] = useState({
@@ -47,12 +56,12 @@ const BookingPage = () => {
     email: '',
     phone: '',
     company: '',
-    serviceName: 'Logo & Branding',
+    serviceName: initialServiceName,
     meetingType: 'Creative Discovery Consultation (30 min)',
     date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
     timeSlot: '11:00 AM',
-    budget: '$500 - $1,500',
-    notes: '',
+    budget: location.state?.packagePrice ? `${formatAmount(location.state.packagePrice)}` : 'Growth',
+    notes: initialNotes,
   });
 
   useEffect(() => {
@@ -95,7 +104,7 @@ const BookingPage = () => {
   };
 
   return (
-    <div className="pt-32 pb-24 min-h-screen relative overflow-hidden">
+    <div className="pt-44 sm:pt-48 pb-24 min-h-screen relative overflow-hidden">
       {/* Ambient background glow */}
       <div className="ambient-glow-teal top-20 right-1/4 opacity-20 pointer-events-none" />
 
@@ -298,10 +307,10 @@ const BookingPage = () => {
                       onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-white text-xs focus:outline-none focus:border-teal-500"
                     >
-                      <option value="Under $500">Under $500</option>
-                      <option value="$500 - $1,500">$500 - $1,500</option>
-                      <option value="$1,500 - $3,000">$1,500 - $3,000</option>
-                      <option value="$3,000+">$3,000+ (Retainer)</option>
+                      <option value="Under Tier">Under {formatAmount(500)}</option>
+                      <option value="Standard Tier">{formatAmount(500)} – {formatAmount(1500)}</option>
+                      <option value="Growth Tier">{formatAmount(1500)} – {formatAmount(3000)}</option>
+                      <option value="Scale Tier">{formatAmount(3000)}+ (Retainer)</option>
                     </select>
                   </div>
                 </div>

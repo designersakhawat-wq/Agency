@@ -225,6 +225,51 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
             })}
           </AnimatePresence>
         </motion.div>
+
+        {/* Bottom Multi-Service Connective Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-12 p-6 rounded-3xl bg-zinc-950/80 border border-zinc-800/80 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/30 shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">Looking for works in a specific format?</h4>
+              <p className="text-xs text-zinc-400">Jump directly into any service's full slider showcase on the Portfolio page.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <Link
+              to="/portfolio#logo-branding"
+              className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-teal-500/10 text-zinc-300 hover:text-white text-xs font-semibold border border-zinc-800 hover:border-teal-500/40 transition-colors"
+            >
+              🎨 Logo Branding
+            </Link>
+            <Link
+              to="/portfolio#ads-creative"
+              className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-teal-500/10 text-zinc-300 hover:text-white text-xs font-semibold border border-zinc-800 hover:border-teal-500/40 transition-colors"
+            >
+              ⚡ Ads Creative
+            </Link>
+            <Link
+              to="/portfolio#ugc-video"
+              className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-teal-500/10 text-zinc-300 hover:text-white text-xs font-semibold border border-zinc-800 hover:border-teal-500/40 transition-colors"
+            >
+              🎬 UGC Video
+            </Link>
+            <Link
+              to="/portfolio#cover-branding"
+              className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-teal-500/10 text-zinc-300 hover:text-white text-xs font-semibold border border-zinc-800 hover:border-teal-500/40 transition-colors"
+            >
+              🖼️ Cover Branding
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

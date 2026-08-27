@@ -39,7 +39,11 @@ const errorHandler = (err, req, res, next) => {
   }
 
   const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal server error. Please try again later.';
+  let message = err.message || 'Internal server error. Please try again later.';
+  
+  if (statusCode === 500 && process.env.NODE_ENV === 'production') {
+    message = 'An unexpected server error occurred. Please try again or contact support.';
+  }
 
   return errorResponse(res, message, statusCode);
 };

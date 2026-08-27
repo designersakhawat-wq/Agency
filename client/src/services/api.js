@@ -1,6 +1,6 @@
 /**
  * Unified High-Performance API Client for Frontend & Admin Dashboard
- * Features: In-flight request deduplication & smart client caching
+ * Features: In-flight request deduplication, resilient timeouts & intelligent tiered caching
  */
 
 const API_BASE = '/api';
@@ -11,17 +11,19 @@ const getAuthToken = () => {
 
 // In-flight request de-duplication cache
 const inFlightRequests = new Map();
-// Client-side memory cache (5 seconds TTL for GET requests)
+// Client-side memory cache (60 seconds TTL for public GET requests)
 const requestCache = new Map();
+const PUBLIC_CACHE_TTL_MS = 60 * 1000; // 60 seconds
 
 const request = async (endpoint, options = {}) => {
   const isGet = !options.method || options.method.toUpperCase() === 'GET';
+  const forceRefresh = Boolean(options.forceRefresh);
   const cacheKey = `${options.method || 'GET'}:${endpoint}`;
 
-  // For GET requests, check if we have a fresh cached response (< 5s)
-  if (isGet && !endpoint.includes('/admin') && !endpoint.includes('/auth')) {
+  // For GET requests, check if we have a fresh cached response (< 60s) unless forceRefresh
+  if (isGet && !forceRefresh && !endpoint.includes('/admin') && !endpoint.includes('/auth')) {
     const cached = requestCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 5000) {
+    if (cached && Date.now() - cached.timestamp < PUBLIC_CACHE_TTL_MS) {
       return cached.data;
     }
 
@@ -46,10 +48,26 @@ const request = async (endpoint, options = {}) => {
       headers['Content-Type'] = 'application/json';
     }
 
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    // 20-second AbortController timeout protection against hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+    let response;
+    try {
+      response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers,
+        signal: options.signal || controller.signal,
+      });
+    } catch (fetchErr) {
+      clearTimeout(timeoutId);
+      if (fetchErr.name === 'AbortError') {
+        throw new Error('Network request timed out. Please check your internet connection.');
+      }
+      throw fetchErr;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     let data;
     try {
@@ -75,10 +93,10 @@ const request = async (endpoint, options = {}) => {
       throw error;
     }
 
-    if (isGet) {
+    if (isGet && !endpoint.includes('/admin') && !endpoint.includes('/auth')) {
       requestCache.set(cacheKey, { data, timestamp: Date.now() });
-    } else {
-      // Clear cache on mutation
+    } else if (!isGet) {
+      // Clear cache on any mutation (POST/PUT/DELETE/upload)
       requestCache.clear();
     }
 
@@ -94,34 +112,52 @@ const request = async (endpoint, options = {}) => {
 };
 
 export const api = {
-  get: (url, params = {}) => {
-    const queryString = new URLSearchParams(params).toString();
+  get: (url, params = {}, options = {}) => {
+    const cleanParams = {};
+    if (params && typeof params === 'object') {
+      Object.keys(params).forEach((k) => {
+        const val = params[k];
+        if (
+          val !== undefined &&
+          val !== null &&
+          val !== '' &&
+          val !== 'undefined' &&
+          val !== 'null'
+        ) {
+          cleanParams[k] = val;
+        }
+      });
+    }
+    const queryString = new URLSearchParams(cleanParams).toString();
     const finalUrl = queryString ? `${url}?${queryString}` : url;
-    return request(finalUrl, { method: 'GET' });
+    return request(finalUrl, { method: 'GET', ...options });
   },
 
-  post: (url, body) => {
+  post: (url, body, options = {}) => {
     return request(url, {
       method: 'POST',
       body: body instanceof FormData ? body : JSON.stringify(body),
+      ...options,
     });
   },
 
-  put: (url, body) => {
+  put: (url, body, options = {}) => {
     return request(url, {
       method: 'PUT',
       body: body instanceof FormData ? body : JSON.stringify(body),
+      ...options,
     });
   },
 
-  delete: (url) => {
-    return request(url, { method: 'DELETE' });
+  delete: (url, options = {}) => {
+    return request(url, { method: 'DELETE', ...options });
   },
 
-  upload: (url, formData) => {
+  upload: (url, formData, options = {}) => {
     return request(url, {
       method: 'POST',
       body: formData,
+      ...options,
     });
   },
 

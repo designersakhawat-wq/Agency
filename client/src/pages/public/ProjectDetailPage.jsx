@@ -71,7 +71,7 @@ const ProjectDetailPage = () => {
   const impactText = project.results || '';
 
   return (
-    <div className="pt-32 pb-24 min-h-screen relative overflow-hidden">
+    <div className="pt-44 sm:pt-48 pb-24 min-h-screen relative overflow-hidden">
       {/* Background ambient glow */}
       <div className="ambient-glow-teal top-20 right-1/4 opacity-20 pointer-events-none" />
 

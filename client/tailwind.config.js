@@ -39,8 +39,11 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
-        display: ['Outfit', 'Plus Jakarta Sans', 'sans-serif'],
+        sans: ['"Archivo"', '"Hind Siliguri"', '"Noto Sans Bengali"', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        display: ['"Archivo"', '"Hind Siliguri"', 'sans-serif'],
+        heading: ['"Archivo"', '"Hind Siliguri"', 'sans-serif'],
+        bangla: ['"Hind Siliguri"', '"Noto Sans Bengali"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       animation: {
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',

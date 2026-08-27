@@ -14,26 +14,7 @@ import {
   Globe,
 } from 'lucide-react';
 import { api } from '../../services/api';
-
-// Language detection helper
-const detectLanguage = (text = '') => {
-  if (!text) return 'en';
-  // Check for Bengali Unicode script (অ, আ, ক, খ, etc.)
-  const banglaRegex = /[\u0980-\u09FF]/;
-  if (banglaRegex.test(text)) return 'bn';
-
-  // Check for common phonetic Banglish words
-  const banglishTokens = [
-    'koto', 'dam', 'amar', 'lagbe', 'chai', 'kivabe', 'korbo', 'ki', 'bhai',
-    'apnar', 'shomoy', 'kaj', 'dorkar', 'acha', 'ache', 'korte', 'bhalo',
-    'keno', 'kobe', 'urgent', 'taka', 'khoroch', 'design', 'banabo', 'parben',
-    'dhaka', 'apni', 'amake', 'lagbe', 'kichu', 'dekhi', 'shuru', 'chao',
-    'software', 'tools', 'payment', 'bkash', 'nagad', 'advance', 'revision', 'phone'
-  ];
-  const words = text.toLowerCase().split(/[\s,?.!]+/);
-  const isBanglish = words.some((w) => banglishTokens.includes(w));
-  return isBanglish ? 'bn' : 'en';
-};
+import { querySmartAssistant, detectLanguage } from '../../services/aiAssistantService';
 
 export const InteractiveChatWidget = ({ onOpenBooking }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -228,79 +209,17 @@ export const InteractiveChatWidget = ({ onOpenBooking }) => {
 
     // Multi-Layer Knowledge Synthesis Engine
     setTimeout(() => {
-      const lowerQuery = text.toLowerCase();
-      const queryTokens = lowerQuery.split(/[\s,?.!]+/).filter((t) => t.length > 1);
-
-      let matchedRule = null;
-
-      // 1. Structured Rule Matching
-      for (const rule of knowledgeRules) {
-        if (!rule.keywords) continue;
-        const kws = rule.keywords.split(',').map((k) => k.trim().toLowerCase()).filter(Boolean);
-        if (kws.some((kw) => lowerQuery.includes(kw))) {
-          matchedRule = rule;
-          break;
-        }
-      }
-
-      let botResponse = '';
-
-      if (matchedRule) {
-        if (detectedLang === 'bn' && matchedRule.response_bn) {
-          botResponse = matchedRule.response_bn;
-        } else {
-          botResponse = matchedRule.response || matchedRule.response_bn;
-        }
-      } else {
-        // 2. Custom Knowledge Cards Matching
-        let bestCard = null;
-        let bestCardScore = 0;
-
-        for (const card of customKnowledgeCards) {
-          const cardText = `${card.title || ''} ${card.content || ''} ${card.content_bn || ''} ${card.keywords || ''}`.toLowerCase();
-          let score = 0;
-          for (const token of queryTokens) {
-            if (cardText.includes(token)) {
-              score += token.length > 3 ? 3 : 1;
-            }
-          }
-          if (score > bestCardScore) {
-            bestCardScore = score;
-            bestCard = card;
-          }
-        }
-
-        if (bestCard && bestCardScore >= 2) {
-          botResponse = detectedLang === 'bn' && bestCard.content_bn ? bestCard.content_bn : (bestCard.content || bestCard.content_bn);
-        } else if (rawKnowledgeText && typeof rawKnowledgeText === 'string') {
-          // 3. Raw Knowledge Text Search
-          const paragraphs = rawKnowledgeText.split(/\n\s*\n/).filter((p) => p.trim().length > 10);
-          let bestPara = '';
-          let bestParaScore = 0;
-
-          for (const para of paragraphs) {
-            const lowerPara = para.toLowerCase();
-            let score = 0;
-            for (const token of queryTokens) {
-              if (lowerPara.includes(token)) {
-                score += token.length > 3 ? 3 : 1;
-              }
-            }
-            if (score > bestParaScore) {
-              bestParaScore = score;
-              bestPara = para.trim();
-            }
-          }
-
-          if (bestPara && bestParaScore >= 2) {
-            botResponse = bestPara;
-          } else {
-            botResponse = detectedLang === 'bn' ? assistantConfig.fallback_bn : assistantConfig.fallback_en;
-          }
-        } else {
-          botResponse = detectedLang === 'bn' ? assistantConfig.fallback_bn : assistantConfig.fallback_en;
-        }
-      }
+      const botResponse = querySmartAssistant({
+        query: text,
+        rules: knowledgeRules,
+        customCards: customKnowledgeCards,
+        rawKnowledge: rawKnowledgeText,
+        generalConfig: {
+          fallback_en: assistantConfig.fallback_en,
+          fallback_bn: assistantConfig.fallback_bn,
+        },
+        lang: detectedLang,
+      });
 
       setMessages((prev) => [
         ...prev,
@@ -313,14 +232,7 @@ export const InteractiveChatWidget = ({ onOpenBooking }) => {
         },
       ]);
       setIsTyping(false);
-
-      // Trigger automatic booking modal if configured
-      if (matchedRule && matchedRule.action === 'open_booking' && onOpenBooking) {
-        setTimeout(() => {
-          onOpenBooking(matchedRule.topic || 'AI Assistant Inquiry');
-        }, 1200);
-      }
-    }, 600);
+    }, 450);
   };
 
   const handleFormSubmit = (e) => {
@@ -334,60 +246,37 @@ export const InteractiveChatWidget = ({ onOpenBooking }) => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* Teaser Bubble Preview when closed */}
+      {/* Teaser Bubble Preview when closed - Compact & Sleek */}
       <AnimatePresence>
         {!isOpen && hasAutoOpened && (
           <motion.div
-            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="absolute bottom-20 right-0 mb-2 w-[320px] sm:w-[350px] max-w-[calc(100vw-3rem)] p-4 rounded-2xl glass-panel border border-teal-500/40 shadow-2xl bg-[#09090b]/98 backdrop-blur-xl hover:border-teal-400 transition-all z-50"
+            className="absolute bottom-16 right-0 mb-2 w-[220px] sm:w-[240px] p-3 rounded-2xl border border-teal-500/40 shadow-2xl bg-[#09090b]/95 backdrop-blur-xl hover:border-teal-400 transition-all z-50 cursor-pointer group"
+            onClick={() => setIsOpen(true)}
           >
-            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-zinc-800">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                <span className="text-xs font-bold text-white truncate">Live Creative Consultant</span>
+            <div className="flex items-center justify-between gap-1.5 mb-1.5 pb-1.5 border-b border-zinc-800/80">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                <span className="text-[11px] font-bold text-white truncate">Creative Assistant</span>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setPreferredLang(preferredLang === 'bn' ? 'en' : 'bn')}
-                  className="px-1.5 py-0.5 rounded bg-zinc-800 text-[10px] text-teal-300 hover:text-white border border-zinc-700 whitespace-nowrap"
-                  title="Toggle EN / বাংলা Language"
-                >
-                  {preferredLang === 'bn' ? '🇧🇩 বাং' : '🇬🇧 EN'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setHasAutoOpened(false)}
-                  className="text-zinc-500 hover:text-white p-0.5 rounded"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            <p
-              onClick={() => setIsOpen(true)}
-              className="text-xs text-zinc-200 leading-relaxed cursor-pointer hover:text-teal-300 transition-colors"
-            >
-              {preferredLang === 'bn' ? assistantConfig.welcome_bn : assistantConfig.welcome_en}
-            </p>
-
-            <div className="mt-3 flex items-center justify-between pt-2 border-t border-zinc-800/80">
-              <span className="text-[10px] text-zinc-400 flex items-center gap-1">
-                <Globe className="w-3 h-3 text-teal-400" />
-                <span>English + বাংলা সাপোর্টেড</span>
-              </span>
               <button
                 type="button"
-                onClick={() => setIsOpen(true)}
-                className="text-[11px] font-bold text-teal-300 hover:text-teal-200 flex items-center gap-1 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setHasAutoOpened(false);
+                }}
+                className="text-zinc-500 hover:text-white p-0.5 rounded transition-colors"
+                title="Dismiss"
               >
-                <span>Chat Now</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
+
+            <p className="text-xs text-zinc-300 group-hover:text-teal-300 transition-colors leading-snug line-clamp-2">
+              👋 Need design help, pricing, or ideas? Let's chat!
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

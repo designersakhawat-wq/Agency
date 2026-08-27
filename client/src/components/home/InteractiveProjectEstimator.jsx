@@ -18,10 +18,10 @@ import { useCurrency } from '../../context/CurrencyContext';
 import { api } from '../../services/api';
 
 const DEFAULT_CONFIG = {
-  badge: 'Interactive Cost & ROI Calculator',
-  title: 'Calculate Your Custom Project & ROI in 60s',
+  badge: 'Instant Project Scope & Budget Calculator',
+  title: 'Calculate Your Custom Project Cost & Turnaround',
   subtitle:
-    'Select your requirements below to see an instant transparent price quote and lock in an exclusive 15% discount voucher.',
+    'Select your design deliverables below for an instant transparent price quote and turnaround estimate with zero obligation.',
   discount_percent: 15,
   roi_multiplier_min: 3.2,
   roi_multiplier_max: 5.5,

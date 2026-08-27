@@ -4,9 +4,12 @@ client/node_modules/
 
 # Environment variables
 .env
+.env.*
 .env.local
 .env.production
 .env.development
+production.env
+*.env
 
 # Production builds
 dist/

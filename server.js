@@ -158,8 +158,8 @@ const { initDatabaseSchema } = require('./src/config/dbInit');
 
 const PORT = process.env.PORT || env.PORT || 5000;
 
-// Start listening immediately on 0.0.0.0 for Hostinger reverse proxy compatibility
-app.listen(PORT, '0.0.0.0', () => {
+// Start listening on 0.0.0.0 for Hostinger reverse proxy compatibility
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log('\n======================================================');
   console.log(`🚀 Production Server running on port: ${PORT}`);
   console.log(`🌍 Environment: ${env.NODE_ENV}`);
@@ -171,4 +171,34 @@ app.listen(PORT, '0.0.0.0', () => {
   initDatabaseSchema(prisma).catch((err) => {
     console.error('Database initialization background error:', err.message);
   });
+});
+
+// Graceful Shutdown for Hostinger Process Managers (PM2 / Passenger / Systemd)
+const handleGracefulShutdown = async (signal) => {
+  console.log(`\n🛑 Received ${signal}. Shutting down gracefully...`);
+  server.close(async () => {
+    console.log('HTTP server closed.');
+    try {
+      await prisma.$disconnect();
+      console.log('Database connection cleanly closed.');
+    } catch (e) {}
+    process.exit(0);
+  });
+
+  // Force close after 10s if hanging
+  setTimeout(() => {
+    console.error('Force closing server after timeout.');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGTERM', () => handleGracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => handleGracefulShutdown('SIGINT'));
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('💥 Uncaught Exception thrown:', err);
 });

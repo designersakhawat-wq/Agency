@@ -31,6 +31,8 @@ export const AdminSiteIdentityPage = () => {
   const [uploadingAbout, setUploadingAbout] = useState(false);
 
   const [formData, setFormData] = useState({
+    site_title: 'Md Sakhawat Hossain — Creative Graphic Designer',
+    site_description: 'Senior Creative Graphic Designer specializing in brand identity, high-converting social ad creatives, UGC video reels, and digital storefront branding.',
     designer_name: 'Md Sakhawat Hossain',
     designer_title: 'Creative Graphic Designer',
     designer_short_title: 'Creative Designer',
@@ -77,6 +79,8 @@ export const AdminSiteIdentityPage = () => {
 
         setFormData((prev) => ({
           ...prev,
+          site_title: d.site_title || prev.site_title,
+          site_description: d.site_description || prev.site_description,
           designer_name: d.designer_name || d.hero_designer_name || prev.designer_name,
           designer_title: d.designer_title || d.hero_designer_title || prev.designer_title,
           designer_short_title: d.designer_short_title || prev.designer_short_title,
@@ -231,6 +235,38 @@ export const AdminSiteIdentityPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-teal-400 mb-2 flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5" />
+                Browser Tab Title (SEO Title)
+              </label>
+              <input
+                type="text"
+                name="site_title"
+                value={formData.site_title}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 rounded-xl bg-zinc-950 border border-teal-500/40 text-white text-sm focus:border-teal-400 focus:outline-none transition-colors shadow-inner"
+                placeholder="Md Sakhawat Hossain — Creative Graphic Designer"
+              />
+              <span className="text-[11px] text-zinc-400 mt-1 block">
+                The exact title shown in browser tabs, Google search results, and bookmark titles.
+              </span>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">
+                SEO Meta Description
+              </label>
+              <textarea
+                rows={2}
+                name="site_description"
+                value={formData.site_description}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                placeholder="Senior Creative Graphic Designer specializing in brand identity, high-converting social ad creatives..."
+              />
+            </div>
+
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">
                 Full Name
