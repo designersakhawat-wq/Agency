@@ -8,7 +8,7 @@
     "dev:all": "concurrently \"node --watch server.js\" \"cd client && npm run dev\"",
     "start": "node server.js",
     "build": "cd client && npm install && npm run build",
-    "postinstall": "npm run build",
+    "postinstall": "npm run build && npx prisma generate",
     "install:all": "npm install && cd client && npm install",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev",
@@ -31,6 +31,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "prisma": "^6.4.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.5.1",
     "compression": "^1.8.1",
@@ -45,7 +46,6 @@
     "nodemailer": "^6.10.0"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "prisma": "^6.4.1"
+    "concurrently": "^9.1.2"
   }
 }
