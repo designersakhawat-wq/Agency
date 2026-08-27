@@ -153,10 +153,35 @@ if (resolvedDistPath) {
 // Global Error Handling Middleware
 app.use(errorHandler);
 
+const prisma = require('./src/config/db');
+
+// Self-healing database initialization (creates admin user if database is fresh)
+const initDatabase = async () => {
+  try {
+    const userCount = await prisma.user.count().catch(() => 0);
+    if (userCount === 0) {
+      console.log('🌱 Creating default admin account...');
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash('admin123456', 10);
+      await prisma.user.create({
+        data: {
+          email: 'admin@sakhawat.design',
+          password: hashedPassword,
+          name: 'Md Sakhawat Hossain',
+          role: 'ADMIN',
+        },
+      }).catch((e) => console.warn('User creation skip:', e.message));
+      console.log('✅ Admin user initialized: admin@sakhawat.design');
+    }
+  } catch (err) {
+    console.warn('Database initialization check:', err.message);
+  }
+};
+
 const PORT = process.env.PORT || env.PORT || 5000;
 
 // Start listening immediately on 0.0.0.0 for Hostinger reverse proxy compatibility
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log('\n======================================================');
   console.log(`🚀 Production Server running on port: ${PORT}`);
   console.log(`🌍 Environment: ${env.NODE_ENV}`);
@@ -164,4 +189,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
   console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
   console.log('======================================================\n');
+  await initDatabase();
 });
