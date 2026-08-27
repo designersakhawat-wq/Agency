@@ -111,36 +111,68 @@ export const AdminSettingsPage = () => {
       try {
         const res = await api.get('/settings');
         if (res.success && res.data) {
+          const d = res.data;
+          let parsedSocial = {
+            dribbble: '',
+            behance: '',
+            figma: '',
+            github: '',
+            linkedin: '',
+            twitter: '',
+          };
+
+          if (d.social_links) {
+            if (typeof d.social_links === 'object') {
+              parsedSocial = { ...parsedSocial, ...d.social_links };
+            } else if (typeof d.social_links === 'string') {
+              try {
+                parsedSocial = { ...parsedSocial, ...JSON.parse(d.social_links) };
+              } catch (e) {}
+            }
+          }
+
           setSettings((prev) => ({
             ...prev,
-            ...res.data,
-            site_logo: res.data.site_logo || '',
-            site_favicon: res.data.site_favicon || '',
-            theme_preset: res.data.theme_preset || 'cyber_teal',
-            brand_primary_color: res.data.brand_primary_color || '#14b8a6',
-            brand_secondary_color: res.data.brand_secondary_color || '#06b6d4',
-            hero_badge: res.data.hero_badge !== undefined ? res.data.hero_badge : prev.hero_badge,
-            hero_title: res.data.hero_title !== undefined ? res.data.hero_title : prev.hero_title,
-            hero_title_highlight: res.data.hero_title_highlight !== undefined ? res.data.hero_title_highlight : prev.hero_title_highlight,
-            hero_subtitle: res.data.hero_subtitle !== undefined ? res.data.hero_subtitle : prev.hero_subtitle,
-            hero_show_image: res.data.hero_show_image !== undefined ? Boolean(res.data.hero_show_image) : prev.hero_show_image,
-            hero_image: res.data.hero_image || prev.hero_image,
-            hero_core_speciality: res.data.hero_core_speciality || prev.hero_core_speciality,
-            hero_designer_name: res.data.hero_designer_name || prev.hero_designer_name,
-            hero_designer_title: res.data.hero_designer_title || prev.hero_designer_title,
-            hero_designer_status: res.data.hero_designer_status || prev.hero_designer_status,
-            hero_floating_top_val: res.data.hero_floating_top_val || prev.hero_floating_top_val,
-            hero_floating_top_sub: res.data.hero_floating_top_sub || prev.hero_floating_top_sub,
-            hero_floating_bottom_val: res.data.hero_floating_bottom_val || prev.hero_floating_bottom_val,
-            hero_floating_bottom_sub: res.data.hero_floating_bottom_sub || prev.hero_floating_bottom_sub,
-            portfolio_header_badge: res.data.portfolio_header_badge !== undefined ? res.data.portfolio_header_badge : prev.portfolio_header_badge,
-            portfolio_header_title: res.data.portfolio_header_title !== undefined ? res.data.portfolio_header_title : prev.portfolio_header_title,
-            portfolio_header_subtitle: res.data.portfolio_header_subtitle !== undefined ? res.data.portfolio_header_subtitle : prev.portfolio_header_subtitle,
-            currency_code: res.data.currency_code || 'USD',
-            currency_symbol: res.data.currency_symbol || '$',
-            currency_mode: res.data.currency_mode || 'DIRECT',
-            usd_to_bdt_rate: Number(res.data.usd_to_bdt_rate) || 120,
-            social_links: typeof res.data.social_links === 'object' ? res.data.social_links : prev.social_links,
+            ...d,
+            site_title: d.site_title || prev.site_title,
+            site_description: d.site_description || prev.site_description,
+            site_logo: d.site_logo || '',
+            site_favicon: d.site_favicon || '',
+            theme_preset: d.theme_preset || 'neon_lime',
+            brand_primary_color: d.brand_primary_color || d.accent_color || '#ccff00',
+            brand_secondary_color: d.brand_secondary_color || '#00f5d4',
+            brand_button_text_mode: d.brand_button_text_mode || 'auto',
+            hero_badge: d.hero_badge !== undefined ? d.hero_badge : prev.hero_badge,
+            hero_title: d.hero_title !== undefined ? d.hero_title : prev.hero_title,
+            hero_title_highlight: d.hero_title_highlight !== undefined ? d.hero_title_highlight : prev.hero_title_highlight,
+            hero_subtitle: d.hero_subtitle !== undefined ? d.hero_subtitle : prev.hero_subtitle,
+            hero_primary_btn_text: d.hero_primary_btn_text || prev.hero_primary_btn_text,
+            hero_primary_btn_link: d.hero_primary_btn_link || prev.hero_primary_btn_link,
+            hero_secondary_btn_text: d.hero_secondary_btn_text || prev.hero_secondary_btn_text,
+            hero_trust_badge_1: d.hero_trust_badge_1 || prev.hero_trust_badge_1,
+            hero_trust_badge_2: d.hero_trust_badge_2 || prev.hero_trust_badge_2,
+            hero_show_image: d.hero_show_image !== undefined ? Boolean(d.hero_show_image) : prev.hero_show_image,
+            hero_image: d.hero_image || prev.hero_image,
+            hero_core_speciality: d.hero_core_speciality || prev.hero_core_speciality,
+            hero_designer_name: d.hero_designer_name || d.designer_name || prev.hero_designer_name,
+            hero_designer_title: d.hero_designer_title || d.designer_title || prev.hero_designer_title,
+            hero_designer_status: d.hero_designer_status || prev.hero_designer_status,
+            hero_floating_top_val: d.hero_floating_top_val || prev.hero_floating_top_val,
+            hero_floating_top_sub: d.hero_floating_top_sub || prev.hero_floating_top_sub,
+            hero_floating_bottom_val: d.hero_floating_bottom_val || prev.hero_floating_bottom_val,
+            hero_floating_bottom_sub: d.hero_floating_bottom_sub || prev.hero_floating_bottom_sub,
+            portfolio_header_badge: d.portfolio_header_badge !== undefined ? d.portfolio_header_badge : prev.portfolio_header_badge,
+            portfolio_header_title: d.portfolio_header_title !== undefined ? d.portfolio_header_title : prev.portfolio_header_title,
+            portfolio_header_subtitle: d.portfolio_header_subtitle !== undefined ? d.portfolio_header_subtitle : prev.portfolio_header_subtitle,
+            currency_code: d.currency_code || 'USD',
+            currency_symbol: d.currency_symbol || '$',
+            currency_mode: d.currency_mode || 'DIRECT',
+            usd_to_bdt_rate: Number(d.usd_to_bdt_rate) || 120,
+            contact_email: d.contact_email || prev.contact_email,
+            contact_phone: d.contact_phone || prev.contact_phone,
+            contact_location: d.contact_location || prev.contact_location,
+            bio_summary: d.bio_summary || prev.bio_summary,
+            social_links: parsedSocial,
           }));
         }
       } catch (err) {
@@ -161,26 +193,50 @@ export const AdminSettingsPage = () => {
   const executeSaveSettings = async () => {
     setSavingSettings(true);
     try {
-      const res = await api.post('/settings/admin/bulk', { settings });
+      const payload = {
+        ...settings,
+        designer_name: settings.hero_designer_name || settings.designer_name || 'Md Sakhawat Hossain',
+        designer_title: settings.hero_designer_title || settings.designer_title || 'Creative Graphic Designer',
+        designer_bio: settings.hero_subtitle || settings.bio_summary || '',
+        accent_color: settings.brand_primary_color || '#ccff00',
+        brand_primary_color: settings.brand_primary_color || '#ccff00',
+        brand_secondary_color: settings.brand_secondary_color || '#00f5d4',
+        brand_button_text_mode: settings.brand_button_text_mode || 'auto',
+        theme_preset: settings.theme_preset || 'neon_lime',
+        social_links: typeof settings.social_links === 'object' ? JSON.stringify(settings.social_links) : settings.social_links,
+      };
+
+      const res = await api.post('/settings/admin/bulk', { settings: payload });
       if (res.success) {
-        localStorage.setItem('sakhawat_cached_settings', JSON.stringify(settings));
+        localStorage.setItem('sakhawat_cached_settings', JSON.stringify(payload));
         localStorage.setItem(
           'sakhawat_cached_brand',
           JSON.stringify({
-            site_logo: settings.site_logo || '',
-            site_favicon: settings.site_favicon || '',
-            brand_primary_color: settings.brand_primary_color || settings.accent_color || '#ccff00',
-            brand_secondary_color: settings.brand_secondary_color || '#00f5d4',
-            brand_button_text_mode: settings.brand_button_text_mode || 'auto',
-            theme_preset: settings.theme_preset || 'neon_lime',
+            site_logo: payload.site_logo || '',
+            site_favicon: payload.site_favicon || '',
+            brand_primary_color: payload.brand_primary_color,
+            brand_secondary_color: payload.brand_secondary_color,
+            brand_button_text_mode: payload.brand_button_text_mode,
+            theme_preset: payload.theme_preset,
           })
         );
+        // Clear all stale cache items so the homepage & other pages fetch fresh data immediately
+        localStorage.removeItem('sakhawat_cached_homepage');
+        localStorage.removeItem('sakhawat_cached_featured_projects');
+        localStorage.removeItem('sakhawat_cached_services');
+        localStorage.removeItem('sakhawat_cached_packages');
+        localStorage.removeItem('sakhawat_cached_testimonials');
+        localStorage.removeItem('sakhawat_cached_faqs');
+        localStorage.removeItem('sakhawat_cached_brands');
+
         api.clearCache();
-        showToast('Site, branding & currency settings saved successfully!', 'success');
-        refreshCurrency();
-        refreshBranding();
+        applyGlobalThemeCSS(payload.brand_primary_color, payload.brand_secondary_color, payload.brand_button_text_mode);
+        showToast('Site, branding & currency settings saved successfully! Live website updated instantly.', 'success');
+        refreshCurrency?.();
+        refreshBranding?.();
         window.dispatchEvent(new Event('currency-settings-changed'));
         window.dispatchEvent(new Event('branding-updated'));
+        window.dispatchEvent(new Event('settings-updated'));
         setConfirmSettingsOpen(false);
       } else {
         showToast(res.message || 'Failed to save settings.', 'error');
