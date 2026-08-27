@@ -158,39 +158,56 @@ const { initDatabaseSchema } = require('./src/config/dbInit');
 
 const PORT = process.env.PORT || env.PORT || 5000;
 
-// Support both numeric TCP ports (e.g. 5000) and Hostinger Passenger domain sockets
-const server = isNaN(Number(PORT))
-  ? app.listen(PORT, () => {
-      console.log(`🚀 Production Server listening on socket: ${PORT}`);
-      initDatabaseSchema(prisma).catch((err) => {
-        console.error('Database initialization background error:', err.message);
-      });
-    })
-  : app.listen(Number(PORT), '0.0.0.0', () => {
-      console.log('\n======================================================');
-      console.log(`🚀 Production Server running on port: ${PORT}`);
-      console.log(`🌍 Environment: ${env.NODE_ENV}`);
-      console.log(`📡 API Base: http://localhost:${PORT}/api`);
-      console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
-      console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
-      console.log('======================================================\n');
+// Resilient server startup with EADDRINUSE self-recovery
+const startServer = (portToTry, attempts = 0) => {
+  const isSocket = isNaN(Number(portToTry));
+  const s = isSocket
+    ? app.listen(portToTry)
+    : app.listen(Number(portToTry), '0.0.0.0');
 
-      initDatabaseSchema(prisma).catch((err) => {
-        console.error('Database initialization background error:', err.message);
-      });
+  s.on('listening', () => {
+    console.log('\n======================================================');
+    console.log(`🚀 Production Server listening on ${isSocket ? 'socket: ' + portToTry : 'port: ' + portToTry}`);
+    console.log(`🌍 Environment: ${env.NODE_ENV}`);
+    console.log(`📡 API Base: http://localhost:${isSocket ? 'socket' : portToTry}/api`);
+    console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
+    console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
+    console.log('======================================================\n');
+
+    initDatabaseSchema(prisma).catch((err) => {
+      console.error('Database initialization background error:', err.message);
     });
+  });
+
+  s.on('error', (err) => {
+    if (err.code === 'EADDRINUSE' && attempts < 5 && !isSocket) {
+      console.warn(`⚠️ Port ${portToTry} in use, retrying on ${Number(portToTry) + 1}...`);
+      startServer(Number(portToTry) + 1, attempts + 1);
+    } else {
+      console.error('Server listen notice:', err.message);
+    }
+  });
+
+  return s;
+};
+
+const server = startServer(PORT);
 
 // Graceful Shutdown for Hostinger Process Managers (PM2 / Passenger / Systemd)
 const handleGracefulShutdown = async (signal) => {
   console.log(`\n🛑 Received ${signal}. Shutting down gracefully...`);
-  server.close(async () => {
-    console.log('HTTP server closed.');
-    try {
-      await prisma.$disconnect();
-      console.log('Database connection cleanly closed.');
-    } catch (e) {}
+  if (server && server.close) {
+    server.close(async () => {
+      console.log('HTTP server closed.');
+      try {
+        await prisma.$disconnect();
+        console.log('Database connection cleanly closed.');
+      } catch (e) {}
+      process.exit(0);
+    });
+  } else {
     process.exit(0);
-  });
+  }
 
   // Force close after 10s if hanging
   setTimeout(() => {
