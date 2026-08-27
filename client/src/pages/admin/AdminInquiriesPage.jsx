@@ -13,34 +13,63 @@ import {
   MessageSquare,
   DollarSign,
   Tag,
+  Building,
+  Clock,
+  Save,
+  StickyNote,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
-import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
-const statusVariants = {
-  UNREAD: 'rose',
-  READ: 'default',
-  REPLIED: 'emerald',
-  ARCHIVED: 'purple',
+const LEAD_STATUSES = [
+  'ALL',
+  'NEW',
+  'CONTACTED',
+  'IN_DISCUSSION',
+  'CONVERTED',
+  'CLOSED',
+  'SPAM',
+];
+
+const getStatusBadge = (status = 'NEW') => {
+  switch (status) {
+    case 'NEW':
+    case 'UNREAD':
+      return <Badge variant="rose" size="sm">New Lead</Badge>;
+    case 'CONTACTED':
+      return <Badge variant="amber" size="sm">Contacted</Badge>;
+    case 'IN_DISCUSSION':
+      return <Badge variant="purple" size="sm">In Discussion</Badge>;
+    case 'CONVERTED':
+      return <Badge variant="emerald" size="sm">Converted ($)</Badge>;
+    case 'CLOSED':
+      return <Badge variant="default" size="sm">Closed</Badge>;
+    case 'SPAM':
+      return <Badge variant="rose" size="sm">Spam</Badge>;
+    default:
+      return <Badge variant="default" size="sm">{status}</Badge>;
+  }
 };
 
-const AdminInquiriesPage = () => {
+export const AdminInquiriesPage = () => {
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [search, setSearch] = useState('');
+  const [notesDraft, setNotesDraft] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
   const { success, error } = useToast();
 
   const fetchInquiries = async () => {
     try {
+      setLoading(true);
       const res = await api.get('/inquiries/admin/all', {
-        status: statusFilter,
-        search,
+        status: statusFilter !== 'ALL' ? statusFilter : undefined,
+        search: search || undefined,
       }).catch(() => null);
       if (res && res.success && Array.isArray(res.data)) {
         setInquiries(res.data);
@@ -73,6 +102,25 @@ const AdminInquiriesPage = () => {
     }
   };
 
+  const handleSaveNotes = async () => {
+    if (!selectedInquiry) return;
+    setSavingNotes(true);
+    try {
+      const res = await api.put(`/inquiries/admin/${selectedInquiry.id}`, { notes: notesDraft });
+      if (res.success) {
+        success('Internal lead notes saved.');
+        setInquiries((prev) =>
+          prev.map((item) => (item.id === selectedInquiry.id ? { ...item, notes: notesDraft } : item))
+        );
+        setSelectedInquiry((prev) => ({ ...prev, notes: notesDraft }));
+      }
+    } catch (err) {
+      error(err.message || 'Failed to save notes.');
+    } finally {
+      setSavingNotes(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
@@ -89,31 +137,31 @@ const AdminInquiriesPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl pb-16">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
         <div>
-          <h1 className="text-2xl font-bold font-display text-white">Contact Inquiries Inbox</h1>
+          <h1 className="text-2xl font-bold font-display text-white">Project Inquiries & Leads</h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Client messages dispatched from the public portfolio contact form.
+            Manage incoming client inquiries, lead statuses, communication logs, and internal notes.
           </p>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-xl glass-card border border-zinc-800">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-xl bg-zinc-900/60 border border-zinc-800">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-          {['ALL', 'UNREAD', 'READ', 'REPLIED', 'ARCHIVED'].map((st) => (
+          {LEAD_STATUSES.map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                 statusFilter === st
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+                  ? 'bg-teal-500 text-black shadow-md shadow-teal-950/40'
+                  : 'bg-zinc-950 text-zinc-400 hover:text-white border border-zinc-800'
               }`}
             >
-              {st}
+              {st === 'ALL' ? 'All Leads' : st.replace('_', ' ')}
             </button>
           ))}
         </div>
@@ -126,28 +174,28 @@ const AdminInquiriesPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && fetchInquiries()}
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500"
+            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-white placeholder:text-zinc-600 focus:border-teal-500 focus:outline-none"
           />
         </div>
       </div>
 
-      {/* Inquiries Table / List */}
+      {/* Inquiries Table */}
       {inquiries.length === 0 && !loading ? (
-        <div className="text-center py-20 glass-card rounded-2xl border border-zinc-800 space-y-3">
+        <div className="text-center py-20 bg-zinc-900/40 rounded-2xl border border-zinc-800 space-y-3">
           <Inbox className="w-10 h-10 text-zinc-600 mx-auto" />
-          <h3 className="text-sm font-bold text-white">Inbox Clean</h3>
-          <p className="text-xs text-zinc-400">No inquiries matching current filter criteria.</p>
+          <h3 className="text-sm font-bold text-white">No Inquiries Found</h3>
+          <p className="text-xs text-zinc-400">No project inquiries matching current filter criteria.</p>
         </div>
       ) : (
-        <div className="glass-card rounded-2xl border border-zinc-800 overflow-hidden">
+        <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold">
+              <thead className="bg-zinc-950/80 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="p-4">Sender</th>
+                  <th className="p-4">Client / Company</th>
                   <th className="p-4">Subject & Message</th>
-                  <th className="p-4">Service / Budget</th>
-                  <th className="p-4">Status</th>
+                  <th className="p-4">Service & Budget</th>
+                  <th className="p-4">Lead Status</th>
                   <th className="p-4">Date</th>
                   <th className="p-4 text-right">Actions</th>
                 </tr>
@@ -157,18 +205,18 @@ const AdminInquiriesPage = () => {
                   <tr
                     key={inq.id}
                     className={`hover:bg-zinc-850/50 transition-colors ${
-                      inq.status === 'UNREAD' ? 'bg-indigo-950/20 font-medium' : ''
+                      inq.status === 'NEW' || inq.status === 'UNREAD' ? 'bg-teal-950/15 font-medium' : ''
                     }`}
                   >
                     <td className="p-4">
                       <span className="font-bold text-white block">{inq.name}</span>
                       <a
                         href={`mailto:${inq.email}`}
-                        className="text-[11px] text-indigo-400 hover:underline block truncate"
+                        className="text-[11px] text-teal-400 hover:underline block truncate"
                       >
                         {inq.email}
                       </a>
-                      {inq.phone && <span className="text-[10px] text-zinc-500">{inq.phone}</span>}
+                      {inq.company && <span className="text-[10px] text-zinc-400 block">{inq.company}</span>}
                     </td>
 
                     <td className="p-4 max-w-xs">
@@ -182,13 +230,11 @@ const AdminInquiriesPage = () => {
 
                     <td className="p-4">
                       <span className="text-xs text-zinc-200 block">{inq.service || 'General'}</span>
-                      <span className="text-[11px] text-amber-400">{inq.budget || '—'}</span>
+                      <span className="text-[11px] text-amber-400 font-bold">{inq.budget || '—'}</span>
                     </td>
 
                     <td className="p-4">
-                      <Badge variant={statusVariants[inq.status] || 'default'} size="sm">
-                        {inq.status}
-                      </Badge>
+                      {getStatusBadge(inq.status)}
                     </td>
 
                     <td className="p-4 text-zinc-400 whitespace-nowrap">
@@ -196,32 +242,35 @@ const AdminInquiriesPage = () => {
                     </td>
 
                     <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="secondary"
                           size="sm"
                           onClick={() => {
                             setSelectedInquiry(inq);
-                            if (inq.status === 'UNREAD') {
-                              handleUpdateStatus(inq.id, 'READ');
+                            setNotesDraft(inq.notes || '');
+                            if (inq.status === 'NEW' || inq.status === 'UNREAD') {
+                              handleUpdateStatus(inq.id, 'CONTACTED');
                             }
                           }}
+                          className="cursor-pointer"
                         >
-                          View Details
+                          View Lead
                         </Button>
                         <a
                           href={`mailto:${inq.email}?subject=Re:%20${encodeURIComponent(
-                            inq.subject || 'Your Inquiry'
+                            inq.subject || 'Creative Project Inquiry'
                           )}`}
-                          onClick={() => handleUpdateStatus(inq.id, 'REPLIED')}
-                          className="p-2 rounded-lg bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600 hover:text-white transition-colors"
+                          onClick={() => handleUpdateStatus(inq.id, 'CONTACTED')}
+                          className="p-2 rounded-lg bg-teal-500/10 text-teal-300 hover:bg-teal-600 hover:text-black transition-colors"
                           title="Reply via Email"
                         >
                           <Reply className="w-3.5 h-3.5" />
                         </a>
                         <button
+                          type="button"
                           onClick={() => setDeleteTarget(inq)}
-                          className="p-2 rounded-lg bg-rose-600/20 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors"
+                          className="p-2 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -236,85 +285,124 @@ const AdminInquiriesPage = () => {
         </div>
       )}
 
-      {/* Details Modal */}
-      {selectedInquiry && (
-        <Modal
-          isOpen={Boolean(selectedInquiry)}
-          onClose={() => setSelectedInquiry(null)}
-          title={`Inquiry from ${selectedInquiry.name}`}
-          subtitle={`Received on ${new Date(selectedInquiry.createdAt).toLocaleString()}`}
-          maxWidth="max-w-2xl"
-        >
+      {/* DETAIL & LEAD NOTES MODAL */}
+      <Modal
+        isOpen={Boolean(selectedInquiry)}
+        onClose={() => setSelectedInquiry(null)}
+        title="Project Inquiry Details & Notes"
+        maxWidth="max-w-2xl"
+      >
+        {selectedInquiry && (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
-              <div>
-                <span className="text-zinc-500 block mb-1">Email</span>
-                <a href={`mailto:${selectedInquiry.email}`} className="text-indigo-400 font-bold hover:underline">
-                  {selectedInquiry.email}
-                </a>
+            <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-bold text-white">{selectedInquiry.name}</h3>
+                  <div className="flex items-center gap-3 text-xs text-zinc-400 mt-1">
+                    <a href={`mailto:${selectedInquiry.email}`} className="text-teal-400 hover:underline">
+                      {selectedInquiry.email}
+                    </a>
+                    {selectedInquiry.phone && <span>• {selectedInquiry.phone}</span>}
+                    {selectedInquiry.company && <span>• {selectedInquiry.company}</span>}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedInquiry.status}
+                    onChange={(e) => handleUpdateStatus(selectedInquiry.id, e.target.value)}
+                    className="bg-zinc-900 border border-zinc-700 text-white text-xs rounded-lg px-2.5 py-1.5 focus:border-teal-500 focus:outline-none"
+                  >
+                    <option value="NEW">New Lead</option>
+                    <option value="CONTACTED">Contacted</option>
+                    <option value="IN_DISCUSSION">In Discussion</option>
+                    <option value="CONVERTED">Converted ($)</option>
+                    <option value="CLOSED">Closed</option>
+                    <option value="SPAM">Spam</option>
+                  </select>
+                </div>
               </div>
-              <div>
-                <span className="text-zinc-500 block mb-1">Phone</span>
-                <span className="text-white font-bold">{selectedInquiry.phone || 'Not provided'}</span>
-              </div>
-              <div>
-                <span className="text-zinc-500 block mb-1">Service Requested</span>
-                <span className="text-emerald-400 font-bold">{selectedInquiry.service || 'General'}</span>
-              </div>
-              <div>
-                <span className="text-zinc-500 block mb-1">Estimated Budget</span>
-                <span className="text-amber-400 font-bold">{selectedInquiry.budget || 'Unspecified'}</span>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-zinc-800 text-xs">
+                <div>
+                  <span className="text-zinc-500 block text-[10px] uppercase">Service</span>
+                  <span className="font-semibold text-white">{selectedInquiry.service || 'General'}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-500 block text-[10px] uppercase">Budget</span>
+                  <span className="font-semibold text-amber-400">{selectedInquiry.budget || 'Not specified'}</span>
+                </div>
+                <div>
+                  <span className="text-zinc-500 block text-[10px] uppercase">Received</span>
+                  <span className="font-semibold text-white">{new Date(selectedInquiry.createdAt).toLocaleDateString()}</span>
+                </div>
               </div>
             </div>
 
+            {/* Message Body */}
             <div>
-              <span className="text-xs font-semibold uppercase text-zinc-400 block mb-2">Message Content</span>
-              <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-200 leading-relaxed whitespace-pre-wrap">
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">
+                Client Message
+              </label>
+              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-300 text-xs leading-relaxed whitespace-pre-wrap">
                 {selectedInquiry.message}
               </div>
             </div>
 
-            {/* Status Changer & Reply */}
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-zinc-800">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-400 font-semibold">Change Status:</span>
-                {['UNREAD', 'READ', 'REPLIED', 'ARCHIVED'].map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => handleUpdateStatus(selectedInquiry.id, st)}
-                    className={`text-[11px] px-2.5 py-1 rounded-lg border transition-colors ${
-                      selectedInquiry.status === st
-                        ? 'bg-indigo-600 text-white border-indigo-500'
-                        : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:text-white'
-                    }`}
-                  >
-                    {st}
-                  </button>
-                ))}
+            {/* Internal Admin Notes */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
+                <StickyNote className="w-3.5 h-3.5 text-teal-400" />
+                <span>Internal Lead Notes & Follow-up Log</span>
+              </label>
+              <textarea
+                rows={3}
+                value={notesDraft}
+                onChange={(e) => setNotesDraft(e.target.value)}
+                placeholder="Add notes about client discussions, proposal sent, agreed deliverables, budget adjustments..."
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white text-xs focus:border-teal-500 focus:outline-none"
+              />
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  icon={Save}
+                  onClick={handleSaveNotes}
+                  loading={savingNotes}
+                >
+                  Save Internal Notes
+                </Button>
               </div>
+            </div>
 
+            <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
               <a
                 href={`mailto:${selectedInquiry.email}?subject=Re:%20${encodeURIComponent(
-                  selectedInquiry.subject || 'Your Inquiry to Md Sakhawat Hossain'
+                  selectedInquiry.subject || 'Your Creative Project Inquiry'
                 )}`}
-                onClick={() => handleUpdateStatus(selectedInquiry.id, 'REPLIED')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-500 text-black font-bold text-xs hover:bg-teal-400 transition-colors"
               >
-                <Button variant="primary" size="sm" icon={Reply}>
-                  Reply Directly
-                </Button>
+                <Reply className="w-3.5 h-3.5" />
+                <span>Reply to Client via Email</span>
               </a>
+
+              <Button variant="ghost" size="sm" onClick={() => setSelectedInquiry(null)}>
+                Close
+              </Button>
             </div>
           </div>
-        </Modal>
-      )}
+        )}
+      </Modal>
 
-      {/* Confirm Delete */}
+      {/* DELETE CONFIRM DIALOG */}
       <ConfirmDialog
         isOpen={Boolean(deleteTarget)}
-        onClose={() => setDeleteTarget(null)}
+        title="Delete Inquiry"
+        message={`Are you sure you want to delete the inquiry from "${deleteTarget?.name}"?`}
+        confirmLabel="Delete Inquiry"
         onConfirm={handleDelete}
-        title="Delete Contact Inquiry"
-        message={`Are you sure you want to remove inquiry from "${deleteTarget?.name}"?`}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   );

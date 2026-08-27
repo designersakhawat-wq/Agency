@@ -18,11 +18,13 @@ import { DEFAULT_PROJECTS, DEFAULT_SETTINGS } from '../../data/defaultData';
 
 const CATEGORIES = [
   'All',
-  'Brand Identity',
+  'Logo & Branding',
   'Ads Creative',
-  'E-Commerce',
   'UGC Video',
   'Cover Branding',
+  'E-Commerce',
+  'Social Media',
+  'Product Design',
   'Thumbnail',
   'Print Design',
   'AI Video',

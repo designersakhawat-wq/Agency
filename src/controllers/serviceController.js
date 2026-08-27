@@ -87,16 +87,18 @@ const getServiceBySlug = async (req, res, next) => {
       where: {
         active: true,
         OR: [
+          { serviceId: service.id },
+          { serviceSlug: service.slug },
           { category: { contains: service.title } },
-          { title: { contains: service.title } },
           { category: service.title },
+          { title: { contains: service.title } },
         ],
       },
-      take: 4,
-      orderBy: { order: 'asc' },
+      take: 6,
+      orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
     });
 
-    // Fallback: If no direct category match, fetch latest active projects
+    // Fallback: If no direct service match, fetch latest active projects
     const finalProjects = relatedProjects.length > 0
       ? relatedProjects
       : await prisma.project.findMany({ where: { active: true }, take: 4, orderBy: { order: 'asc' } });

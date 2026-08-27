@@ -12,18 +12,27 @@ import {
   Plus,
   Trash,
   Upload,
+  Sparkles,
+  Layers,
+  Tag,
+  Wrench,
+  Globe,
+  Search,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
-import { Loader } from '../../components/common/Loader';
 
-const categories = [
-  'UI/UX Design',
-  'Web Development',
-  'Brand Identity',
-  'Mobile App',
-  'Design System',
-  'SaaS Platform',
+const DESIGN_CATEGORIES = [
+  'Logo & Branding',
+  'Ads Creative',
+  'UGC Video',
+  'Cover Branding',
+  'E-Commerce',
+  'Social Media',
+  'Product Design',
+  'Thumbnail',
+  'Print Design',
+  'AI Video',
 ];
 
 const AdminProjectEditPage = () => {
@@ -32,10 +41,13 @@ const AdminProjectEditPage = () => {
   const navigate = useNavigate();
   const { success, error } = useToast();
 
+  const [servicesList, setServicesList] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
-    category: 'UI/UX Design',
+    category: 'Logo & Branding',
+    serviceId: '',
+    serviceSlug: '',
     client: '',
     year: new Date().getFullYear().toString(),
     summary: '',
@@ -43,29 +55,47 @@ const AdminProjectEditPage = () => {
     coverImage: '',
     galleryImages: [],
     liveUrl: '',
-    githubUrl: '',
+    behanceUrl: '',
+    dribbbleUrl: '',
     figmaUrl: '',
+    githubUrl: '',
     featured: false,
     order: 0,
-    tags: ['Figma', 'UI/UX', 'React'],
+    tags: ['Adobe Photoshop', 'Illustrator', 'Figma'],
+    tools: ['Photoshop', 'Illustrator', 'Premiere Pro'],
     challenges: '',
     solutions: '',
     results: '',
+    goal: '',
+    solution: '',
+    seoTitle: '',
+    seoDescription: '',
+    altText: '',
     active: true,
   });
 
   const [tagInput, setTagInput] = useState('');
+  const [toolInput, setToolInput] = useState('');
   const [galleryInput, setGalleryInput] = useState('');
-  const [loading, setLoading] = useState(!isNew);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
 
   useEffect(() => {
+    // Fetch available services for assignment
+    api.get('/services/admin/all')
+      .then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          setServicesList(res.data);
+        }
+      })
+      .catch(() => {});
+
     if (!isNew) {
-      const fetchProject = async () => {
-        setLoading(true);
-        try {
-          const res = await api.get(`/projects/admin/all`);
+      setLoading(true);
+      api.get(`/projects/admin/all`)
+        .then((res) => {
           if (res.success) {
             const found = res.data.find((p) => p.id === id);
             if (found) {
@@ -75,6 +105,14 @@ const AdminProjectEditPage = () => {
                   parsedTags = JSON.parse(parsedTags);
                 } catch (e) {
                   parsedTags = [];
+                }
+              }
+              let parsedTools = found.tools;
+              if (typeof parsedTools === 'string') {
+                try {
+                  parsedTools = JSON.parse(parsedTools);
+                } catch (e) {
+                  parsedTools = [];
                 }
               }
               let parsedGallery = found.galleryImages;
@@ -88,23 +126,37 @@ const AdminProjectEditPage = () => {
 
               setFormData({
                 ...found,
+                serviceId: found.serviceId || '',
+                serviceSlug: found.serviceSlug || '',
                 tags: Array.isArray(parsedTags) ? parsedTags : [],
+                tools: Array.isArray(parsedTools) ? parsedTools : [],
                 galleryImages: Array.isArray(parsedGallery) ? parsedGallery : [],
+                goal: found.goal || found.challenges || '',
+                solution: found.solution || found.solutions || '',
+                seoTitle: found.seoTitle || '',
+                seoDescription: found.seoDescription || '',
+                altText: found.altText || '',
               });
             } else {
               error('Project not found.');
               navigate('/admin/projects');
             }
           }
-        } catch (err) {
-          error('Error loading project: ' + err.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchProject();
+        })
+        .catch((err) => error('Error loading project: ' + err.message))
+        .finally(() => setLoading(false));
     }
   }, [id, isNew, navigate]);
+
+  const handleServiceChange = (e) => {
+    const sId = e.target.value;
+    const foundService = servicesList.find((s) => s.id === sId);
+    setFormData((prev) => ({
+      ...prev,
+      serviceId: sId,
+      serviceSlug: foundService ? foundService.slug : '',
+    }));
+  };
 
   const handleAddTag = () => {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
@@ -117,6 +169,20 @@ const AdminProjectEditPage = () => {
     setFormData({
       ...formData,
       tags: formData.tags.filter((t) => t !== tagToRemove),
+    });
+  };
+
+  const handleAddTool = () => {
+    if (toolInput.trim() && !formData.tools.includes(toolInput.trim())) {
+      setFormData({ ...formData, tools: [...formData.tools, toolInput.trim()] });
+      setToolInput('');
+    }
+  };
+
+  const handleRemoveTool = (toolToRemove) => {
+    setFormData({
+      ...formData,
+      tools: formData.tools.filter((t) => t !== toolToRemove),
     });
   };
 
@@ -144,7 +210,7 @@ const AdminProjectEditPage = () => {
     setUploadingCover(true);
     const data = new FormData();
     data.append('file', file);
-    data.append('altText', formData.title || 'Project Cover');
+    data.append('altText', formData.title || 'Project Showcase');
 
     try {
       const res = await api.upload('/admin/media/upload', data);
@@ -158,8 +224,6 @@ const AdminProjectEditPage = () => {
       setUploadingCover(false);
     }
   };
-
-  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -195,8 +259,8 @@ const AdminProjectEditPage = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      {/* Header */}
+    <div className="space-y-6 max-w-5xl pb-16">
+      {/* Top Header */}
       <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
         <button
           type="button"
@@ -218,7 +282,7 @@ const AdminProjectEditPage = () => {
             variant="primary"
             size="sm"
             icon={Save}
-            isLoading={saving}
+            loading={saving}
           >
             {isNew ? 'Publish Project' : 'Save Changes'}
           </Button>
@@ -226,52 +290,84 @@ const AdminProjectEditPage = () => {
       </div>
 
       <form id="project-form" onSubmit={handleSubmit} className="space-y-8">
-        {/* Core Metadata Card */}
-        <div className="p-6 sm:p-8 rounded-2xl glass-card border border-zinc-800 space-y-6">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-            1. Core Details
-          </h3>
+        {/* Section 1: Core Details & Service Relationship */}
+        <div className="p-6 sm:p-8 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-6">
+          <div className="flex items-center gap-3 border-b border-zinc-800 pb-4">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+              <Layers className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white">1. Core Details & Service Relationship</h3>
+              <p className="text-xs text-zinc-400">
+                Link this project to a Core Service (e.g. Ads Creative) and assign portfolio category filters.
+              </p>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
                 Project Title *
               </label>
               <input
                 type="text"
-                placeholder="e.g. FinFlow — Next-Gen AI Fintech Platform"
+                placeholder="e.g. Luxury Perfume Ads Campaign"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                URL Slug (Optional - Auto-generated)
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                URL Slug (Auto-generated if empty)
               </label>
               <input
                 type="text"
-                placeholder="finflow-ai-fintech"
+                placeholder="luxury-perfume-ads-campaign"
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {/* Service Relationship Dropdown */}
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                Category *
+              <label className="block text-xs font-bold uppercase tracking-wider text-teal-300 mb-1.5 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                <span>Associated Service</span>
+              </label>
+              <select
+                value={formData.serviceId}
+                onChange={handleServiceChange}
+                className="w-full bg-zinc-950 border border-teal-500/40 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-400 focus:outline-none"
+              >
+                <option value="">-- Standalone (No Direct Service) --</option>
+                {servicesList.map((srv) => (
+                  <option key={srv.id} value={srv.id}>
+                    {srv.title} ({srv.slug})
+                  </option>
+                ))}
+              </select>
+              <span className="text-[10px] text-zinc-500 mt-1 block">
+                Shown automatically under the service's dedicated page.
+              </span>
+            </div>
+
+            {/* Category Filter */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                Portfolio Category *
               </label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
               >
-                {categories.map((c, idx) => (
+                {DESIGN_CATEGORIES.map((c, idx) => (
                   <option key={idx} value={c}>
                     {c}
                   </option>
@@ -279,82 +375,204 @@ const AdminProjectEditPage = () => {
               </select>
             </div>
 
+            {/* Client / Brand */}
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
                 Client / Brand Name
               </label>
               <input
                 type="text"
-                placeholder="e.g. FinFlow Inc."
+                placeholder="e.g. ORA Organic / Optiva Max"
                 value={formData.client}
                 onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
               />
             </div>
+          </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                Project Year
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                Year
               </label>
               <input
                 type="text"
                 placeholder="2025"
                 value={formData.year}
                 onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                Display Order
+              </label>
+              <input
+                type="number"
+                value={formData.order}
+                onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value, 10) || 0 })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex items-center gap-6 pt-6">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white">
+                <input
+                  type="checkbox"
+                  checked={formData.featured}
+                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                  className="rounded bg-zinc-950 border-zinc-800 text-teal-500 focus:ring-teal-500"
+                />
+                <span>⭐ Featured on Homepage</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white">
+                <input
+                  type="checkbox"
+                  checked={formData.active}
+                  onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                  className="rounded bg-zinc-950 border-zinc-800 text-teal-500 focus:ring-teal-500"
+                />
+                <span>Published (Active)</span>
+              </label>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
               Short Summary / Teaser *
             </label>
             <textarea
               rows={2}
-              placeholder="A brief 1-2 sentence overview shown in grid cards and SEO meta..."
+              placeholder="A brief 1-2 sentence overview shown in grid cards and search previews..."
               value={formData.summary}
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500 resize-none"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none resize-none"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-              Comprehensive Case Study Description *
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+              Full Case Study Narrative *
             </label>
             <textarea
-              rows={6}
-              placeholder="Detailed explanation of the product narrative, UX decisions, research methodology, design tokens..."
+              rows={5}
+              placeholder="Detailed explanation of the creative direction, target audience, visual hierarchy, typography pairings, and marketing results..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
               required
             />
           </div>
         </div>
 
-        {/* Media & Gallery */}
-        <div className="p-6 sm:p-8 rounded-2xl glass-card border border-zinc-800 space-y-6">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-            2. Visuals & Media
-          </h3>
+        {/* Section 2: Goals, Solutions & Tools */}
+        <div className="p-6 sm:p-8 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-6">
+          <div className="flex items-center gap-3 border-b border-zinc-800 pb-4">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+              <Wrench className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white">2. Problem, Creative Solution & Tools</h3>
+              <p className="text-xs text-zinc-400">Structured narrative blocks rendered on the project detail page.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                The Objective / Challenge
+              </label>
+              <textarea
+                rows={3}
+                placeholder="What business problem or marketing bottleneck did the client face?"
+                value={formData.goal}
+                onChange={(e) => setFormData({ ...formData, goal: e.target.value, challenges: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                The Creative Solution & Impact
+              </label>
+              <textarea
+                rows={3}
+                placeholder="How did our design strategy solve it? (e.g. +40% higher CTR, 3.2x ROAS)"
+                value={formData.solution}
+                onChange={(e) => setFormData({ ...formData, solution: e.target.value, solutions: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Tools & Software Badges */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+              Tools & Software Used
+            </label>
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                placeholder="Add software tool (e.g. Photoshop, Illustrator, Premiere Pro)..."
+                value={toolInput}
+                onChange={(e) => setToolInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTool())}
+                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white focus:border-teal-500 focus:outline-none"
+              />
+              <Button variant="secondary" size="sm" onClick={handleAddTool} icon={Plus}>
+                Add Tool
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {formData.tools.map((tool, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-semibold"
+                >
+                  <span>{tool}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTool(tool)}
+                    className="hover:text-rose-400 cursor-pointer"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Visuals & Media */}
+        <div className="p-6 sm:p-8 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-6">
+          <div className="flex items-center gap-3 border-b border-zinc-800 pb-4">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white">3. Showcase Visuals & Gallery</h3>
+              <p className="text-xs text-zinc-400">Cover image and multiple high-res gallery previews.</p>
+            </div>
+          </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-              Cover Image URL *
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+              Primary Cover Image URL *
             </label>
             <div className="flex gap-3">
               <input
                 type="text"
-                placeholder="https://images.unsplash.com/... or /uploads/..."
+                placeholder="https://... or /uploads/..."
                 value={formData.coverImage}
                 onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-teal-500"
+                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
                 required
               />
-              <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-white transition-colors">
+              <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-colors">
                 <Upload className="w-4 h-4" />
                 <span>{uploadingCover ? 'Uploading...' : 'Upload File'}</span>
                 <input
@@ -367,13 +585,8 @@ const AdminProjectEditPage = () => {
               </label>
             </div>
 
-            <p className="text-[11px] text-teal-400 mt-1.5 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-              <span>রিসাইজ রিকমেন্ডেশন: <strong>1920 × 1080 px (16:9)</strong> • সাইজ: <strong className="text-emerald-400">300 KB – 800 KB</strong> (WebP/JPG) দ্রুত পেজ লোডিংয়ের জন্য</span>
-            </p>
-
             {formData.coverImage && (
-              <div className="mt-3 w-48 aspect-[16/10] rounded-xl overflow-hidden border border-zinc-700 bg-zinc-900">
+              <div className="mt-3 w-48 aspect-[16/10] rounded-xl overflow-hidden border border-zinc-700 bg-zinc-950">
                 <img
                   src={formData.coverImage}
                   alt="Cover preview"
@@ -383,22 +596,22 @@ const AdminProjectEditPage = () => {
             )}
           </div>
 
-          {/* Gallery Images List */}
+          {/* Gallery Images */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-              Gallery Images / Additional Screenshots
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+              Gallery Screenshots / Variations
             </label>
             <div className="flex gap-2 mb-3">
               <input
                 type="text"
-                placeholder="Add Image URL..."
+                placeholder="Add image URL..."
                 value={galleryInput}
                 onChange={(e) => setGalleryInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddGalleryImage())}
-                className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white focus:border-teal-500 focus:outline-none"
               />
               <Button variant="secondary" size="sm" onClick={handleAddGalleryImage} icon={Plus}>
-                Add Image
+                Add Gallery Image
               </Button>
             </div>
 
@@ -406,7 +619,7 @@ const AdminProjectEditPage = () => {
               {formData.galleryImages.map((imgUrl, i) => (
                 <div
                   key={i}
-                  className="relative group aspect-[16/10] rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900"
+                  className="relative group aspect-[16/10] rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950"
                 >
                   <img src={imgUrl} alt={`Gallery ${i}`} className="w-full h-full object-cover" />
                   <button
@@ -422,199 +635,119 @@ const AdminProjectEditPage = () => {
           </div>
         </div>
 
-        {/* Links & External Integrations */}
-        <div className="p-6 sm:p-8 rounded-2xl glass-card border border-zinc-800 space-y-6">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-            3. Project Links & Tags
-          </h3>
+        {/* Section 4: External Links & SEO */}
+        <div className="p-6 sm:p-8 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-6">
+          <div className="flex items-center gap-3 border-b border-zinc-800 pb-4">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+              <Globe className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white">4. External Showcase Links & SEO Metadata</h3>
+              <p className="text-xs text-zinc-400">Behance, Dribbble, Figma links and meta tags for search engines.</p>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                <ExternalLink className="w-3.5 h-3.5 text-indigo-400" />
-                Live Demo URL
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                Behance Project URL
               </label>
               <input
                 type="url"
-                placeholder="https://..."
-                value={formData.liveUrl}
-                onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+                placeholder="https://behance.net/gallery/..."
+                value={formData.behanceUrl || ''}
+                onChange={(e) => setFormData({ ...formData, behanceUrl: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                <Figma className="w-3.5 h-3.5 text-purple-400" />
-                Figma Source URL
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                Dribbble Shot URL
               </label>
               <input
                 type="url"
-                placeholder="https://figma.com/..."
-                value={formData.figmaUrl}
+                placeholder="https://dribbble.com/shots/..."
+                value={formData.dribbbleUrl || ''}
+                onChange={(e) => setFormData({ ...formData, dribbbleUrl: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                Figma File URL
+              </label>
+              <input
+                type="url"
+                placeholder="https://figma.com/file/..."
+                value={formData.figmaUrl || ''}
                 onChange={(e) => setFormData({ ...formData, figmaUrl: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                <Github className="w-3.5 h-3.5 text-zinc-400" />
-                GitHub Repository URL
-              </label>
-              <input
-                type="url"
-                placeholder="https://github.com/..."
-                value={formData.githubUrl}
-                onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
               />
             </div>
           </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-              Skills & Tech Stack Tags
-            </label>
-            <div className="flex gap-2 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                Custom SEO Title Tag
+              </label>
               <input
                 type="text"
-                placeholder="Type tag (e.g. Design Tokens, Tailwind, Next.js) and press Enter"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                className="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                placeholder="e.g. Brand Identity & Packaging Design | Md Sakhawat Hossain"
+                value={formData.seoTitle}
+                onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
               />
-              <Button variant="secondary" size="sm" onClick={handleAddTag} icon={Plus}>
-                Add Tag
-              </Button>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {formData.tags.map((tag, idx) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-xs border border-zinc-700"
-                >
-                  <span>{tag}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag(tag)}
-                    className="text-zinc-500 hover:text-white"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
+                Image Alt Text
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. High converting Facebook ad creative design showcase"
+                value={formData.altText}
+                onChange={(e) => setFormData({ ...formData, altText: e.target.value })}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
+              />
             </div>
           </div>
         </div>
 
-        {/* Case Study Challenges & Outcomes */}
-        <div className="p-6 sm:p-8 rounded-2xl glass-card border border-zinc-800 space-y-6">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-            4. Challenge, Solution & Impact Metrics
-          </h3>
+        {/* Bottom Save Bar */}
+        <div className="flex items-center justify-between p-4 bg-zinc-900/90 border border-zinc-800 rounded-2xl backdrop-blur-md sticky bottom-6 z-20">
+          <button
+            type="button"
+            onClick={() => navigate('/admin/projects')}
+            className="text-xs text-zinc-400 hover:text-white cursor-pointer transition-colors"
+          >
+            Cancel
+          </button>
 
-          <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-              The Challenge / Friction Point
-            </label>
-            <textarea
-              rows={2}
-              placeholder="What hurdles was the client facing? (e.g. complex onboarding, low checkout conversions)"
-              value={formData.challenges}
-              onChange={(e) => setFormData({ ...formData, challenges: e.target.value })}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-              The Solution & Architectural Approach
-            </label>
-            <textarea
-              rows={2}
-              placeholder="How did you solve the problem? (e.g. tokenized component library, simplified 1-step checkout)"
-              value={formData.solutions}
-              onChange={(e) => setFormData({ ...formData, solutions: e.target.value })}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-              The Results / Business Impact
-            </label>
-            <textarea
-              rows={2}
-              placeholder="Key measurable statistics (e.g. +68% conversion increase, $18M Series A closed)"
-              value={formData.results}
-              onChange={(e) => setFormData({ ...formData, results: e.target.value })}
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-        </div>
-
-        {/* Publishing & Visibility Settings */}
-        <div className="p-6 sm:p-8 rounded-2xl glass-card border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-4 w-full sm:w-auto">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.featured}
-                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                className="w-4 h-4 rounded text-indigo-600 bg-zinc-900 border-zinc-700"
-              />
-              <span className="text-xs font-bold text-white">Feature on Homepage Highlight</span>
-            </label>
-
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.active}
-                onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                className="w-4 h-4 rounded text-emerald-600 bg-zinc-900 border-zinc-700"
-              />
-              <span className="text-xs font-bold text-white">Active / Published</span>
-            </label>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/admin/projects')}
-              className="cursor-pointer"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="md"
-              icon={Save}
-              isLoading={saving}
-            >
-              {isNew ? 'Create Project' : 'Save Changes'}
-            </Button>
-          </div>
+          <Button
+            variant="primary"
+            icon={Save}
+            loading={saving}
+            type="submit"
+            className="cursor-pointer"
+          >
+            {isNew ? 'Publish Showcase Project' : 'Save Changes'}
+          </Button>
         </div>
       </form>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Dialog */}
       <ConfirmDialog
         isOpen={confirmSaveOpen}
-        onClose={() => setConfirmSaveOpen(false)}
+        title={isNew ? 'Publish Project' : 'Save Project Changes'}
+        message={`Are you sure you want to save "${formData.title}"?`}
+        confirmLabel={isNew ? 'Publish Now' : 'Save Changes'}
         onConfirm={executeSaveProject}
-        title={isNew ? 'Publish New Case Study?' : 'Save Case Study Changes?'}
-        message={`Are you sure you want to ${isNew ? 'create and publish' : 'save updates to'} "${formData.title || 'this project'}"?`}
-        confirmText={isNew ? 'Yes, Publish Project' : 'Yes, Save Changes'}
-        cancelText="Review Again"
+        onCancel={() => setConfirmSaveOpen(false)}
         isLoading={saving}
-        variant="primary"
       />
     </div>
   );

@@ -32,6 +32,8 @@ import NotFoundPage from './pages/public/NotFoundPage';
 // Admin Pages
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminSiteIdentityPage from './pages/admin/AdminSiteIdentityPage';
+import AdminHomepageCmsPage from './pages/admin/AdminHomepageCmsPage';
 import AdminProjectsPage from './pages/admin/AdminProjectsPage';
 import AdminProjectEditPage from './pages/admin/AdminProjectEditPage';
 import AdminServicesPage from './pages/admin/AdminServicesPage';
@@ -173,6 +175,8 @@ function App() {
           >
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="site-identity" element={<AdminSiteIdentityPage />} />
+            <Route path="homepage" element={<AdminHomepageCmsPage />} />
             <Route path="projects" element={<AdminProjectsPage />} />
             <Route path="projects/new" element={<AdminProjectEditPage />} />
             <Route path="projects/edit/:id" element={<AdminProjectEditPage />} />

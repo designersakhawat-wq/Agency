@@ -55,9 +55,11 @@ const AdminLayout = () => {
 
   const navItems = [
     { name: 'Overview', path: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Projects / Portfolio', path: '/admin/projects', icon: FolderKanban },
-    { name: 'Services', path: '/admin/services', icon: Layers },
+    { name: 'Site Identity & Bio', path: '/admin/site-identity', icon: ShieldCheck },
+    { name: 'Homepage CMS', path: '/admin/homepage', icon: Layers },
+    { name: 'Services CMS', path: '/admin/services', icon: Layers },
     { name: 'Pricing Packages', path: '/admin/packages', icon: DollarSign },
+    { name: 'Projects / Portfolio', path: '/admin/projects', icon: FolderKanban },
     {
       name: 'Inquiries Inbox',
       path: '/admin/inquiries',

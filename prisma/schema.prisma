@@ -40,6 +40,15 @@ model Project {
   challenges    String?
   solutions     String?
   results       String?
+  goal          String?
+  solution      String?
+  tools         String?
+  seoTitle      String?
+  seoDescription String?
+  altText       String?
+  serviceId     String?
+  service       Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  serviceSlug   String?
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -57,6 +66,7 @@ model Service {
   order        Int       @default(0)
   active       Boolean   @default(true)
   packages     Package[]
+  projects     Project[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -85,9 +95,12 @@ model Testimonial {
   clientRole    String?
   clientCompany String
   clientAvatar  String?
+  brandLogo     String?
+  serviceId     String?
   content       String
   rating        Int      @default(5)
   projectTitle  String?
+  status        String   @default("APPROVED") // APPROVED | PENDING | DRAFT | REJECTED
   featured      Boolean  @default(false)
   active        Boolean  @default(true)
   order         Int      @default(0)
@@ -118,35 +131,39 @@ model ClientBrand {
 }
 
 model ContactInquiry {
-  id        String   @id @default(uuid())
-  name      String
-  email     String
-  phone     String?
-  company   String?
-  service   String?
-  budget    String?
-  subject   String?
-  message   String
-  status    String   @default("UNREAD")
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Booking {
   id          String   @id @default(uuid())
   name        String
   email       String
   phone       String?
   company     String?
-  serviceName String?
-  date        String
-  timeSlot    String
-  meetingLink String?
+  service     String?
+  budget      String?
+  projectType String?
+  deadline    String?
+  subject     String?
+  message     String
+  status      String   @default("NEW") // NEW | CONTACTED | IN_DISCUSSION | CONVERTED | CLOSED | SPAM
   notes       String?
-  status      String   @default("PENDING")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Booking {
+  id             String   @id @default(uuid())
+  name           String
+  email          String
+  phone          String?
+  company        String?
+  serviceName    String?
+  budget         String?
+  projectDetails String?
+  date           String
+  timeSlot       String
+  meetingLink    String?
+  notes          String?
+  status         String   @default("PENDING") // PENDING | CONFIRMED | RESCHEDULED | COMPLETED | CANCELLED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Media {

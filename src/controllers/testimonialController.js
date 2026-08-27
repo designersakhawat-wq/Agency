@@ -4,9 +4,24 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
 // TESTIMONIALS
 const getPublicTestimonials = async (req, res, next) => {
   try {
+    const { serviceId, limit } = req.query;
+
+    const where = {
+      active: true,
+      OR: [
+        { status: 'APPROVED' },
+        { status: null },
+      ],
+    };
+
+    if (serviceId) {
+      where.serviceId = serviceId;
+    }
+
     const testimonials = await prisma.testimonial.findMany({
-      where: { active: true },
+      where,
       orderBy: [{ featured: 'desc' }, { order: 'asc' }],
+      take: limit ? parseInt(limit, 10) : undefined,
     });
     return successResponse(res, testimonials, 'Testimonials retrieved.');
   } catch (err) {
@@ -27,7 +42,21 @@ const getAllTestimonialsAdmin = async (req, res, next) => {
 
 const createTestimonial = async (req, res, next) => {
   try {
-    const { clientName, clientRole, clientCompany, clientAvatar, content, rating, projectTitle, featured, active, order } = req.body;
+    const {
+      clientName,
+      clientRole,
+      clientCompany,
+      clientAvatar,
+      brandLogo,
+      serviceId,
+      content,
+      rating,
+      projectTitle,
+      status,
+      featured,
+      active,
+      order,
+    } = req.body;
 
     if (!clientName || !clientCompany || !content) {
       return errorResponse(res, 'Client name, company, and review content are required.', 400);
@@ -39,9 +68,12 @@ const createTestimonial = async (req, res, next) => {
         clientRole: clientRole || 'Client',
         clientCompany: clientCompany.trim(),
         clientAvatar: clientAvatar || null,
+        brandLogo: brandLogo || null,
+        serviceId: serviceId || null,
         content: content.trim(),
         rating: rating !== undefined ? parseInt(rating, 10) : 5,
         projectTitle: projectTitle || null,
+        status: status || 'APPROVED',
         featured: Boolean(featured),
         active: active !== undefined ? Boolean(active) : true,
         order: order !== undefined ? parseInt(order, 10) : 0,
@@ -57,7 +89,21 @@ const createTestimonial = async (req, res, next) => {
 const updateTestimonial = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { clientName, clientRole, clientCompany, clientAvatar, content, rating, projectTitle, featured, active, order } = req.body;
+    const {
+      clientName,
+      clientRole,
+      clientCompany,
+      clientAvatar,
+      brandLogo,
+      serviceId,
+      content,
+      rating,
+      projectTitle,
+      status,
+      featured,
+      active,
+      order,
+    } = req.body;
 
     const testimonial = await prisma.testimonial.findUnique({ where: { id } });
     if (!testimonial) {
@@ -69,9 +115,12 @@ const updateTestimonial = async (req, res, next) => {
     if (clientRole !== undefined) updateData.clientRole = clientRole;
     if (clientCompany !== undefined) updateData.clientCompany = clientCompany.trim();
     if (clientAvatar !== undefined) updateData.clientAvatar = clientAvatar;
+    if (brandLogo !== undefined) updateData.brandLogo = brandLogo;
+    if (serviceId !== undefined) updateData.serviceId = serviceId;
     if (content !== undefined) updateData.content = content.trim();
     if (rating !== undefined) updateData.rating = parseInt(rating, 10);
     if (projectTitle !== undefined) updateData.projectTitle = projectTitle;
+    if (status !== undefined) updateData.status = status;
     if (featured !== undefined) updateData.featured = Boolean(featured);
     if (active !== undefined) updateData.active = Boolean(active);
     if (order !== undefined) updateData.order = parseInt(order, 10);

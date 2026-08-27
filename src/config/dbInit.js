@@ -38,6 +38,14 @@ const initDatabaseSchema = async (prisma) => {
         "challenges" TEXT,
         "solutions" TEXT,
         "results" TEXT,
+        "goal" TEXT,
+        "solution" TEXT,
+        "tools" TEXT,
+        "seoTitle" TEXT,
+        "seoDescription" TEXT,
+        "altText" TEXT,
+        "serviceId" TEXT,
+        "serviceSlug" TEXT,
         "active" BOOLEAN NOT NULL DEFAULT 1,
         "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -83,9 +91,12 @@ const initDatabaseSchema = async (prisma) => {
         "clientRole" TEXT,
         "clientCompany" TEXT NOT NULL,
         "clientAvatar" TEXT,
+        "brandLogo" TEXT,
+        "serviceId" TEXT,
         "content" TEXT NOT NULL,
         "rating" INTEGER NOT NULL DEFAULT 5,
         "projectTitle" TEXT,
+        "status" TEXT NOT NULL DEFAULT 'APPROVED',
         "featured" BOOLEAN NOT NULL DEFAULT 0,
         "active" BOOLEAN NOT NULL DEFAULT 1,
         "order" INTEGER NOT NULL DEFAULT 0,
@@ -123,9 +134,11 @@ const initDatabaseSchema = async (prisma) => {
         "company" TEXT,
         "service" TEXT,
         "budget" TEXT,
+        "projectType" TEXT,
+        "deadline" TEXT,
         "subject" TEXT,
         "message" TEXT NOT NULL,
-        "status" TEXT NOT NULL DEFAULT 'UNREAD',
+        "status" TEXT NOT NULL DEFAULT 'NEW',
         "notes" TEXT,
         "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -138,6 +151,8 @@ const initDatabaseSchema = async (prisma) => {
         "phone" TEXT,
         "company" TEXT,
         "serviceName" TEXT,
+        "budget" TEXT,
+        "projectDetails" TEXT,
         "date" TEXT NOT NULL,
         "timeSlot" TEXT NOT NULL,
         "meetingLink" TEXT,
@@ -198,6 +213,35 @@ const initDatabaseSchema = async (prisma) => {
     for (const sql of createTableStatements) {
       await prisma.$executeRawUnsafe(sql);
     }
+
+    // Helper to safely add column only if not present
+    const addColumnIfMissing = async (tableName, columnName, columnDef) => {
+      try {
+        const columns = await prisma.$queryRawUnsafe(`PRAGMA table_info("${tableName}")`);
+        const exists = Array.isArray(columns) && columns.some((c) => c.name === columnName);
+        if (!exists) {
+          await prisma.$executeRawUnsafe(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnDef};`);
+        }
+      } catch (err) {}
+    };
+
+    // Safe additive column checks
+    await addColumnIfMissing('Project', 'goal', 'TEXT');
+    await addColumnIfMissing('Project', 'solution', 'TEXT');
+    await addColumnIfMissing('Project', 'tools', 'TEXT');
+    await addColumnIfMissing('Project', 'seoTitle', 'TEXT');
+    await addColumnIfMissing('Project', 'seoDescription', 'TEXT');
+    await addColumnIfMissing('Project', 'altText', 'TEXT');
+    await addColumnIfMissing('Project', 'serviceId', 'TEXT');
+    await addColumnIfMissing('Project', 'serviceSlug', 'TEXT');
+    await addColumnIfMissing('Testimonial', 'brandLogo', 'TEXT');
+    await addColumnIfMissing('Testimonial', 'serviceId', 'TEXT');
+    await addColumnIfMissing('Testimonial', 'status', 'TEXT NOT NULL DEFAULT \'APPROVED\'');
+    await addColumnIfMissing('ContactInquiry', 'projectType', 'TEXT');
+    await addColumnIfMissing('ContactInquiry', 'deadline', 'TEXT');
+    await addColumnIfMissing('Booking', 'budget', 'TEXT');
+    await addColumnIfMissing('Booking', 'projectDetails', 'TEXT');
+
     console.log('✅ SQLite database schema verified and tables created if missing.');
 
     // 2. Ensure Admin User exists
