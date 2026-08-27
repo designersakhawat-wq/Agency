@@ -1,20 +1,12 @@
 const prisma = require('../config/db');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 
-let cachedSettingsMap = null;
-let lastSettingsFetch = 0;
-
 /**
  * Public: Get all public site settings as key-value map
  * GET /api/settings
  */
 const getPublicSettings = async (req, res, next) => {
   try {
-    // Return high-speed memory cache if fresh (< 60s)
-    if (cachedSettingsMap && Date.now() - lastSettingsFetch < 60000) {
-      return successResponse(res, cachedSettingsMap, 'Site settings retrieved (cached).');
-    }
-
     const settings = await prisma.siteSetting.findMany();
     
     // Transform into a clean key-value object
@@ -110,9 +102,6 @@ const updateSettingsBulk = async (req, res, next) => {
 
     if (updates.length > 0) {
       await prisma.$transaction(updates);
-      // Invalidate memory cache so changes apply immediately
-      cachedSettingsMap = null;
-      lastSettingsFetch = 0;
     }
 
     return successResponse(res, null, 'Settings saved successfully.');

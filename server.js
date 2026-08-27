@@ -73,20 +73,15 @@ app.use(
   })
 );
 
-// Mount REST API with Intelligent Tiered Caching
+// Mount REST API with real-time freshness
 app.use(
   '/api',
   (req, res, next) => {
-    // Only cache public GET queries (like projects, services, faqs, settings)
-    // Keep admin, auth, and state modifications strictly realtime
-    if (req.method === 'GET' && !req.url.startsWith('/admin') && !req.url.startsWith('/auth')) {
-      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
-    } else {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      res.setHeader('Surrogate-Control', 'no-store');
-    }
+    // Prevent Hostinger Edge CDN or browser from caching API responses so edits show instantly
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
     next();
   },
   apiLimiter,

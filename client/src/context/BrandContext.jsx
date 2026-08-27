@@ -237,14 +237,46 @@ export const applyGlobalThemeCSS = (prim, sec, textMode = 'auto') => {
   root.style.setProperty('--brand-text-on-primary', contrastText);
 };
 
+const getInitialBrandState = () => {
+  try {
+    const raw = localStorage.getItem('sakhawat_cached_brand') || localStorage.getItem('sakhawat_cached_settings');
+    if (raw) {
+      const d = JSON.parse(raw);
+      const pColor = d.brand_primary_color || d.accent_color || '#ccff00';
+      const sColor = d.brand_secondary_color || '#00f5d4';
+      const bTextMode = d.brand_button_text_mode || 'auto';
+      applyGlobalThemeCSS(pColor, sColor, bTextMode);
+      return {
+        siteLogo: d.site_logo || '',
+        siteFavicon: d.site_favicon || '',
+        primaryColor: pColor,
+        secondaryColor: sColor,
+        themePreset: d.theme_preset || 'neon_lime',
+        buttonTextMode: bTextMode,
+      };
+    }
+  } catch (e) {}
+
+  applyGlobalThemeCSS('#ccff00', '#00f5d4', 'auto');
+  return {
+    siteLogo: '',
+    siteFavicon: '',
+    primaryColor: '#ccff00',
+    secondaryColor: '#00f5d4',
+    themePreset: 'neon_lime',
+    buttonTextMode: 'auto',
+  };
+};
+
 export const BrandProvider = ({ children }) => {
-  const [siteLogo, setSiteLogo] = useState('');
-  const [siteFavicon, setSiteFavicon] = useState('');
-  const [primaryColor, setPrimaryColor] = useState('#14b8a6');
-  const [secondaryColor, setSecondaryColor] = useState('#06b6d4');
-  const [themePreset, setThemePreset] = useState('cyber_teal');
-  const [buttonTextMode, setButtonTextMode] = useState('auto');
-  const [loading, setLoading] = useState(true);
+  const initial = getInitialBrandState();
+  const [siteLogo, setSiteLogo] = useState(initial.siteLogo);
+  const [siteFavicon, setSiteFavicon] = useState(initial.siteFavicon);
+  const [primaryColor, setPrimaryColor] = useState(initial.primaryColor);
+  const [secondaryColor, setSecondaryColor] = useState(initial.secondaryColor);
+  const [themePreset, setThemePreset] = useState(initial.themePreset);
+  const [buttonTextMode, setButtonTextMode] = useState(initial.buttonTextMode);
+  const [loading, setLoading] = useState(false);
 
   const fetchBrandSettings = async () => {
     try {
@@ -256,15 +288,30 @@ export const BrandProvider = ({ children }) => {
           setSiteFavicon(d.site_favicon);
           updateFavicon(d.site_favicon);
         }
-        const pColor = d.brand_primary_color || '#14b8a6';
-        const sColor = d.brand_secondary_color || '#06b6d4';
+        const pColor = d.brand_primary_color || d.accent_color || '#ccff00';
+        const sColor = d.brand_secondary_color || '#00f5d4';
         const bTextMode = d.brand_button_text_mode || 'auto';
+        const preset = d.theme_preset || 'neon_lime';
+
         setPrimaryColor(pColor);
         setSecondaryColor(sColor);
         setButtonTextMode(bTextMode);
-        if (d.theme_preset) setThemePreset(d.theme_preset);
+        setThemePreset(preset);
 
         applyGlobalThemeCSS(pColor, sColor, bTextMode);
+
+        // Cache brand settings locally for 0ms instant load
+        localStorage.setItem(
+          'sakhawat_cached_brand',
+          JSON.stringify({
+            site_logo: d.site_logo || '',
+            site_favicon: d.site_favicon || '',
+            brand_primary_color: pColor,
+            brand_secondary_color: sColor,
+            brand_button_text_mode: bTextMode,
+            theme_preset: preset,
+          })
+        );
       }
     } catch (err) {
       console.error('Failed to load branding settings:', err);
@@ -302,6 +349,16 @@ export const BrandProvider = ({ children }) => {
           setSecondaryColor(s);
           setButtonTextMode(tm);
           applyGlobalThemeCSS(p, s, tm);
+          localStorage.setItem(
+            'sakhawat_cached_brand',
+            JSON.stringify({
+              site_logo: siteLogo,
+              site_favicon: siteFavicon,
+              brand_primary_color: p,
+              brand_secondary_color: s,
+              brand_button_text_mode: tm,
+            })
+          );
         },
         refreshBranding: fetchBrandSettings,
         loading,

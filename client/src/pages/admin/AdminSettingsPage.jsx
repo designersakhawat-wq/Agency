@@ -162,6 +162,19 @@ export const AdminSettingsPage = () => {
     try {
       const res = await api.post('/settings/admin/bulk', { settings });
       if (res.success) {
+        localStorage.setItem('sakhawat_cached_settings', JSON.stringify(settings));
+        localStorage.setItem(
+          'sakhawat_cached_brand',
+          JSON.stringify({
+            site_logo: settings.site_logo || '',
+            site_favicon: settings.site_favicon || '',
+            brand_primary_color: settings.brand_primary_color || settings.accent_color || '#ccff00',
+            brand_secondary_color: settings.brand_secondary_color || '#00f5d4',
+            brand_button_text_mode: settings.brand_button_text_mode || 'auto',
+            theme_preset: settings.theme_preset || 'neon_lime',
+          })
+        );
+        api.clearCache();
         showToast('Site, branding & currency settings saved successfully!', 'success');
         refreshCurrency();
         refreshBranding();

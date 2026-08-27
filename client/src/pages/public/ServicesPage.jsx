@@ -24,21 +24,38 @@ const iconMap = {
   Layout: Layout,
 };
 
+const getLocalJson = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+};
+
 const ServicesPage = () => {
-  const [services, setServices] = useState([]);
-  const [faqs, setFaqs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const initialServices = getLocalJson('sakhawat_cached_services', []);
+  const initialFaqs = getLocalJson('sakhawat_cached_faqs', []);
+  const [services, setServices] = useState(initialServices);
+  const [faqs, setFaqs] = useState(initialFaqs);
+  const [loading, setLoading] = useState(initialServices.length === 0);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      if (services.length === 0) setLoading(true);
       try {
         const [srvRes, faqRes] = await Promise.all([
           api.get('/services'),
           api.get('/faqs'),
         ]);
-        if (srvRes.success) setServices(srvRes.data || []);
-        if (faqRes.success) setFaqs(faqRes.data || []);
+        if (srvRes.success && srvRes.data) {
+          setServices(srvRes.data);
+          localStorage.setItem('sakhawat_cached_services', JSON.stringify(srvRes.data));
+        }
+        if (faqRes.success && faqRes.data) {
+          setFaqs(faqRes.data);
+          localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(faqRes.data));
+        }
       } catch (err) {
         console.error('Error loading services overview:', err);
       } finally {
@@ -48,7 +65,7 @@ const ServicesPage = () => {
     fetchData();
   }, []);
 
-  if (loading) {
+  if (loading && services.length === 0) {
     return <Loader message="Loading creative service offerings..." fullScreen />;
   }
 

@@ -29,10 +29,20 @@ const categories = [
   'AI Video',
 ];
 
+const getLocalJson = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+};
+
 const PortfolioPage = () => {
-  const [projects, setProjects] = useState([]);
-  const [settings, setSettings] = useState({});
-  const [loading, setLoading] = useState(true);
+  const initialProjects = getLocalJson('sakhawat_cached_all_projects', getLocalJson('sakhawat_cached_featured_projects', []));
+  const [projects, setProjects] = useState(initialProjects);
+  const [settings, setSettings] = useState(() => getLocalJson('sakhawat_cached_settings', {}));
+  const [loading, setLoading] = useState(initialProjects.length === 0);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [quickViewProject, setQuickViewProject] = useState(null);
@@ -43,6 +53,7 @@ const PortfolioPage = () => {
         const res = await api.get('/settings');
         if (res.success && res.data) {
           setSettings(res.data);
+          localStorage.setItem('sakhawat_cached_settings', JSON.stringify(res.data));
         }
       } catch (err) {
         console.error('Error loading settings:', err);
@@ -53,14 +64,17 @@ const PortfolioPage = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      setLoading(true);
+      if (projects.length === 0) setLoading(true);
       try {
         const res = await api.get('/projects', {
           category: selectedCategory !== 'All' ? selectedCategory : undefined,
           search: searchQuery || undefined,
         });
-        if (res.success) {
-          setProjects(res.data || []);
+        if (res.success && res.data) {
+          setProjects(res.data);
+          if (selectedCategory === 'All' && !searchQuery) {
+            localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(res.data));
+          }
         }
       } catch (err) {
         console.error('Error loading projects:', err);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
@@ -19,8 +19,36 @@ import {
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
+import { api } from '../../services/api';
+
+const getLocalJson = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+};
 
 const AboutPage = () => {
+  const [settings, setSettings] = useState(() => getLocalJson('sakhawat_cached_settings', {}));
+
+  useEffect(() => {
+    api.get('/settings').then((res) => {
+      if (res.success && res.data) {
+        setSettings(res.data);
+        localStorage.setItem('sakhawat_cached_settings', JSON.stringify(res.data));
+      }
+    }).catch(() => {});
+  }, []);
+
+  const designerName = settings?.designer_name || settings?.hero_designer_name || 'Md Sakhawat Hossain';
+  const designerTitle = settings?.designer_title || settings?.hero_designer_title || 'Creative Graphic Designer';
+  const aboutImage = settings?.about_image || settings?.hero_image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80';
+  const location = settings?.contact_location || 'Ishurdi, Pabna, Bangladesh';
+  const yearsExp = settings?.years_experience || '3+';
+  const availability = settings?.availability_status || 'Immediate (Remote Worldwide)';
+
   const experiences = [
     {
       company: 'e-Learn IT Institute',
@@ -95,9 +123,9 @@ const AboutPage = () => {
         {/* 1. Bio Hero */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-semibold uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" />
-              About Md Sakhawat Hossain
+              About {designerName}
             </div>
 
             <h1 className="text-4xl sm:text-6xl font-display font-black text-white tracking-tight leading-tight">
@@ -105,7 +133,7 @@ const AboutPage = () => {
             </h1>
 
             <p className="text-base sm:text-lg text-zinc-300 leading-relaxed">
-              I am a professional Creative Graphic Designer with 3+ years of hands-on experience helping brands across Bangladesh, Dubai, and the United States stand out, look authoritative, and sell better.
+              I am a professional {designerTitle} with {yearsExp} years of hands-on experience helping brands across Bangladesh, Dubai, and the United States stand out, look authoritative, and sell better.
             </p>
 
             <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
@@ -116,7 +144,7 @@ const AboutPage = () => {
             <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
               <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
                 <span className="text-zinc-500 block mb-0.5">Location:</span>
-                <span className="text-white font-bold">Ishurdi, Pabna, Bangladesh</span>
+                <span className="text-white font-bold">{location}</span>
               </div>
               <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
                 <span className="text-zinc-500 block mb-0.5">Languages:</span>
@@ -124,11 +152,11 @@ const AboutPage = () => {
               </div>
               <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
                 <span className="text-zinc-500 block mb-0.5">Availability:</span>
-                <span className="text-teal-400 font-bold">Immediate (Remote Worldwide)</span>
+                <span className="text-brand-primary font-bold">{availability}</span>
               </div>
               <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
                 <span className="text-zinc-500 block mb-0.5">Experience:</span>
-                <span className="text-white font-bold">3+ Years Professional</span>
+                <span className="text-white font-bold">{yearsExp} Years Professional</span>
               </div>
             </div>
 
@@ -150,14 +178,14 @@ const AboutPage = () => {
             <div className="relative rounded-3xl overflow-hidden glass-card p-3 border border-zinc-800 shadow-2xl">
               <div className="rounded-2xl overflow-hidden aspect-[4/5] bg-zinc-900">
                 <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80"
-                  alt="Md Sakhawat Hossain"
+                  src={aboutImage}
+                  alt={designerName}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl glass-card border border-teal-500/30 backdrop-blur-xl">
-                <h4 className="text-sm font-bold text-white">Md Sakhawat Hossain</h4>
-                <p className="text-xs text-teal-400 font-medium">Creative Graphic Designer</p>
+              <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl glass-card border border-brand-primary/30 backdrop-blur-xl">
+                <h4 className="text-sm font-bold text-white">{designerName}</h4>
+                <p className="text-xs text-brand-primary font-medium">{designerTitle}</p>
               </div>
             </div>
           </div>
