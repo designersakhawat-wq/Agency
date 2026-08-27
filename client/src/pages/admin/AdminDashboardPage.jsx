@@ -30,6 +30,7 @@ const DEFAULT_STATS = {
     testimonials: 3,
   },
   recentInquiries: [],
+  recentBookings: [],
   upcomingBookings: [],
 };
 
@@ -43,7 +44,6 @@ const AdminDashboardPage = () => {
       return DEFAULT_STATS;
     }
   });
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -61,6 +61,12 @@ const AdminDashboardPage = () => {
   }, []);
 
   const counts = stats?.counts || {};
+  const recentInquiries = Array.isArray(stats?.recentInquiries) ? stats.recentInquiries : [];
+  const recentBookings = Array.isArray(stats?.recentBookings)
+    ? stats.recentBookings
+    : Array.isArray(stats?.upcomingBookings)
+    ? stats.upcomingBookings
+    : [];
 
   const statCards = [
     {
@@ -185,13 +191,13 @@ const AdminDashboardPage = () => {
             </Link>
           </div>
 
-          {stats?.recentInquiries?.length === 0 ? (
+          {recentInquiries.length === 0 ? (
             <p className="text-xs text-zinc-500 py-6 text-center">No contact inquiries yet.</p>
           ) : (
             <div className="space-y-3">
-              {stats.recentInquiries.map((inq) => (
+              {recentInquiries.map((inq) => (
                 <div
-                  key={inq.id}
+                  key={inq.id || inq.email}
                   className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-start justify-between gap-3"
                 >
                   <div className="min-w-0">
@@ -201,14 +207,14 @@ const AdminDashboardPage = () => {
                         variant={inq.status === 'UNREAD' ? 'rose' : 'default'}
                         size="sm"
                       >
-                        {inq.status}
+                        {inq.status || 'UNREAD'}
                       </Badge>
                     </div>
                     <p className="text-[11px] text-zinc-400 truncate mt-0.5">{inq.email}</p>
                     <p className="text-xs text-zinc-300 mt-1 line-clamp-1">{inq.message}</p>
                   </div>
                   <span className="text-[10px] text-zinc-400 whitespace-nowrap">
-                    {new Date(inq.createdAt).toLocaleDateString()}
+                    {inq.createdAt ? new Date(inq.createdAt).toLocaleDateString() : 'Recent'}
                   </span>
                 </div>
               ))}
@@ -228,23 +234,23 @@ const AdminDashboardPage = () => {
             </Link>
           </div>
 
-          {stats?.recentBookings?.length === 0 ? (
+          {recentBookings.length === 0 ? (
             <p className="text-xs text-zinc-500 py-6 text-center">No scheduled meetings yet.</p>
           ) : (
             <div className="space-y-3">
-              {stats.recentBookings.map((b) => (
+              {recentBookings.map((b) => (
                 <div
-                  key={b.id}
+                  key={b.id || b.email}
                   className="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-start justify-between gap-3"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-xs text-white truncate">{b.name}</span>
+                      <span className="font-bold text-xs text-white truncate">{b.name || b.clientName}</span>
                       <Badge
                         variant={b.status === 'PENDING' ? 'amber' : 'emerald'}
                         size="sm"
                       >
-                        {b.status}
+                        {b.status || 'PENDING'}
                       </Badge>
                     </div>
                     <p className="text-xs text-indigo-400 font-semibold mt-0.5">
@@ -253,7 +259,7 @@ const AdminDashboardPage = () => {
                     <p className="text-[11px] text-zinc-400 mt-0.5">{b.serviceName || 'Consultation'}</p>
                   </div>
                   <span className="text-[10px] text-zinc-400 whitespace-nowrap">
-                    {new Date(b.createdAt).toLocaleDateString()}
+                    {b.createdAt ? new Date(b.createdAt).toLocaleDateString() : 'Recent'}
                   </span>
                 </div>
               ))}

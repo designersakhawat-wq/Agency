@@ -34,15 +34,15 @@ const AdminLayout = () => {
   useEffect(() => {
     const fetchBadgeCounts = async () => {
       try {
-        const res = await api.get('/admin/dashboard/stats');
-        if (res.success && res.data?.counts) {
+        const res = await api.get('/admin/dashboard/stats').catch(() => null);
+        if (res && res.success && res.data?.counts) {
           setStats({
             unreadInquiries: res.data.counts.unreadInquiries || 0,
             pendingBookings: res.data.counts.pendingBookings || 0,
           });
         }
       } catch (err) {
-        // silent fail
+        // safe fallback
       }
     };
     fetchBadgeCounts();
