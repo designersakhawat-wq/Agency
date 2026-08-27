@@ -159,7 +159,7 @@ const { initDatabaseSchema } = require('./src/config/dbInit');
 const PORT = process.env.PORT || env.PORT || 5000;
 
 // Start listening immediately on 0.0.0.0 for Hostinger reverse proxy compatibility
-app.listen(PORT, '0.0.0.0', async () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log('\n======================================================');
   console.log(`🚀 Production Server running on port: ${PORT}`);
   console.log(`🌍 Environment: ${env.NODE_ENV}`);
@@ -167,5 +167,8 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
   console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
   console.log('======================================================\n');
-  await initDatabaseSchema(prisma);
+
+  initDatabaseSchema(prisma).catch((err) => {
+    console.error('Database initialization background error:', err.message);
+  });
 });
