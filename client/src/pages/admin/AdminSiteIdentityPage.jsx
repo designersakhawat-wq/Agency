@@ -15,6 +15,9 @@ import {
   ArrowRight,
   Linkedin,
   Share2,
+  Upload,
+  Trash2,
+  X,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { api } from '../../services/api';
@@ -24,6 +27,8 @@ export const AdminSiteIdentityPage = () => {
   const { success, error } = useToast();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const [uploadingAbout, setUploadingAbout] = useState(false);
 
   const [formData, setFormData] = useState({
     designer_name: 'Md Sakhawat Hossain',
@@ -109,6 +114,46 @@ export const AdminSiteIdentityPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleHeroUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingHero(true);
+    const data = new FormData();
+    data.append('file', file);
+    data.append('altText', `${formData.designer_name} Hero Portrait`);
+    try {
+      const res = await api.upload('/admin/media/upload', data);
+      if (res.success && res.data?.fileUrl) {
+        setFormData((prev) => ({ ...prev, hero_image: res.data.fileUrl }));
+        success('Hero profile image uploaded successfully!');
+      }
+    } catch (err) {
+      error('Hero image upload failed: ' + err.message);
+    } finally {
+      setUploadingHero(false);
+    }
+  };
+
+  const handleAboutUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAbout(true);
+    const data = new FormData();
+    data.append('file', file);
+    data.append('altText', `${formData.designer_name} About Portrait`);
+    try {
+      const res = await api.upload('/admin/media/upload', data);
+      if (res.success && res.data?.fileUrl) {
+        setFormData((prev) => ({ ...prev, about_image: res.data.fileUrl }));
+        success('About portrait image uploaded successfully!');
+      }
+    } catch (err) {
+      error('About image upload failed: ' + err.message);
+    } finally {
+      setUploadingAbout(false);
+    }
   };
 
   const handleSave = async (e) => {
@@ -375,50 +420,124 @@ export const AdminSiteIdentityPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Hero Profile Image */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">
-                Hero Profile Image URL
+                Hero Profile Image
               </label>
-              <input
-                type="text"
-                name="hero_image"
-                value={formData.hero_image}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
-                placeholder="https://..."
-              />
-              {formData.hero_image && (
-                <div className="mt-3 flex items-center gap-3 p-2 bg-zinc-950/60 rounded-xl border border-zinc-800/80">
-                  <img
-                    src={formData.hero_image}
-                    alt="Hero Preview"
-                    className="w-12 h-12 rounded-lg object-cover"
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="hero_image"
+                  value={formData.hero_image}
+                  onChange={handleChange}
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-xs sm:text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                  placeholder="https://... or upload image"
+                />
+                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-colors shrink-0">
+                  <Upload className="w-4 h-4 text-teal-400" />
+                  <span>{uploadingHero ? 'Uploading...' : 'Upload'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleHeroUpload}
+                    className="hidden"
+                    disabled={uploadingHero}
                   />
-                  <span className="text-xs text-zinc-400">Hero image preview</span>
+                </label>
+                {formData.hero_image && (
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, hero_image: '' }))}
+                    className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors cursor-pointer shrink-0"
+                    title="Remove Hero Image"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {formData.hero_image && (
+                <div className="mt-3 flex items-center justify-between p-2.5 bg-zinc-950/80 rounded-xl border border-zinc-800">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={formData.hero_image}
+                      alt="Hero Preview"
+                      className="w-12 h-12 rounded-lg object-cover border border-zinc-700 shrink-0"
+                    />
+                    <div>
+                      <span className="text-xs text-white font-semibold block">Hero Image Active</span>
+                      <span className="text-[10px] text-zinc-400">Displayed on homepage hero section</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, hero_image: '' }))}
+                    className="text-xs text-rose-400 hover:text-rose-300 font-bold px-2 py-1 rounded hover:bg-rose-500/10 transition-colors cursor-pointer"
+                  >
+                    Remove
+                  </button>
                 </div>
               )}
             </div>
 
+            {/* About Page Image */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">
-                About Page Image URL
+                About Page Image
               </label>
-              <input
-                type="text"
-                name="about_image"
-                value={formData.about_image}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
-                placeholder="https://..."
-              />
-              {formData.about_image && (
-                <div className="mt-3 flex items-center gap-3 p-2 bg-zinc-950/60 rounded-xl border border-zinc-800/80">
-                  <img
-                    src={formData.about_image}
-                    alt="About Preview"
-                    className="w-12 h-12 rounded-lg object-cover"
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="about_image"
+                  value={formData.about_image}
+                  onChange={handleChange}
+                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-xs sm:text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                  placeholder="https://... or upload image"
+                />
+                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-colors shrink-0">
+                  <Upload className="w-4 h-4 text-teal-400" />
+                  <span>{uploadingAbout ? 'Uploading...' : 'Upload'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAboutUpload}
+                    className="hidden"
+                    disabled={uploadingAbout}
                   />
-                  <span className="text-xs text-zinc-400">About page portrait preview</span>
+                </label>
+                {formData.about_image && (
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, about_image: '' }))}
+                    className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors cursor-pointer shrink-0"
+                    title="Remove About Image"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {formData.about_image && (
+                <div className="mt-3 flex items-center justify-between p-2.5 bg-zinc-950/80 rounded-xl border border-zinc-800">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={formData.about_image}
+                      alt="About Preview"
+                      className="w-12 h-12 rounded-lg object-cover border border-zinc-700 shrink-0"
+                    />
+                    <div>
+                      <span className="text-xs text-white font-semibold block">About Portrait Active</span>
+                      <span className="text-[10px] text-zinc-400">Displayed on /about story page</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, about_image: '' }))}
+                    className="text-xs text-rose-400 hover:text-rose-300 font-bold px-2 py-1 rounded hover:bg-rose-500/10 transition-colors cursor-pointer"
+                  >
+                    Remove
+                  </button>
                 </div>
               )}
             </div>
