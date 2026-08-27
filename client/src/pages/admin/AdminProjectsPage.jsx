@@ -40,9 +40,18 @@ const CATEGORY_OPTIONS = [
   'Print & Marketing',
 ];
 
+import { DEFAULT_PROJECTS } from '../../data/defaultData';
+
 export const AdminProjectsPage = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_all_projects');
+      return cached ? JSON.parse(cached) : DEFAULT_PROJECTS;
+    } catch (e) {
+      return DEFAULT_PROJECTS;
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);

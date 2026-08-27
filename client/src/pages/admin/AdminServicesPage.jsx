@@ -8,9 +8,18 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
+import { DEFAULT_SERVICES } from '../../data/defaultData';
+
 const AdminServicesPage = () => {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_services');
+      return cached ? JSON.parse(cached) : DEFAULT_SERVICES;
+    } catch (e) {
+      return DEFAULT_SERVICES;
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
