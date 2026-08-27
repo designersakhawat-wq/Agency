@@ -7,7 +7,17 @@ console.log('🚀 Executing Universal Production Build');
 console.log('==============================================\n');
 
 try {
-  // 1. Build with Vite
+  // 1. Generate Prisma Client
+  console.log('📦 Generating Prisma Client for Hostinger...');
+  try {
+    execSync('npx prisma generate', { stdio: 'inherit' });
+    console.log('✅ Prisma Client successfully generated.');
+  } catch (err) {
+    console.warn('Prisma generate warning:', err.message);
+  }
+
+  // 2. Build with Vite
+  console.log('📦 Executing Vite frontend build...');
   execSync('npx vite build', { stdio: 'inherit' });
 
   // 2. Synchronize to all potential Hostinger output directories
