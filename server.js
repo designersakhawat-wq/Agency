@@ -89,14 +89,19 @@ app.use(
 );
 
 // Hostinger & Production Static Asset Serving (React SPA)
-const clientDistPath = path.join(__dirname, 'client/dist');
-const altDistPath = path.join(__dirname, 'dist');
+const candidatePaths = [
+  path.join(__dirname, 'dist'),
+  path.join(__dirname, 'client/dist'),
+  path.join(__dirname, 'build'),
+  path.join(__dirname, 'public'),
+];
 
 let resolvedDistPath = null;
-if (fs.existsSync(clientDistPath)) {
-  resolvedDistPath = clientDistPath;
-} else if (fs.existsSync(altDistPath)) {
-  resolvedDistPath = altDistPath;
+for (const p of candidatePaths) {
+  if (fs.existsSync(path.join(p, 'index.html'))) {
+    resolvedDistPath = p;
+    break;
+  }
 }
 
 if (resolvedDistPath) {
