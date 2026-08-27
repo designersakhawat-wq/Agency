@@ -60,6 +60,14 @@ if (env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
+// Serve transparent PNG for legacy placeholder requests to eliminate 422/404 errors
+app.get('/placeholder-cleaned.png', (req, res) => {
+  const transparentPng = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'public, max-age=31536000');
+  res.send(transparentPng);
+});
+
 // Ensure uploads directory exists in persistent storage and serve with browser caching
 const { UPLOADS_DIR } = require('./src/config/persistentStorage');
 const uploadsDir = UPLOADS_DIR;
