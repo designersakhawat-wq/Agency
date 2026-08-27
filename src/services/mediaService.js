@@ -89,7 +89,8 @@ class MediaService {
     }
 
     if (media.source === 'LOCAL') {
-      const localFilePath = path.join(__dirname, '../../uploads', path.basename(media.fileUrl));
+      const { UPLOADS_DIR } = require('../config/persistentStorage');
+      const localFilePath = path.join(UPLOADS_DIR, path.basename(media.fileUrl));
       if (fs.existsSync(localFilePath)) {
         try {
           fs.unlinkSync(localFilePath);

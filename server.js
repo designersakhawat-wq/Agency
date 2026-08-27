@@ -60,11 +60,9 @@ if (env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
-// Ensure uploads directory exists and serve with browser caching
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// Ensure uploads directory exists in persistent storage and serve with browser caching
+const { UPLOADS_DIR } = require('./src/config/persistentStorage');
+const uploadsDir = UPLOADS_DIR;
 app.use(
   '/uploads',
   express.static(uploadsDir, {

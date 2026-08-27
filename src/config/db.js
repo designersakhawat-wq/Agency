@@ -1,10 +1,10 @@
 const path = require('path');
 const fs = require('fs');
+const { PERSISTENT_DB_FILE } = require('./persistentStorage');
 
-// Guarantee DATABASE_URL is always set for Hostinger cloud deployments
+// Ensure DATABASE_URL points to the permanent database across all redeploys
 if (!process.env.DATABASE_URL) {
-  const defaultDbPath = path.resolve(__dirname, '../../prisma/dev.db');
-  process.env.DATABASE_URL = `file:${defaultDbPath}`;
+  process.env.DATABASE_URL = `file:${PERSISTENT_DB_FILE}`;
 }
 
 let prisma;
