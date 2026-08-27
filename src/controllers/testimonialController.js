@@ -8,10 +8,7 @@ const getPublicTestimonials = async (req, res, next) => {
 
     const where = {
       active: true,
-      OR: [
-        { status: 'APPROVED' },
-        { status: null },
-      ],
+      status: 'APPROVED',
     };
 
     if (serviceId) {
