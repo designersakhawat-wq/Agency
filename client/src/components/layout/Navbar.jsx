@@ -118,8 +118,16 @@ export const Navbar = ({ onOpenBooking }) => {
               })}
             </nav>
 
-            {/* 3. HI-FI CTA BUTTON */}
+            {/* 3. HI-FI CTA BUTTON & QUICK ADMIN ACCESS */}
             <div className="hidden sm:flex items-center gap-3">
+              <Link
+                to="/admin/login"
+                className="p-2.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-teal-400 hover:border-teal-500/40 transition-all shadow-sm"
+                title="Admin Control Center"
+              >
+                <ShieldCheck className="w-4 h-4 text-teal-400" />
+              </Link>
+
               <Link to="/book-a-meeting">
                 <motion.button
                   whileHover={{ scale: 1.04, y: -1 }}
@@ -186,11 +194,23 @@ export const Navbar = ({ onOpenBooking }) => {
               })}
             </div>
 
-            <div className="pt-3 border-t border-zinc-800">
+            <div className="pt-3 border-t border-zinc-800 flex flex-col gap-2">
               <Link to="/book-a-meeting" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="primary" size="md" icon={Calendar} className="w-full justify-center font-bold">
                   Book a Consultation Call
                 </Button>
+              </Link>
+
+              <Link
+                to="/admin/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-4 py-2.5 rounded-2xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800/80"
+              >
+                <span className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-teal-400" />
+                  Admin Control Center
+                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-600" />
               </Link>
             </div>
           </motion.div>
