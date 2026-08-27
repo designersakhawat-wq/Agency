@@ -21,6 +21,12 @@ Options -Indexes
   RewriteRule ^ - [L]
 
   # Pass /api and /uploads to Node.js backend
+  <IfModule mod_proxy.c>
+    RewriteCond %{REQUEST_URI} ^/api/ [OR]
+    RewriteCond %{REQUEST_URI} ^/uploads/
+    RewriteRule ^(.*)$ http://127.0.0.1:5000/$1 [P,L]
+  </IfModule>
+
   RewriteRule ^api/(.*)$ - [L]
   RewriteRule ^uploads/(.*)$ - [L]
 

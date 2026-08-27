@@ -158,20 +158,27 @@ const { initDatabaseSchema } = require('./src/config/dbInit');
 
 const PORT = process.env.PORT || env.PORT || 5000;
 
-// Start listening on 0.0.0.0 for Hostinger reverse proxy compatibility
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log('\n======================================================');
-  console.log(`🚀 Production Server running on port: ${PORT}`);
-  console.log(`🌍 Environment: ${env.NODE_ENV}`);
-  console.log(`📡 API Base: http://localhost:${PORT}/api`);
-  console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
-  console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
-  console.log('======================================================\n');
+// Support both numeric TCP ports (e.g. 5000) and Hostinger Passenger domain sockets
+const server = isNaN(Number(PORT))
+  ? app.listen(PORT, () => {
+      console.log(`🚀 Production Server listening on socket: ${PORT}`);
+      initDatabaseSchema(prisma).catch((err) => {
+        console.error('Database initialization background error:', err.message);
+      });
+    })
+  : app.listen(Number(PORT), '0.0.0.0', () => {
+      console.log('\n======================================================');
+      console.log(`🚀 Production Server running on port: ${PORT}`);
+      console.log(`🌍 Environment: ${env.NODE_ENV}`);
+      console.log(`📡 API Base: http://localhost:${PORT}/api`);
+      console.log(`📬 Admin Notifications: ${env.ADMIN_NOTIFICATION_EMAIL}`);
+      console.log('⚡ Cache-Control: Intelligent Tiered Caching Activated');
+      console.log('======================================================\n');
 
-  initDatabaseSchema(prisma).catch((err) => {
-    console.error('Database initialization background error:', err.message);
-  });
-});
+      initDatabaseSchema(prisma).catch((err) => {
+        console.error('Database initialization background error:', err.message);
+      });
+    });
 
 // Graceful Shutdown for Hostinger Process Managers (PM2 / Passenger / Systemd)
 const handleGracefulShutdown = async (signal) => {
