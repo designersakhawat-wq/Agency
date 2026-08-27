@@ -29,9 +29,6 @@ const getPublicSettings = async (req, res, next) => {
       settingsMap[item.key] = parsedValue;
     });
 
-    cachedSettingsMap = settingsMap;
-    lastSettingsFetch = Date.now();
-
     return successResponse(res, settingsMap, 'Site settings retrieved.');
   } catch (err) {
     next(err);

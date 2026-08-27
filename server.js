@@ -5,6 +5,20 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const fs = require('fs');
+const { execSync } = require('child_process');
+
+// Auto-generate Prisma client if needed (important on Hostinger after fresh deploy)
+try {
+  require('@prisma/client');
+} catch (e) {
+  try {
+    console.log('🔄 Generating Prisma client...');
+    execSync('npx prisma generate', { stdio: 'inherit', timeout: 30000 });
+    console.log('✅ Prisma client generated.');
+  } catch (genErr) {
+    console.warn('⚠️  Prisma generate warning (non-fatal):', genErr.message);
+  }
+}
 
 const env = require('./src/config/env');
 const apiRoutes = require('./src/routes');
