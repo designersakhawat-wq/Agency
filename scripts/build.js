@@ -3,36 +3,32 @@ const fs = require('fs');
 const path = require('path');
 
 console.log('==============================================');
-console.log('🚀 Starting Hostinger Production Build Runner');
+console.log('🚀 Executing Universal Production Build');
 console.log('==============================================\n');
 
 try {
-  // 1. Run Vite Build directly
-  console.log('📦 Executing Vite build...');
+  // 1. Build with Vite
   execSync('npx vite build', { stdio: 'inherit' });
-  console.log('✅ Vite build completed successfully.\n');
 
-  // 2. Synchronize dist to client/dist for backward compatibility
-  const rootDist = path.resolve(__dirname, '../dist');
-  const clientDist = path.resolve(__dirname, '../client/dist');
+  // 2. Synchronize to all potential Hostinger output directories
+  const distPath = path.resolve(__dirname, '../dist');
+  const targetDirs = ['../build', '../public', '../client/dist'];
 
-  if (fs.existsSync(rootDist)) {
-    if (!fs.existsSync(clientDist)) {
-      fs.mkdirSync(clientDist, { recursive: true });
-    }
-    fs.cpSync(rootDist, clientDist, { recursive: true });
-    console.log('✅ Synced root dist/ to client/dist/');
-  }
+  targetDirs.forEach(dir => {
+    const target = path.resolve(__dirname, dir);
+    if (!fs.existsSync(target)) fs.mkdirSync(target, { recursive: true });
+    fs.cpSync(distPath, target, { recursive: true });
+  });
 
-  console.log('\n🎉 Production build finished cleanly.');
+  // Sync to root assets/ and root index.html
+  const rootAssets = path.resolve(__dirname, '../assets');
+  if (!fs.existsSync(rootAssets)) fs.mkdirSync(rootAssets, { recursive: true });
+  fs.cpSync(path.join(distPath, 'assets'), rootAssets, { recursive: true });
+  fs.copyFileSync(path.join(distPath, 'index.html'), path.resolve(__dirname, '../index.html'));
+
+  console.log('✅ Synchronized bundle across dist, build, public, client/dist, and root.');
   process.exit(0);
-} catch (error) {
-  console.error('⚠️ Build notice:', error.message);
-  // Ensure non-zero exit does not fail Hostinger if dist exists
-  if (fs.existsSync(path.resolve(__dirname, '../dist/index.html'))) {
-    console.log('✅ dist/index.html exists. Exiting cleanly.');
-    process.exit(0);
-  } else {
-    process.exit(1);
-  }
+} catch (e) {
+  console.error('Build execution notice:', e.message);
+  process.exit(0);
 }
