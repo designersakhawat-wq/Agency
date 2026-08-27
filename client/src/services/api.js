@@ -256,7 +256,65 @@ const handleLocalFallback = async (endpoint, options = {}) => {
     }
   }
 
-  // 7. Homepage Consolidated API
+  // 7. Services API Fallback
+  if (endpoint.includes('/services')) {
+    let cachedServices = [];
+    try {
+      const raw = localStorage.getItem('sakhawat_cached_services');
+      cachedServices = raw ? JSON.parse(raw) : [];
+    } catch (e) {}
+
+    let storedProjects = [];
+    try {
+      const raw = localStorage.getItem('sakhawat_cached_all_projects');
+      storedProjects = raw ? JSON.parse(raw) : [];
+    } catch (e) {}
+
+    // Check if looking for single service e.g. /services/logo-branding
+    const parts = endpoint.split('/').filter(Boolean);
+    const lastPart = parts[parts.length - 1];
+    if (lastPart && lastPart !== 'services' && lastPart !== 'all') {
+      const slug = lastPart;
+      const matchedService = cachedServices.find((s) => s.slug === slug || s.id === slug) || {
+        id: slug,
+        title: slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+        slug: slug,
+        packages: [],
+      };
+
+      const matchedProjects = storedProjects.filter((p) => {
+        if (!p || p.active === false) return false;
+        if (p.serviceSlug === slug || p.serviceId === matchedService.id) return true;
+        const pCat = (p.category || '').toLowerCase();
+        const sTitle = (matchedService.title || '').toLowerCase();
+        if (sTitle && pCat === sTitle) return true;
+        if (slug.includes('logo') && (pCat.includes('logo') || pCat.includes('brand'))) return true;
+        if (slug.includes('ads') && (pCat.includes('ads') || pCat.includes('social') || pCat.includes('post'))) return true;
+        if (slug.includes('ugc') && (pCat.includes('ugc') || pCat.includes('video'))) return true;
+        if (slug.includes('cover') && (pCat.includes('cover') || pCat.includes('banner'))) return true;
+        return false;
+      });
+
+      return {
+        success: true,
+        message: 'Service details retrieved.',
+        data: {
+          service: matchedService,
+          packages: matchedService.packages || [],
+          projects: matchedProjects,
+          faqs: [],
+        },
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Services retrieved.',
+      data: cachedServices,
+    };
+  }
+
+  // 8. Homepage Consolidated API
   if (endpoint.includes('/homepage') && method === 'GET') {
     const settings = getStoredSettings();
     let storedProjects = [];

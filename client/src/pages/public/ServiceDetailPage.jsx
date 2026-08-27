@@ -116,6 +116,15 @@ const ServiceDetailPage = () => {
     };
   });
 
+  const [allStoredProjects, setAllStoredProjects] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_all_projects');
+      return cached ? JSON.parse(cached) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
   const [showStickyBar, setShowStickyBar] = useState(false);
 
   // Dynamic Backend Showcase Config
@@ -147,8 +156,9 @@ const ServiceDetailPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [srvRes, settingsRes] = await Promise.all([
+        const [srvRes, projRes, settingsRes] = await Promise.all([
           api.get(`/services/${slug}`).catch(() => null),
+          api.get('/projects').catch(() => null),
           api.get('/settings').catch(() => null),
         ]);
 
@@ -162,6 +172,13 @@ const ServiceDetailPage = () => {
             packages: freshPackages.length > 0 ? freshPackages : prev.packages,
             faqs: srvRes.data.faqs || prev.faqs,
           }));
+        }
+
+        if (projRes && projRes.success && Array.isArray(projRes.data)) {
+          setAllStoredProjects(projRes.data);
+          try {
+            localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(projRes.data));
+          } catch (e) {}
         }
 
         if (settingsRes && settingsRes.success && settingsRes.data) {
@@ -200,11 +217,31 @@ const ServiceDetailPage = () => {
   const packages = service.packages || data.packages || [];
   const features = Array.isArray(service.features) ? service.features : [];
 
-  // Filter portfolio projects matching this service (prioritize real uploaded items from backend)
+  // Filter portfolio projects matching this service (strictly prioritize real uploaded items)
   const servicePortfolioProjects = useMemo(() => {
+    // 1. Direct projects from backend service query
     if (Array.isArray(data.projects) && data.projects.length > 0) {
       return data.projects;
     }
+
+    // 2. Filter from all projects in DB / local storage
+    if (Array.isArray(allStoredProjects) && allStoredProjects.length > 0) {
+      const matchedStored = allStoredProjects.filter((p) => {
+        if (!p || p.active === false) return false;
+        if (p.serviceSlug === slug || (service?.id && p.serviceId === service.id)) return true;
+        const pCat = (p.category || '').toLowerCase();
+        const sTitle = (service?.title || '').toLowerCase();
+        if (sTitle && pCat === sTitle) return true;
+        if (slug.includes('logo') && (pCat.includes('logo') || pCat.includes('brand'))) return true;
+        if (slug.includes('ads') && (pCat.includes('ads') || pCat.includes('social') || pCat.includes('post') || pCat.includes('creative'))) return true;
+        if (slug.includes('ugc') && (pCat.includes('ugc') || pCat.includes('video'))) return true;
+        if (slug.includes('cover') && (pCat.includes('cover') || pCat.includes('banner') || pCat.includes('header'))) return true;
+        return false;
+      });
+      if (matchedStored.length > 0) return matchedStored;
+    }
+
+    // 3. Fallback to default mock projects only if no live items exist
     const matched = DEFAULT_PROJECTS.filter((p) => {
       if (p.serviceSlug && p.serviceSlug === slug) return true;
       if (slug.includes('logo') && (p.category.includes('Logo') || p.category.includes('Brand'))) return true;
@@ -216,7 +253,7 @@ const ServiceDetailPage = () => {
 
     if (matched.length > 0) return matched;
     return DEFAULT_PROJECTS.slice(0, 6);
-  }, [data.projects, slug]);
+  }, [data.projects, allStoredProjects, slug, service]);
 
   const totalSlides = servicePortfolioProjects.length;
 

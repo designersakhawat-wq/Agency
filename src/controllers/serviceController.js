@@ -96,21 +96,25 @@ const getServiceBySlug = async (req, res, next) => {
           { serviceId: service.id },
           { serviceSlug: service.slug },
           { category: service.title },
+          { category: { contains: service.title } },
         ],
       },
       orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
     });
 
-    // 2. If the service has no explicitly attached projects, fetch direct category matches
+    // 2. If the service has no explicitly attached projects, fetch flexible keyword matches
     if (serviceProjects.length === 0) {
-      serviceProjects = await prisma.project.findMany({
-        where: {
-          active: true,
-          category: { contains: service.title },
-        },
-        take: 6,
-        orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
-      });
+      const keywords = service.title.toLowerCase().split(/[\s&,-]+/).filter((w) => w.length > 2);
+      if (keywords.length > 0) {
+        serviceProjects = await prisma.project.findMany({
+          where: {
+            active: true,
+            OR: keywords.map((kw) => ({ category: { contains: kw } })),
+          },
+          take: 12,
+          orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
+        });
+      }
     }
 
     const finalProjects = serviceProjects;
