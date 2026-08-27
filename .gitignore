@@ -12,8 +12,6 @@ production.env
 *.env
 
 # Production builds
-dist/
-client/dist/
 build/
 
 # Local media uploads
