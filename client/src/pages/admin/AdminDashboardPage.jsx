@@ -34,6 +34,7 @@ const DEFAULT_STATS = {
 };
 
 const AdminDashboardPage = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState(() => {
     try {
       const cached = localStorage.getItem('sakhawat_cached_admin_stats');
