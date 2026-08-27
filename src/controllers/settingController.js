@@ -7,31 +7,38 @@ const { successResponse, errorResponse } = require('../utils/apiResponse');
  */
 const getPublicSettings = async (req, res, next) => {
   try {
-    const settings = await prisma.siteSetting.findMany();
+    let settings = [];
+    try {
+      settings = await prisma.siteSetting.findMany();
+    } catch (dbErr) {
+      console.warn('Settings DB lookup warning:', dbErr.message);
+    }
     
     // Transform into a clean key-value object
     const settingsMap = {};
-    settings.forEach((item) => {
-      let parsedValue = item.value;
-      if (item.value === 'true') {
-        parsedValue = true;
-      } else if (item.value === 'false') {
-        parsedValue = false;
-      } else {
-        try {
-          if (typeof item.value === 'string' && (item.value.startsWith('{') || item.value.startsWith('['))) {
-            parsedValue = JSON.parse(item.value);
+    if (Array.isArray(settings) && settings.length > 0) {
+      settings.forEach((item) => {
+        let parsedValue = item.value;
+        if (item.value === 'true') {
+          parsedValue = true;
+        } else if (item.value === 'false') {
+          parsedValue = false;
+        } else {
+          try {
+            if (typeof item.value === 'string' && (item.value.startsWith('{') || item.value.startsWith('['))) {
+              parsedValue = JSON.parse(item.value);
+            }
+          } catch (e) {
+            parsedValue = item.value;
           }
-        } catch (e) {
-          parsedValue = item.value;
         }
-      }
-      settingsMap[item.key] = parsedValue;
-    });
+        settingsMap[item.key] = parsedValue;
+      });
+    }
 
     return successResponse(res, settingsMap, 'Site settings retrieved.');
   } catch (err) {
-    next(err);
+    return successResponse(res, {}, 'Fallback empty settings.');
   }
 };
 
