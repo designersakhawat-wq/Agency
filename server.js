@@ -163,7 +163,7 @@ const startServer = (portToTry, attempts = 0) => {
   const isSocket = isNaN(Number(portToTry));
   const s = isSocket
     ? app.listen(portToTry)
-    : app.listen(Number(portToTry), '0.0.0.0');
+    : app.listen(Number(portToTry));
 
   s.on('listening', () => {
     console.log('\n======================================================');
