@@ -115,10 +115,12 @@ export const AdminProjectsPage = () => {
     fetchAllData();
   }, []);
 
-  // Category counts
+  // Category counts (100% null-safe)
   const categoryCounts = useMemo(() => {
-    const counts = { All: projects.length };
-    projects.forEach((p) => {
+    const safeProjects = (projects || []).filter(Boolean);
+    const counts = { All: safeProjects.length };
+    safeProjects.forEach((p) => {
+      if (!p) return;
       const cat = p.category || 'General Design';
       counts[cat] = (counts[cat] || 0) + 1;
     });
@@ -128,25 +130,28 @@ export const AdminProjectsPage = () => {
   // Unique categories list
   const categoryList = useMemo(() => {
     const list = ['All'];
-    const serviceTitles = services.map((s) => s.title);
-    const existingCats = Object.keys(categoryCounts).filter((c) => c !== 'All');
+    const serviceTitles = (services || []).filter(Boolean).map((s) => s.title).filter(Boolean);
+    const existingCats = Object.keys(categoryCounts || {}).filter((c) => c !== 'All');
     return ['All', ...Array.from(new Set([...serviceTitles, ...existingCats]))];
   }, [categoryCounts, services]);
 
-  // Filtered projects
+  // Filtered projects (100% null-safe)
   const filteredProjects = useMemo(() => {
-    return projects.filter((p) => {
+    const safeProjects = (projects || []).filter(Boolean);
+    return safeProjects.filter((p) => {
+      if (!p) return false;
+      const pCat = p.category || 'General Design';
       if (selectedCategory !== 'All') {
         const match =
-          p.category === selectedCategory ||
-          (p.category && p.category.toLowerCase().includes(selectedCategory.toLowerCase()));
+          pCat === selectedCategory ||
+          pCat.toLowerCase().includes(selectedCategory.toLowerCase());
         if (!match) return false;
       }
       if (search.trim()) {
         const q = search.toLowerCase().trim();
         const titleMatch = p.title && p.title.toLowerCase().includes(q);
         const clientMatch = p.client && p.client.toLowerCase().includes(q);
-        const catMatch = p.category && p.category.toLowerCase().includes(q);
+        const catMatch = pCat.toLowerCase().includes(q);
         if (!titleMatch && !clientMatch && !catMatch) return false;
       }
       return true;
@@ -225,8 +230,9 @@ export const AdminProjectsPage = () => {
     try {
       const res = await api.post('/projects/admin', payload);
       if (res && res.success) {
+        const created = res.data || payload;
         success(`"${title}" published to Portfolio!`);
-        setProjects((prev) => [res.data, ...prev]);
+        setProjects((prev) => [created, ...(prev || [])].filter(Boolean));
         setQuickTitle('');
         setQuickCoverPreview('');
         setQuickVideoUrl('');

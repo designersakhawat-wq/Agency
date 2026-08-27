@@ -96,8 +96,8 @@ const AdminProjectEditPage = () => {
       setLoading(true);
       api.get(`/projects/admin/all`)
         .then((res) => {
-          if (res.success) {
-            const found = res.data.find((p) => p.id === id);
+          if (res && res.success && Array.isArray(res.data)) {
+            const found = res.data.find((p) => p && p.id === id);
             if (found) {
               let parsedTags = found.tags;
               if (typeof parsedTags === 'string') {

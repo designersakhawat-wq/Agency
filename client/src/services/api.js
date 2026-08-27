@@ -181,15 +181,95 @@ const handleLocalFallback = async (endpoint, options = {}) => {
     };
   }
 
-  // 6. Homepage Consolidated API
+  // 6. Projects Management Fallback (CRUD)
+  if (endpoint.includes('/projects')) {
+    let storedProjects = [];
+    try {
+      const raw = localStorage.getItem('sakhawat_cached_all_projects');
+      storedProjects = raw ? JSON.parse(raw) : [];
+    } catch (e) {}
+
+    if (method === 'GET') {
+      return {
+        success: true,
+        message: 'Projects retrieved successfully.',
+        data: storedProjects,
+      };
+    }
+
+    if (method === 'POST') {
+      let payload = {};
+      try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
+      const newProject = {
+        id: 'proj_' + Date.now(),
+        title: payload.title || 'Untitled Project',
+        slug: payload.slug || 'project-' + Date.now(),
+        category: payload.category || 'Logo & Branding',
+        client: payload.client || 'Commercial Client',
+        year: payload.year || new Date().getFullYear().toString(),
+        summary: payload.summary || '',
+        description: payload.description || '',
+        coverImage: payload.coverImage || 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800',
+        galleryImages: payload.galleryImages || [],
+        tags: payload.tags || [],
+        featured: Boolean(payload.featured),
+        active: payload.active !== false,
+        createdAt: new Date().toISOString(),
+      };
+      storedProjects.unshift(newProject);
+      try {
+        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(storedProjects));
+      } catch (e) {}
+      return {
+        success: true,
+        message: 'Project created successfully.',
+        data: newProject,
+      };
+    }
+
+    if (method === 'PUT') {
+      let payload = {};
+      try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
+      const id = endpoint.split('/').pop();
+      storedProjects = storedProjects.map((p) => (p && (p.id === id || p.id === payload.id) ? { ...p, ...payload } : p));
+      try {
+        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(storedProjects));
+      } catch (e) {}
+      return {
+        success: true,
+        message: 'Project updated successfully.',
+        data: payload,
+      };
+    }
+
+    if (method === 'DELETE') {
+      const id = endpoint.split('/').pop();
+      storedProjects = storedProjects.filter((p) => p && p.id !== id);
+      try {
+        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(storedProjects));
+      } catch (e) {}
+      return {
+        success: true,
+        message: 'Project deleted successfully.',
+        data: { id },
+      };
+    }
+  }
+
+  // 7. Homepage Consolidated API
   if (endpoint.includes('/homepage') && method === 'GET') {
     const settings = getStoredSettings();
+    let storedProjects = [];
+    try {
+      const raw = localStorage.getItem('sakhawat_cached_all_projects');
+      storedProjects = raw ? JSON.parse(raw) : [];
+    } catch (e) {}
     return {
       success: true,
       message: 'Homepage data retrieved.',
       data: {
         settings,
-        projects: [],
+        projects: storedProjects,
         services: [],
         packages: [],
         testimonials: [],
@@ -200,10 +280,12 @@ const handleLocalFallback = async (endpoint, options = {}) => {
   }
 
   // Default fallback for any other admin POST/PUT
+  let parsedPayload = {};
+  try { parsedPayload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
   return {
     success: true,
     message: 'Operation processed successfully.',
-    data: null,
+    data: parsedPayload || {},
   };
 };
 
