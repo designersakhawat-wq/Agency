@@ -19,9 +19,9 @@ const getHomepageData = async (req, res, next) => {
     ] = await Promise.all([
       prisma.siteSetting.findMany().catch(() => []),
       prisma.project.findMany({
-        where: { featured: true, active: true },
-        orderBy: { order: 'asc' },
-        take: 12,
+        where: { active: true },
+        orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+        take: 16,
       }).catch(() => []),
       prisma.service.findMany({
         where: { active: true },
