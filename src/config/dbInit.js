@@ -1,6 +1,10 @@
 const bcrypt = require('bcryptjs');
 
 const initDatabaseSchema = async (prisma) => {
+  if (!prisma || typeof prisma.$queryRawUnsafe !== 'function') {
+    console.log('Database client not ready for direct DDL, skipping schema init.');
+    return;
+  }
   try {
     // 0. Enable SQLite WAL mode & memory cache optimizations for high concurrent traffic on Hostinger
     try {
