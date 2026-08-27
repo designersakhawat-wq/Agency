@@ -31,6 +31,7 @@ import {
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import { DEFAULT_PROJECTS, DEFAULT_SERVICES } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 // Helper to extract clean YouTube Embed URL
 export const getYouTubeEmbedUrl = (url) => {
@@ -318,7 +319,7 @@ export const PortfolioPage = () => {
 
       if (projRes && projRes.success && Array.isArray(projRes.data)) {
         setProjects(projRes.data);
-        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(projRes.data));
+        safeSetItem('sakhawat_cached_all_projects', projRes.data);
       }
 
       if (servRes && servRes.success && Array.isArray(servRes.data) && servRes.data.length > 0) {

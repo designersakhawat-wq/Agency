@@ -31,14 +31,10 @@ import {
 import Button from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { api } from '../../services/api';
+import { safeSetItem, safeGetItem } from '../../utils/safeStorage';
 
 const getLocalJson = (key, fallback) => {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch (e) {
-    return fallback;
-  }
+  return safeGetItem(key, fallback);
 };
 
 // Default Fallbacks if not set in backend CMS
@@ -269,7 +265,7 @@ export const AboutPage = () => {
       .then((res) => {
         if (res.success && res.data) {
           setSettings(res.data);
-          localStorage.setItem('sakhawat_cached_settings', JSON.stringify(res.data));
+          safeSetItem('sakhawat_cached_settings', res.data);
         }
       })
       .catch(() => {});

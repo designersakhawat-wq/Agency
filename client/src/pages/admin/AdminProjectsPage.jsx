@@ -35,6 +35,7 @@ import { Loader } from '../../components/common/Loader';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 export const AdminProjectsPage = () => {
   const [projects, setProjects] = useState(() => {
@@ -95,7 +96,7 @@ export const AdminProjectsPage = () => {
 
       if (projRes && projRes.success && Array.isArray(projRes.data)) {
         setProjects(projRes.data);
-        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(projRes.data));
+        safeSetItem('sakhawat_cached_all_projects', projRes.data);
       }
 
       if (servRes && servRes.success && Array.isArray(servRes.data)) {
@@ -254,9 +255,7 @@ const DEFAULT_DESIGN_CATEGORIES = [
     // 1. Instant Optimistic State Update & Storage Persistence (1ms)
     setProjects((prev) => {
       const updated = [newProject, ...(prev || [])].filter(Boolean);
-      try {
-        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(updated));
-      } catch (err) {}
+      safeSetItem('sakhawat_cached_all_projects', updated);
       return updated;
     });
 

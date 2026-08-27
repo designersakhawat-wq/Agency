@@ -24,6 +24,7 @@ import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { safeSetItem, safeGetItem } from '../../utils/safeStorage';
 
 export const AdminMediaPage = () => {
   const [mediaItems, setMediaItems] = useState([]);
@@ -84,11 +85,8 @@ export const AdminMediaPage = () => {
           createdAt: new Date().toISOString(),
         };
         setMediaItems((prev) => [localItem, ...prev]);
-        try {
-          const stored = JSON.parse(localStorage.getItem('sakhawat_media_library') || '[]');
-          stored.unshift(localItem);
-          localStorage.setItem('sakhawat_media_library', JSON.stringify(stored.slice(0, 50)));
-        } catch (err) {}
+        const stored = safeGetItem('sakhawat_media_library', []);
+        safeSetItem('sakhawat_media_library', [localItem, ...(Array.isArray(stored) ? stored.slice(0, 30) : [])]);
       };
       reader.readAsDataURL(file);
 

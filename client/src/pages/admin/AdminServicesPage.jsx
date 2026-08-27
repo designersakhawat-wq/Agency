@@ -50,6 +50,7 @@ import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 import { DEFAULT_SERVICES, DEFAULT_SETTINGS, DEFAULT_FAQS, DEFAULT_PROJECTS } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 const DEFAULT_SHOWCASE_CONFIG = {
   aspectRatio: '1:1',
@@ -171,17 +172,17 @@ const AdminServicesPage = () => {
 
       if (srvRes && srvRes.success && Array.isArray(srvRes.data)) {
         setServices(srvRes.data);
-        localStorage.setItem('sakhawat_cached_services', JSON.stringify(srvRes.data));
+        safeSetItem('sakhawat_cached_services', srvRes.data);
       }
 
       if (faqsRes && faqsRes.success && Array.isArray(faqsRes.data)) {
         setAllFaqs(faqsRes.data);
-        localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(faqsRes.data));
+        safeSetItem('sakhawat_cached_faqs', faqsRes.data);
       }
 
       if (projRes && projRes.success && Array.isArray(projRes.data)) {
         setAllProjects(projRes.data);
-        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(projRes.data));
+        safeSetItem('sakhawat_cached_all_projects', projRes.data);
       }
 
       if (settingsRes && settingsRes.success && settingsRes.data) {
@@ -598,11 +599,7 @@ const AdminServicesPage = () => {
     };
 
     setAllProjects((prev) => [optimisticProject, ...prev]);
-    try {
-      const raw = localStorage.getItem('sakhawat_cached_all_projects');
-      const existing = raw ? JSON.parse(raw) : [];
-      localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify([optimisticProject, ...existing]));
-    } catch (e) {}
+    safeSetItem('sakhawat_cached_all_projects', [optimisticProject, ...allProjects]);
 
     success(
       quickUploadFeatured
@@ -621,12 +618,7 @@ const AdminServicesPage = () => {
         setAllProjects((prev) =>
           prev.map((p) => (p.id === optimisticProject.id ? res.data : p))
         );
-        try {
-          const raw = localStorage.getItem('sakhawat_cached_all_projects');
-          const list = raw ? JSON.parse(raw) : [];
-          const updatedList = list.map((p) => (p.id === optimisticProject.id ? res.data : p));
-          localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(updatedList));
-        } catch (e) {}
+        safeSetItem('sakhawat_cached_all_projects', allProjects.map((p) => (p.id === optimisticProject.id ? res.data : p)));
       }
     } catch (err) {
       console.warn('Background project creation note:', err.message);
@@ -722,12 +714,7 @@ const AdminServicesPage = () => {
     setAllProjects((prev) =>
       prev.map((p) => (p.id === project.id ? updatedProject : p))
     );
-    try {
-      const raw = localStorage.getItem('sakhawat_cached_all_projects');
-      const list = raw ? JSON.parse(raw) : [];
-      const updatedList = list.map((p) => (p.id === project.id ? updatedProject : p));
-      localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(updatedList));
-    } catch (e) {}
+    safeSetItem('sakhawat_cached_all_projects', allProjects.map((p) => (p.id === project.id ? updatedProject : p)));
 
     success(
       isCurrentlyLinked
@@ -766,9 +753,7 @@ const AdminServicesPage = () => {
       const nextList = exists
         ? prev.map((s) => (s.id === optimisticService.id ? optimisticService : s))
         : [...prev, optimisticService];
-      try {
-        localStorage.setItem('sakhawat_cached_services', JSON.stringify(nextList));
-      } catch (e) {}
+      safeSetItem('sakhawat_cached_services', nextList);
       return nextList;
     });
 
@@ -863,7 +848,7 @@ const AdminServicesPage = () => {
     } finally {
       setServices((prev) => {
         const filtered = prev.filter((s) => s.id !== deleteTarget.id);
-        localStorage.setItem('sakhawat_cached_services', JSON.stringify(filtered));
+        safeSetItem('sakhawat_cached_services', filtered);
         return filtered;
       });
       setDeleteTarget(null);
@@ -874,7 +859,7 @@ const AdminServicesPage = () => {
   const handleSaveShowcaseSettings = async () => {
     setSavingShowcase(true);
     try {
-      localStorage.setItem('sakhawat_cached_showcase_config', JSON.stringify(showcaseConfig));
+      safeSetItem('sakhawat_cached_showcase_config', showcaseConfig);
       const res = await api.post('/settings/admin/bulk', {
         settings: {
           service_showcase_config: showcaseConfig,
@@ -886,7 +871,7 @@ const AdminServicesPage = () => {
         success('Showcase settings saved!');
       }
     } catch (err) {
-      localStorage.setItem('sakhawat_cached_showcase_config', JSON.stringify(showcaseConfig));
+      safeSetItem('sakhawat_cached_showcase_config', showcaseConfig);
       success('Showcase settings updated!');
     } finally {
       setSavingShowcase(false);

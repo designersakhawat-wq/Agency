@@ -28,14 +28,10 @@ import {
   DEFAULT_FAQS,
   DEFAULT_BRANDS,
 } from '../../data/defaultData';
+import { safeSetItem, safeGetItem } from '../../utils/safeStorage';
 
 const getLocalJson = (key, fallback) => {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch (e) {
-    return fallback;
-  }
+  return safeGetItem(key, fallback);
 };
 
 const HomePage = () => {
@@ -58,31 +54,31 @@ const HomePage = () => {
           const d = res.data;
           if (d.settings && Object.keys(d.settings).length > 0) {
             setSettings(d.settings);
-            localStorage.setItem('sakhawat_cached_settings', JSON.stringify(d.settings));
+            safeSetItem('sakhawat_cached_settings', d.settings);
           }
           if (Array.isArray(d.projects) && d.projects.length > 0) {
             setProjects(d.projects);
-            localStorage.setItem('sakhawat_cached_featured_projects', JSON.stringify(d.projects));
+            safeSetItem('sakhawat_cached_featured_projects', d.projects);
           }
           if (Array.isArray(d.services) && d.services.length > 0) {
             setServices(d.services);
-            localStorage.setItem('sakhawat_cached_services', JSON.stringify(d.services));
+            safeSetItem('sakhawat_cached_services', d.services);
           }
           if (Array.isArray(d.packages) && d.packages.length > 0) {
             setPackages(d.packages);
-            localStorage.setItem('sakhawat_cached_packages', JSON.stringify(d.packages));
+            safeSetItem('sakhawat_cached_packages', d.packages);
           }
           if (Array.isArray(d.testimonials) && d.testimonials.length > 0) {
             setTestimonials(d.testimonials);
-            localStorage.setItem('sakhawat_cached_testimonials', JSON.stringify(d.testimonials));
+            safeSetItem('sakhawat_cached_testimonials', d.testimonials);
           }
           if (Array.isArray(d.faqs) && d.faqs.length > 0) {
             setFaqs(d.faqs);
-            localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(d.faqs));
+            safeSetItem('sakhawat_cached_faqs', d.faqs);
           }
           if (Array.isArray(d.brands) && d.brands.length > 0) {
             setBrands(d.brands);
-            localStorage.setItem('sakhawat_cached_brands', JSON.stringify(d.brands));
+            safeSetItem('sakhawat_cached_brands', d.brands);
           }
           return;
         }
@@ -101,7 +97,7 @@ const HomePage = () => {
 
         if (settingsRes.success && settingsRes.data) {
           setSettings(settingsRes.data);
-          localStorage.setItem('sakhawat_cached_settings', JSON.stringify(settingsRes.data));
+          safeSetItem('sakhawat_cached_settings', settingsRes.data);
         }
         if (projectsRes.success && Array.isArray(projectsRes.data)) {
           setProjects(projectsRes.data);

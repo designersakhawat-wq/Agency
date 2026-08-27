@@ -6,10 +6,12 @@
  * 3. Zero-Failure Local Storage Persistence Fallback for Hostinger environments
  */
 
+import { safeSetItem, safeGetItem, safeRemoveItem } from '../utils/safeStorage';
+
 const API_BASE = '/api';
 
 const getAuthToken = () => {
-  return localStorage.getItem('sakhawat_admin_token');
+  return safeGetItem('sakhawat_admin_token', null);
 };
 
 // In-flight request de-duplication cache
@@ -42,23 +44,19 @@ const DEFAULT_SETTINGS = {
 
 // Helper: Get local settings
 const getStoredSettings = () => {
-  try {
-    const raw = localStorage.getItem('sakhawat_site_settings');
-    if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
-  } catch (e) {}
+  const stored = safeGetItem('sakhawat_site_settings', null);
+  if (stored && typeof stored === 'object') {
+    return { ...DEFAULT_SETTINGS, ...stored };
+  }
   return { ...DEFAULT_SETTINGS };
 };
 
 // Helper: Save local settings
 const saveStoredSettings = (newSettings) => {
-  try {
-    const current = getStoredSettings();
-    const merged = { ...current, ...newSettings };
-    localStorage.setItem('sakhawat_site_settings', JSON.stringify(merged));
-    return merged;
-  } catch (e) {
-    return newSettings;
-  }
+  const current = getStoredSettings();
+  const merged = { ...current, ...newSettings };
+  safeSetItem('sakhawat_site_settings', merged);
+  return merged;
 };
 
 // Helper: Read File as Data URL for resilient client upload fallback
@@ -92,8 +90,8 @@ const handleLocalFallback = async (endpoint, options = {}) => {
       email: email,
       role: 'ADMIN',
     };
-    localStorage.setItem('sakhawat_admin_token', token);
-    localStorage.setItem('sakhawat_admin_user', JSON.stringify(user));
+    safeSetItem('sakhawat_admin_token', token);
+    safeSetItem('sakhawat_admin_user', user);
     return {
       success: true,
       message: 'Login successful (High-Speed Session)',
@@ -154,11 +152,9 @@ const handleLocalFallback = async (endpoint, options = {}) => {
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      const existing = JSON.parse(localStorage.getItem('sakhawat_media_library') || '[]');
-      existing.unshift(newMedia);
-      localStorage.setItem('sakhawat_media_library', JSON.stringify(existing.slice(0, 50)));
-    } catch (e) {}
+    const existing = safeGetItem('sakhawat_media_library', []);
+    const updatedMediaList = Array.isArray(existing) ? [newMedia, ...existing.slice(0, 30)] : [newMedia];
+    safeSetItem('sakhawat_media_library', updatedMediaList);
 
     return {
       success: true,
@@ -169,25 +165,19 @@ const handleLocalFallback = async (endpoint, options = {}) => {
 
   // 5. Get Media List
   if (endpoint.includes('/admin/media') && method === 'GET') {
-    let items = [];
-    try {
-      items = JSON.parse(localStorage.getItem('sakhawat_media_library') || '[]');
-    } catch (e) {}
+    const items = safeGetItem('sakhawat_media_library', []);
     return {
       success: true,
       message: 'Media assets retrieved.',
-      data: items,
-      meta: { total: items.length, page: 1, limit: 30 },
+      data: Array.isArray(items) ? items : [],
+      meta: { total: Array.isArray(items) ? items.length : 0, page: 1, limit: 30 },
     };
   }
 
   // 6. Projects Management Fallback (CRUD)
   if (endpoint.includes('/projects')) {
-    let storedProjects = [];
-    try {
-      const raw = localStorage.getItem('sakhawat_cached_all_projects');
-      storedProjects = raw ? JSON.parse(raw) : [];
-    } catch (e) {}
+    const rawProjects = safeGetItem('sakhawat_cached_all_projects', []);
+    let storedProjects = Array.isArray(rawProjects) ? rawProjects : [];
 
     if (method === 'GET') {
       return {
@@ -219,9 +209,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
         createdAt: new Date().toISOString(),
       };
       storedProjects.unshift(newProject);
-      try {
-        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(storedProjects));
-      } catch (e) {}
+      safeSetItem('sakhawat_cached_all_projects', storedProjects);
       return {
         success: true,
         message: 'Project created successfully.',
@@ -234,9 +222,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
       try { payload = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) {}
       const id = endpoint.split('/').pop();
       storedProjects = storedProjects.map((p) => (p && (p.id === id || p.id === payload.id) ? { ...p, ...payload } : p));
-      try {
-        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(storedProjects));
-      } catch (e) {}
+      safeSetItem('sakhawat_cached_all_projects', storedProjects);
       return {
         success: true,
         message: 'Project updated successfully.',
@@ -247,9 +233,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
     if (method === 'DELETE') {
       const id = endpoint.split('/').pop();
       storedProjects = storedProjects.filter((p) => p && p.id !== id);
-      try {
-        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(storedProjects));
-      } catch (e) {}
+      safeSetItem('sakhawat_cached_all_projects', storedProjects);
       return {
         success: true,
         message: 'Project deleted successfully.',

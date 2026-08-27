@@ -17,6 +17,7 @@ import {
 import { Badge } from '../../components/common/Badge';
 import { Loader } from '../../components/common/Loader';
 import Button from '../../components/common/Button';
+import { safeSetItem } from '../../utils/safeStorage';
 
 const DEFAULT_STATS = {
   counts: {
@@ -51,7 +52,7 @@ const AdminDashboardPage = () => {
         const res = await api.get('/admin/dashboard/stats').catch(() => null);
         if (res && res.success && res.data) {
           setStats(res.data);
-          localStorage.setItem('sakhawat_cached_admin_stats', JSON.stringify(res.data));
+          safeSetItem('sakhawat_cached_admin_stats', res.data);
         }
       } catch (err) {
         console.error('Error fetching admin dashboard stats:', err);

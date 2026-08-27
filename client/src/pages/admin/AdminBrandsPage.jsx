@@ -18,6 +18,7 @@ import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 import { DEFAULT_BRANDS } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 export const AdminBrandsPage = () => {
   const [brands, setBrands] = useState(() => {
@@ -50,7 +51,7 @@ export const AdminBrandsPage = () => {
       const res = await api.get('/brands/admin/all').catch(() => null);
       if (res && res.success && Array.isArray(res.data)) {
         setBrands(res.data);
-        localStorage.setItem('sakhawat_cached_brands', JSON.stringify(res.data));
+        safeSetItem('sakhawat_cached_brands', res.data);
       }
     } catch (err) {
       console.error('Failed to load brands:', err);

@@ -10,6 +10,7 @@ import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 import { DEFAULT_PACKAGES, DEFAULT_SERVICES } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 export const AdminPackagesPage = () => {
   const { formatAmount, currencySymbol, currencyCode } = useCurrency();
@@ -38,15 +39,16 @@ export const AdminPackagesPage = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    serviceId: '',
     description: '',
-    price: 1999,
+    price: '',
     billingPeriod: 'per-project',
-    features: [],
+    serviceId: '',
     isPopular: false,
     order: 0,
-    active: true,
     ctaText: 'Book Package',
+    features: [],
+    excludedFeatures: [],
+    active: true,
   });
 
   const [featureInput, setFeatureInput] = useState('');
@@ -59,11 +61,11 @@ export const AdminPackagesPage = () => {
       ]);
       if (pkgRes && pkgRes.success && Array.isArray(pkgRes.data)) {
         setPackages(pkgRes.data);
-        localStorage.setItem('sakhawat_cached_packages', JSON.stringify(pkgRes.data));
+        safeSetItem('sakhawat_cached_packages', pkgRes.data);
       }
       if (srvRes && srvRes.success && Array.isArray(srvRes.data)) {
         setServices(srvRes.data);
-        localStorage.setItem('sakhawat_cached_services', JSON.stringify(srvRes.data));
+        safeSetItem('sakhawat_cached_services', srvRes.data);
       }
     } catch (err) {
       console.error('Failed to load packages:', err);

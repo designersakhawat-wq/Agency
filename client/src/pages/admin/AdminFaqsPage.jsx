@@ -9,6 +9,7 @@ import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
 import { DEFAULT_FAQS } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 const AdminFaqsPage = () => {
   const [faqs, setFaqs] = useState(() => {
@@ -39,7 +40,7 @@ const AdminFaqsPage = () => {
       const res = await api.get('/faqs/admin/all').catch(() => null);
       if (res && res.success && Array.isArray(res.data)) {
         setFaqs(res.data);
-        localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(res.data));
+        safeSetItem('sakhawat_cached_faqs', res.data);
       }
     } catch (err) {
       console.error('Failed to load FAQs:', err);

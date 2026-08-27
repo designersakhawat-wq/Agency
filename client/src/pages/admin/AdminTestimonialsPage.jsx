@@ -23,6 +23,7 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
 
 import { DEFAULT_TESTIMONIALS } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 export const AdminTestimonialsPage = () => {
   const { success, error } = useToast();
@@ -64,7 +65,7 @@ export const AdminTestimonialsPage = () => {
       const res = await api.get('/testimonials/admin/all').catch(() => null);
       if (res && res.success && Array.isArray(res.data)) {
         setTestimonials(res.data);
-        localStorage.setItem('sakhawat_cached_testimonials', JSON.stringify(res.data));
+        safeSetItem('sakhawat_cached_testimonials', res.data);
       }
     } catch (err) {
       console.error('Failed to load testimonials:', err);

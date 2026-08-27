@@ -35,6 +35,7 @@ import { Badge } from '../../components/common/Badge';
 import FaqAccordion from '../../components/home/FaqAccordion';
 import { PackageActionModal } from '../../components/common/PackageActionModal';
 import { DEFAULT_SERVICES, DEFAULT_FAQS, DEFAULT_PROJECTS, DEFAULT_SETTINGS } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 const iconMap = {
   Palette: Palette,
@@ -176,9 +177,7 @@ const ServiceDetailPage = () => {
 
         if (projRes && projRes.success && Array.isArray(projRes.data)) {
           setAllStoredProjects(projRes.data);
-          try {
-            localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(projRes.data));
-          } catch (e) {}
+          safeSetItem('sakhawat_cached_all_projects', projRes.data);
         }
 
         if (settingsRes && settingsRes.success && settingsRes.data) {

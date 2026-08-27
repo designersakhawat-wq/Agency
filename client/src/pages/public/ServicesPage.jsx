@@ -31,6 +31,7 @@ import { PackageActionModal } from '../../components/common/PackageActionModal';
 import { api } from '../../services/api';
 import { useCurrency } from '../../context/CurrencyContext';
 import { DEFAULT_SERVICES, DEFAULT_FAQS } from '../../data/defaultData';
+import { safeSetItem } from '../../utils/safeStorage';
 
 const iconMap = {
   Palette: Palette,
@@ -163,11 +164,11 @@ const ServicesPage = () => {
         ]);
         if (srvRes.success && Array.isArray(srvRes.data) && srvRes.data.length > 0) {
           setServices(srvRes.data);
-          localStorage.setItem('sakhawat_cached_services', JSON.stringify(srvRes.data));
+          safeSetItem('sakhawat_cached_services', srvRes.data);
         }
         if (faqRes.success && Array.isArray(faqRes.data) && faqRes.data.length > 0) {
           setFaqs(faqRes.data);
-          localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(faqRes.data));
+          safeSetItem('sakhawat_cached_faqs', faqRes.data);
         }
       } catch (err) {
         console.error('Error loading services overview:', err);
