@@ -1,5 +1,31 @@
+const fs = require('fs');
+const path = require('path');
 const prisma = require('../config/db');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+
+// Helper to convert Base64 data URLs to permanent disk files
+const saveBase64Image = (dataUrl, suggestedName = 'project-image') => {
+  if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
+    return dataUrl;
+  }
+  try {
+    const { UPLOADS_DIR } = require('../config/persistentStorage');
+    const matches = dataUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+    if (!matches) return dataUrl;
+    const rawExt = matches[1].toLowerCase();
+    const ext = rawExt === 'jpeg' ? 'jpg' : (rawExt.includes('svg') ? 'svg' : (rawExt.includes('png') ? 'png' : 'webp'));
+    const buffer = Buffer.from(matches[2], 'base64');
+    const cleanName = (suggestedName || 'image').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
+    const filename = `${cleanName}-${Date.now()}-${Math.round(Math.random() * 1e6)}.${ext}`;
+    const filePath = path.join(UPLOADS_DIR, filename);
+    fs.writeFileSync(filePath, buffer);
+    console.log(`💾 Saved base64 image directly to disk file: ${filePath}`);
+    return `/uploads/${filename}`;
+  } catch (e) {
+    console.warn('Could not save base64 image to disk:', e.message);
+    return dataUrl;
+  }
+};
 
 // Helper to generate URL-friendly slug
 const generateSlug = (title) => {
@@ -225,15 +251,15 @@ const createProject = async (req, res, next) => {
       active,
     } = req.body;
 
-    if (!title || !category || !summary || !description || !coverImage) {
-      return errorResponse(
-        res,
-        'Please provide title, category, summary, description, and cover image.',
-        400
-      );
-    }
+    const effectiveTitle = (title && typeof title === 'string' && title.trim()) ? title.trim() : 'New Creative Project';
+    const effectiveCategory = (category && typeof category === 'string' && category.trim()) ? category.trim() : 'Logo & Branding';
+    const effectiveSummary = (summary && typeof summary === 'string' && summary.trim()) ? summary.trim() : `Commercial showcase project for ${effectiveCategory}.`;
+    const effectiveDescription = (description && typeof description === 'string' && description.trim()) ? description.trim() : `Delivered high-converting visual design deliverables for ${effectiveTitle}.`;
+    
+    // Convert Base64 image to permanent disk file if needed
+    const persistentCoverImage = saveBase64Image(coverImage, effectiveTitle) || 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800';
 
-    const finalSlug = slug ? generateSlug(slug) : generateSlug(title);
+    const finalSlug = slug ? generateSlug(slug) : generateSlug(effectiveTitle);
 
     // Verify slug uniqueness
     const existing = await prisma.project.findUnique({ where: { slug: finalSlug } });
@@ -248,17 +274,21 @@ const createProject = async (req, res, next) => {
 
     const newProject = await prisma.project.create({
       data: {
-        title: title.trim(),
+        title: effectiveTitle,
         slug: uniqueSlug,
-        category: category.trim(),
+        category: effectiveCategory,
         serviceId: serviceId || null,
         serviceSlug: resolvedServiceSlug,
         client: client ? client.trim() : null,
         year: year ? year.trim() : new Date().getFullYear().toString(),
-        summary: summary.trim(),
-        description: description.trim(),
-        coverImage,
-        galleryImages: formatJsonField(galleryImages),
+        summary: effectiveSummary,
+        description: effectiveDescription,
+        coverImage: persistentCoverImage,
+        galleryImages: formatJsonField(
+          Array.isArray(galleryImages)
+            ? galleryImages.map((img) => saveBase64Image(img, effectiveTitle))
+            : galleryImages
+        ),
         liveUrl: liveUrl || null,
         githubUrl: githubUrl || null,
         figmaUrl: figmaUrl || null,
@@ -266,7 +296,7 @@ const createProject = async (req, res, next) => {
         dribbbleUrl: dribbbleUrl || null,
         featured: featured === true || featured === 'true',
         order: order ? parseInt(order, 10) : 0,
-        tags: formatJsonField(tags),
+        tags: formatJsonField(tags || [effectiveCategory]),
         tools: formatJsonField(tools),
         challenges: challenges || null,
         solutions: solutions || null,
@@ -351,6 +381,10 @@ const updateProject = async (req, res, next) => {
       resolvedServiceSlug = null;
     }
 
+    const persistentCoverImage = coverImage !== undefined
+      ? saveBase64Image(coverImage, title || existingProject.title)
+      : undefined;
+
     const updatedProject = await prisma.project.update({
       where: { id },
       data: {
@@ -363,8 +397,10 @@ const updateProject = async (req, res, next) => {
         year: year !== undefined ? (year ? year.trim() : null) : undefined,
         summary: summary !== undefined ? summary.trim() : undefined,
         description: description !== undefined ? description.trim() : undefined,
-        coverImage: coverImage !== undefined ? coverImage : undefined,
-        galleryImages: galleryImages !== undefined ? formatJsonField(galleryImages) : undefined,
+        coverImage: persistentCoverImage,
+        galleryImages: galleryImages !== undefined
+          ? formatJsonField(Array.isArray(galleryImages) ? galleryImages.map((img) => saveBase64Image(img, title || existingProject.title)) : galleryImages)
+          : undefined,
         liveUrl: liveUrl !== undefined ? (liveUrl || null) : undefined,
         githubUrl: githubUrl !== undefined ? (githubUrl || null) : undefined,
         figmaUrl: figmaUrl !== undefined ? (figmaUrl || null) : undefined,
