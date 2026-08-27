@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Calendar, Menu, X, ArrowUpRight, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Sparkles, Calendar, Menu, X, ArrowUpRight, CheckCircle2, ChevronRight, ShieldCheck } from 'lucide-react';
 import Button from '../common/Button';
 import UrgencyBanner from '../common/UrgencyBanner';
 import { useBrand } from '../../context/BrandContext';
