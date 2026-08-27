@@ -8,7 +8,8 @@
     "dev:all": "concurrently \"node --watch server.js\" \"cd client && npm run dev\"",
     "start": "node server.js",
     "build": "node scripts/build.js",
-    "build:client": "cd client && npm run build"
+    "build:client": "cd client && npm run build",
+    "postinstall": "prisma generate"
   },
   "keywords": [
     "portfolio",
