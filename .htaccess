@@ -6,7 +6,7 @@
 # 1. Prevent Directory Browsing
 Options -Indexes
 
-# 2. Enable Rewrite Engine
+# 2. Enable Rewrite Engine for React SPA
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
@@ -20,17 +20,7 @@ Options -Indexes
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # Pass /api and /uploads to Node.js backend
-  <IfModule mod_proxy.c>
-    RewriteCond %{REQUEST_URI} ^/api/ [OR]
-    RewriteCond %{REQUEST_URI} ^/uploads/
-    RewriteRule ^(.*)$ http://127.0.0.1:5000/$1 [P,L]
-  </IfModule>
-
-  RewriteRule ^api/(.*)$ - [L]
-  RewriteRule ^uploads/(.*)$ - [L]
-
-  # React SPA Fallback
+  # React SPA Fallback to index.html
   RewriteRule ^ index.html [L]
 </IfModule>
 
@@ -42,12 +32,12 @@ Options -Indexes
   AddOutputFilterByType DEFLATE image/svg+xml font/ttf font/otf font/woff font/woff2
 </IfModule>
 
-# 4. Long-Term Browser Caching for Production Assets
+# 4. Browser Caching
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresDefault "access plus 1 month"
 
-  # HTML files (Never cache HTML to ensure instant updates)
+  # HTML files (Never cache HTML so app is always up to date)
   ExpiresByType text/html "access plus 0 seconds"
 
   # CSS, JavaScript
@@ -71,7 +61,7 @@ Options -Indexes
 # 5. Security Headers
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
-  Header set X-Frame-Options "SAMEORIGIN"
   Header set X-XSS-Protection "1; mode=block"
+  Header set X-Frame-Options "SAMEORIGIN"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
