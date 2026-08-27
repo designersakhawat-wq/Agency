@@ -5,6 +5,8 @@ import { ArrowUpRight, ExternalLink, Figma, Eye, Sparkles } from 'lucide-react';
 import Button from '../common/Button';
 import { Badge } from '../common/Badge';
 
+import { DEFAULT_PROJECTS } from '../../data/defaultData';
+
 export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -17,12 +19,18 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
     'Print Design',
   ];
 
+  const sourceProjects = Array.isArray(projects) && projects.length > 0 ? projects : DEFAULT_PROJECTS;
+
   const filteredProjects =
     activeCategory === 'All'
-      ? projects
-      : projects.filter((p) =>
-          (p.category || '').toLowerCase().includes(activeCategory.toLowerCase())
-        );
+      ? sourceProjects
+      : sourceProjects.filter((p) => {
+          const cat = (p.category || '').toLowerCase();
+          const target = activeCategory.toLowerCase();
+          return cat.includes(target) || target.includes(cat) || (p.tags && String(p.tags).toLowerCase().includes(target));
+        });
+
+  const finalProjects = filteredProjects.length > 0 ? filteredProjects : sourceProjects;
 
   return (
     <section id="portfolio-section" className="py-24 relative overflow-hidden">
@@ -92,7 +100,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
         {/* Projects Grid */}
         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, idx) => {
+            {finalProjects.map((project, idx) => {
               let parsedTags = [];
               if (Array.isArray(project.tags)) {
                 parsedTags = project.tags;

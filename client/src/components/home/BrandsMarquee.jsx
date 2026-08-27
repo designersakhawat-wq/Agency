@@ -1,10 +1,12 @@
 import React from 'react';
+import { DEFAULT_BRANDS } from '../../data/defaultData';
 
 export const BrandsMarquee = ({ brands = [] }) => {
-  if (!brands || brands.length === 0) return null;
+  const sourceBrands = Array.isArray(brands) && brands.length > 0 ? brands : DEFAULT_BRANDS;
+  if (!sourceBrands || sourceBrands.length === 0) return null;
 
   // Quadruple array to guarantee infinite marquee
-  const displayBrands = [...brands, ...brands, ...brands, ...brands];
+  const displayBrands = [...sourceBrands, ...sourceBrands, ...sourceBrands, ...sourceBrands];
 
   return (
     <div className="py-12 border-y border-zinc-800/80 bg-zinc-950/40 relative overflow-hidden group">

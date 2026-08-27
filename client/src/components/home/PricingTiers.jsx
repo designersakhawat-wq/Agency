@@ -4,8 +4,11 @@ import { Check, Zap, Sparkles } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
 import Button from '../common/Button';
 
+import { DEFAULT_PACKAGES } from '../../data/defaultData';
+
 export const PricingTiers = ({ packages = [], onSelectPackage }) => {
   const { formatAmount } = useCurrency();
+  const displayPackages = Array.isArray(packages) && packages.length > 0 ? packages : DEFAULT_PACKAGES;
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background ambient glow */}
@@ -34,7 +37,7 @@ export const PricingTiers = ({ packages = [], onSelectPackage }) => {
 
         {/* Pricing Cards Grid with Top Clearance for Badges */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch pt-4">
-          {packages.map((pkg, idx) => {
+          {(displayPackages.length > 3 ? displayPackages.slice(0, 3) : displayPackages).map((pkg, idx) => {
             let parsedFeatures = [];
             if (Array.isArray(pkg.features)) {
               parsedFeatures = pkg.features;

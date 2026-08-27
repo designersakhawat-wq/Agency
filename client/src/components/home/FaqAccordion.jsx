@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle } from 'lucide-react';
+import { DEFAULT_FAQS } from '../../data/defaultData';
 
 export const FaqAccordion = ({ faqs = [] }) => {
   const [openId, setOpenId] = useState(null);
+  const displayFaqs = Array.isArray(faqs) && faqs.length > 0 ? faqs : DEFAULT_FAQS;
 
   const toggle = (id) => {
     setOpenId(openId === id ? null : id);
@@ -32,7 +34,7 @@ export const FaqAccordion = ({ faqs = [] }) => {
         </motion.div>
 
         <div className="space-y-4">
-          {faqs.map((faq, idx) => {
+          {displayFaqs.map((faq, idx) => {
             const isOpen = openId === faq.id || (openId === null && idx === 0);
 
             return (

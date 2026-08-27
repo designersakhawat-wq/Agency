@@ -17,6 +17,15 @@ import Button from '../../components/common/Button';
 import { api } from '../../services/api';
 import { ExternalLink, Figma, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  DEFAULT_SETTINGS,
+  DEFAULT_PROJECTS,
+  DEFAULT_SERVICES,
+  DEFAULT_PACKAGES,
+  DEFAULT_TESTIMONIALS,
+  DEFAULT_FAQS,
+  DEFAULT_BRANDS,
+} from '../../data/defaultData';
 
 const getLocalJson = (key, fallback) => {
   try {
@@ -28,19 +37,19 @@ const getLocalJson = (key, fallback) => {
 };
 
 const HomePage = () => {
-  const [settings, setSettings] = useState(() => getLocalJson('sakhawat_cached_settings', {}));
-  const [projects, setProjects] = useState(() => getLocalJson('sakhawat_cached_featured_projects', []));
-  const [services, setServices] = useState(() => getLocalJson('sakhawat_cached_services', []));
-  const [packages, setPackages] = useState(() => getLocalJson('sakhawat_cached_packages', []));
-  const [testimonials, setTestimonials] = useState(() => getLocalJson('sakhawat_cached_testimonials', []));
-  const [faqs, setFaqs] = useState(() => getLocalJson('sakhawat_cached_faqs', []));
-  const [brands, setBrands] = useState(() => getLocalJson('sakhawat_cached_brands', []));
+  const [settings, setSettings] = useState(() => getLocalJson('sakhawat_cached_settings', DEFAULT_SETTINGS));
+  const [projects, setProjects] = useState(() => getLocalJson('sakhawat_cached_featured_projects', DEFAULT_PROJECTS));
+  const [services, setServices] = useState(() => getLocalJson('sakhawat_cached_services', DEFAULT_SERVICES));
+  const [packages, setPackages] = useState(() => getLocalJson('sakhawat_cached_packages', DEFAULT_PACKAGES));
+  const [testimonials, setTestimonials] = useState(() => getLocalJson('sakhawat_cached_testimonials', DEFAULT_TESTIMONIALS));
+  const [faqs, setFaqs] = useState(() => getLocalJson('sakhawat_cached_faqs', DEFAULT_FAQS));
+  const [brands, setBrands] = useState(() => getLocalJson('sakhawat_cached_brands', DEFAULT_BRANDS));
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedServiceForBooking, setSelectedServiceForBooking] = useState('');
   const [previewProject, setPreviewProject] = useState(null);
 
   useEffect(() => {
-    // Fetch all public page data in parallel
+    // Fetch all public page data in parallel with automatic background cache update
     const fetchData = async () => {
       try {
         const [
@@ -61,31 +70,31 @@ const HomePage = () => {
           api.get('/brands').catch(() => ({ success: false })),
         ]);
 
-        if (settingsRes.success && settingsRes.data) {
+        if (settingsRes.success && settingsRes.data && Object.keys(settingsRes.data).length > 0) {
           setSettings(settingsRes.data);
           localStorage.setItem('sakhawat_cached_settings', JSON.stringify(settingsRes.data));
         }
-        if (projectsRes.success && projectsRes.data) {
+        if (projectsRes.success && Array.isArray(projectsRes.data) && projectsRes.data.length > 0) {
           setProjects(projectsRes.data);
           localStorage.setItem('sakhawat_cached_featured_projects', JSON.stringify(projectsRes.data));
         }
-        if (servicesRes.success && servicesRes.data) {
+        if (servicesRes.success && Array.isArray(servicesRes.data) && servicesRes.data.length > 0) {
           setServices(servicesRes.data);
           localStorage.setItem('sakhawat_cached_services', JSON.stringify(servicesRes.data));
         }
-        if (packagesRes.success && packagesRes.data) {
+        if (packagesRes.success && Array.isArray(packagesRes.data) && packagesRes.data.length > 0) {
           setPackages(packagesRes.data);
           localStorage.setItem('sakhawat_cached_packages', JSON.stringify(packagesRes.data));
         }
-        if (testimonialsRes.success && testimonialsRes.data) {
+        if (testimonialsRes.success && Array.isArray(testimonialsRes.data) && testimonialsRes.data.length > 0) {
           setTestimonials(testimonialsRes.data);
           localStorage.setItem('sakhawat_cached_testimonials', JSON.stringify(testimonialsRes.data));
         }
-        if (faqsRes.success && faqsRes.data) {
+        if (faqsRes.success && Array.isArray(faqsRes.data) && faqsRes.data.length > 0) {
           setFaqs(faqsRes.data);
           localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(faqsRes.data));
         }
-        if (brandsRes.success && brandsRes.data) {
+        if (brandsRes.success && Array.isArray(brandsRes.data) && brandsRes.data.length > 0) {
           setBrands(brandsRes.data);
           localStorage.setItem('sakhawat_cached_brands', JSON.stringify(brandsRes.data));
         }

@@ -14,14 +14,13 @@ import Button from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { Loader } from '../../components/common/Loader';
 import Modal from '../../components/common/Modal';
+import { DEFAULT_PROJECTS, DEFAULT_SETTINGS } from '../../data/defaultData';
 
-const categories = [
+const CATEGORIES = [
   'All',
-  'Logo & Branding',
+  'Brand Identity',
   'Ads Creative',
-  'E-commerce',
-  'Product Design',
-  'Social Media',
+  'E-Commerce',
   'UGC Video',
   'Cover Branding',
   'Thumbnail',
@@ -39,10 +38,13 @@ const getLocalJson = (key, fallback) => {
 };
 
 const PortfolioPage = () => {
-  const initialProjects = getLocalJson('sakhawat_cached_all_projects', getLocalJson('sakhawat_cached_featured_projects', []));
+  const initialProjects = getLocalJson(
+    'sakhawat_cached_all_projects',
+    getLocalJson('sakhawat_cached_featured_projects', DEFAULT_PROJECTS)
+  );
   const [projects, setProjects] = useState(initialProjects);
-  const [settings, setSettings] = useState(() => getLocalJson('sakhawat_cached_settings', {}));
-  const [loading, setLoading] = useState(initialProjects.length === 0);
+  const [settings, setSettings] = useState(() => getLocalJson('sakhawat_cached_settings', DEFAULT_SETTINGS));
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [quickViewProject, setQuickViewProject] = useState(null);
@@ -50,8 +52,8 @@ const PortfolioPage = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await api.get('/settings');
-        if (res.success && res.data) {
+        const res = await api.get('/settings').catch(() => ({ success: false }));
+        if (res.success && res.data && Object.keys(res.data).length > 0) {
           setSettings(res.data);
           localStorage.setItem('sakhawat_cached_settings', JSON.stringify(res.data));
         }

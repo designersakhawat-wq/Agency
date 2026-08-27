@@ -1,24 +1,28 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight, Quote, Sparkles } from 'lucide-react';
+import { DEFAULT_TESTIMONIALS } from '../../data/defaultData';
 
 export const TestimonialsSlider = ({ testimonials = [] }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [direction, setDirection] = useState(1);
 
-  if (!testimonials || testimonials.length === 0) return null;
+  const displayTestimonials =
+    Array.isArray(testimonials) && testimonials.length > 0 ? testimonials : DEFAULT_TESTIMONIALS;
+
+  if (!displayTestimonials || displayTestimonials.length === 0) return null;
 
   const handlePrev = () => {
     setDirection(-1);
-    setCurrentIdx((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
+    setCurrentIdx((prev) => (prev === 0 ? displayTestimonials.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
     setDirection(1);
-    setCurrentIdx((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
+    setCurrentIdx((prev) => (prev === displayTestimonials.length - 1 ? 0 : prev + 1));
   };
 
-  const current = testimonials[currentIdx];
+  const current = displayTestimonials[currentIdx] || displayTestimonials[0];
 
   const slideVariants = {
     enter: (dir) => ({

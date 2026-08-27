@@ -17,6 +17,8 @@ import { Badge } from '../../components/common/Badge';
 import { Loader } from '../../components/common/Loader';
 import FaqAccordion from '../../components/home/FaqAccordion';
 
+import { DEFAULT_SERVICES, DEFAULT_FAQS } from '../../data/defaultData';
+
 const iconMap = {
   Palette: Palette,
   Megaphone: Megaphone,
@@ -34,25 +36,22 @@ const getLocalJson = (key, fallback) => {
 };
 
 const ServicesPage = () => {
-  const initialServices = getLocalJson('sakhawat_cached_services', []);
-  const initialFaqs = getLocalJson('sakhawat_cached_faqs', []);
-  const [services, setServices] = useState(initialServices);
-  const [faqs, setFaqs] = useState(initialFaqs);
-  const [loading, setLoading] = useState(initialServices.length === 0);
+  const [services, setServices] = useState(() => getLocalJson('sakhawat_cached_services', DEFAULT_SERVICES));
+  const [faqs, setFaqs] = useState(() => getLocalJson('sakhawat_cached_faqs', DEFAULT_FAQS));
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (services.length === 0) setLoading(true);
       try {
         const [srvRes, faqRes] = await Promise.all([
-          api.get('/services'),
-          api.get('/faqs'),
+          api.get('/services').catch(() => ({ success: false })),
+          api.get('/faqs').catch(() => ({ success: false })),
         ]);
-        if (srvRes.success && srvRes.data) {
+        if (srvRes.success && Array.isArray(srvRes.data) && srvRes.data.length > 0) {
           setServices(srvRes.data);
           localStorage.setItem('sakhawat_cached_services', JSON.stringify(srvRes.data));
         }
-        if (faqRes.success && faqRes.data) {
+        if (faqRes.success && Array.isArray(faqRes.data) && faqRes.data.length > 0) {
           setFaqs(faqRes.data);
           localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(faqRes.data));
         }
@@ -64,10 +63,6 @@ const ServicesPage = () => {
     };
     fetchData();
   }, []);
-
-  if (loading && services.length === 0) {
-    return <Loader message="Loading creative service offerings..." fullScreen />;
-  }
 
   return (
     <div className="pt-32 pb-24 min-h-screen relative overflow-hidden">

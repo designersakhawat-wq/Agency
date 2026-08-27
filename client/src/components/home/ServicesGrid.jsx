@@ -20,7 +20,10 @@ const iconMap = {
   Layout: Layout,
 };
 
+import { DEFAULT_SERVICES } from '../../data/defaultData';
+
 export const ServicesGrid = ({ services = [], onOpenBooking }) => {
+  const displayServices = Array.isArray(services) && services.length > 0 ? services : DEFAULT_SERVICES;
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background ambient glow */}
@@ -61,7 +64,7 @@ export const ServicesGrid = ({ services = [], onOpenBooking }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {services.map((s, idx) => {
+          {displayServices.map((s, idx) => {
             const Icon = iconMap[s.icon] || Palette;
             const features = Array.isArray(s.features) ? s.features : [];
 
