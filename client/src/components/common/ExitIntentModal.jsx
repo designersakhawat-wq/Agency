@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import { Gift, X, Sparkles, Check, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import Button from './Button';
 import { useCurrency } from '../../context/CurrencyContext';
-import { api } from '../../services/api';
+import { useBrand } from '../../context/BrandContext';
 
 const DEFAULT_EXIT_INTENT = {
   exit_intent_enabled: true,
@@ -21,6 +21,7 @@ const DEFAULT_EXIT_INTENT = {
 
 export const ExitIntentModal = ({ onOpenBooking }) => {
   const { formatAmount } = useCurrency();
+  const { settings: brandSettings } = useBrand();
   const [isOpen, setIsOpen] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
   const [claimed, setClaimed] = useState(false);
@@ -49,29 +50,23 @@ export const ExitIntentModal = ({ onOpenBooking }) => {
   });
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const res = await api.get('/settings');
-        if (res && res.success && res.data) {
-          const d = res.data;
-          setConfig((prev) => ({
-            ...prev,
-            exit_intent_enabled: d.exit_intent_enabled !== undefined ? Boolean(d.exit_intent_enabled) : prev.exit_intent_enabled,
-            exit_intent_badge: d.exit_intent_badge || prev.exit_intent_badge,
-            exit_intent_title: d.exit_intent_title || prev.exit_intent_title,
-            exit_intent_title_highlight: d.exit_intent_title_highlight || prev.exit_intent_title_highlight,
-            exit_intent_subtitle: d.exit_intent_subtitle || prev.exit_intent_subtitle,
-            exit_intent_voucher_amount: Number(d.exit_intent_voucher_amount) || prev.exit_intent_voucher_amount,
-            exit_intent_feature_1: d.exit_intent_feature_1 || prev.exit_intent_feature_1,
-            exit_intent_feature_2: d.exit_intent_feature_2 || prev.exit_intent_feature_2,
-            exit_intent_btn_text: d.exit_intent_btn_text || prev.exit_intent_btn_text,
-            exit_intent_footer: d.exit_intent_footer || prev.exit_intent_footer,
-          }));
-        }
-      } catch (e) {}
-    };
-    fetchSettings();
-  }, []);
+    if (brandSettings && Object.keys(brandSettings).length > 0) {
+      const d = brandSettings;
+      setConfig((prev) => ({
+        ...prev,
+        exit_intent_enabled: d.exit_intent_enabled !== undefined ? Boolean(d.exit_intent_enabled) : prev.exit_intent_enabled,
+        exit_intent_badge: d.exit_intent_badge || prev.exit_intent_badge,
+        exit_intent_title: d.exit_intent_title || prev.exit_intent_title,
+        exit_intent_title_highlight: d.exit_intent_title_highlight || prev.exit_intent_title_highlight,
+        exit_intent_subtitle: d.exit_intent_subtitle || prev.exit_intent_subtitle,
+        exit_intent_voucher_amount: Number(d.exit_intent_voucher_amount) || prev.exit_intent_voucher_amount,
+        exit_intent_feature_1: d.exit_intent_feature_1 || prev.exit_intent_feature_1,
+        exit_intent_feature_2: d.exit_intent_feature_2 || prev.exit_intent_feature_2,
+        exit_intent_btn_text: d.exit_intent_btn_text || prev.exit_intent_btn_text,
+        exit_intent_footer: d.exit_intent_footer || prev.exit_intent_footer,
+      }));
+    }
+  }, [brandSettings]);
 
   useEffect(() => {
     if (config.exit_intent_enabled === false) return;

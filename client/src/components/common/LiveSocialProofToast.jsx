@@ -6,8 +6,9 @@ const mixedSocialProofs = [
   {
     id: 1,
     name: 'Tanvir Ahmed',
+    initials: 'TA',
+    gradient: 'from-teal-500 to-emerald-600',
     company: 'E-Commerce Brand (Dhaka, Bangladesh)',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
     action: 'Purchased 10x Social Media Ad Creatives Pack',
     time: '2 minutes ago',
     badge: '🇧🇩 Dhaka',
@@ -15,131 +16,102 @@ const mixedSocialProofs = [
   {
     id: 2,
     name: 'David Miller',
+    initials: 'DM',
+    gradient: 'from-blue-500 to-indigo-600',
     company: 'Fintech Startup (San Francisco, USA)',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
     action: 'Booked a 30-min Creative Strategy Call',
     time: '4 minutes ago',
     badge: '🇺🇸 USA',
   },
   {
     id: 3,
-    name: 'Fahim Rahman',
-    company: 'D2C Fashion Brand (Chittagong, BD)',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80',
-    action: 'Ordered Complete Brand Identity Suite',
-    time: '7 minutes ago',
-    badge: '🇧🇩 CTG',
-  },
-  {
-    id: 4,
     name: 'Sarah Al-Mansoor',
+    initials: 'SA',
+    gradient: 'from-purple-500 to-pink-600',
     company: 'Luxury Perfumes (Dubai, UAE)',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80',
     action: 'Left a 5-Star Review: "Exceptional design quality"',
     time: '11 minutes ago',
     badge: '🇦🇪 Dubai',
   },
   {
-    id: 5,
-    name: 'Nusrat Jahan',
-    company: 'Organic Skincare (Sylhet, Bangladesh)',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
-    action: 'Requested Product Packaging & 3D Mockup',
-    time: '14 minutes ago',
-    badge: '🇧🇩 Sylhet',
-  },
-  {
-    id: 6,
-    name: 'Oliver Bennett',
-    company: 'SaaS Platform (London, UK)',
-    avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=120&auto=format&fit=crop&q=80',
-    action: 'Locked In Project Quote ($380)',
+    id: 4,
+    name: 'Fahim Rahman',
+    initials: 'FR',
+    gradient: 'from-amber-500 to-orange-600',
+    company: 'D2C Fashion Brand (Chittagong, BD)',
+    action: 'Ordered Complete Brand Identity Suite',
     time: '18 minutes ago',
+    badge: '🇧🇩 CTG',
+  },
+  {
+    id: 5,
+    name: 'Oliver Bennett',
+    initials: 'OB',
+    gradient: 'from-cyan-500 to-blue-600',
+    company: 'SaaS Platform (London, UK)',
+    action: 'Locked In Project Quote ($380)',
+    time: '24 minutes ago',
     badge: '🇬🇧 UK',
-  },
-  {
-    id: 7,
-    name: 'Ariful Islam',
-    company: 'Tech Agency (Gulshan, Dhaka, BD)',
-    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=120&auto=format&fit=crop&q=80',
-    action: 'Reserved Monthly Creative Retainer',
-    time: '23 minutes ago',
-    badge: '🇧🇩 Dhaka',
-  },
-  {
-    id: 8,
-    name: 'Emily Watson',
-    company: 'Shopify Store (Toronto, Canada)',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80',
-    action: 'Purchased Express Ad Creatives (24h Delivery)',
-    time: '29 minutes ago',
-    badge: '🇨🇦 Canada',
-  },
-  {
-    id: 9,
-    name: 'Mahmudul Hasan',
-    company: 'EdTech App (Uttara, Dhaka, BD)',
-    avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=120&auto=format&fit=crop&q=80',
-    action: 'Booked 1-on-1 Discovery Meeting',
-    time: '34 minutes ago',
-    badge: '🇧🇩 Dhaka',
-  },
-  {
-    id: 10,
-    name: 'Liam Henderson',
-    company: 'Fitness Apparel (Sydney, Australia)',
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=120&auto=format&fit=crop&q=80',
-    action: 'Claimed 15% Welcome Discount Voucher',
-    time: '41 minutes ago',
-    badge: '🇦🇺 Australia',
   },
 ];
 
 export const LiveSocialProofToast = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(() => {
+    try {
+      return sessionStorage.getItem('sakhawat_social_proof_dismissed') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
 
   useEffect(() => {
     if (isDismissed) return;
 
-    // Initial popup after 2.5s
-    const initialTimer = setTimeout(() => {
+    // Show first toast at 4 seconds
+    const timer1 = setTimeout(() => {
       setIsVisible(true);
-    }, 2500);
+    }, 4000);
 
-    // Exact calibrated pacing: 10 times in 1 minute = 6.0 seconds per cycle
-    // (Visible for 4.2 seconds, pauses for 1.8 seconds, then shows next)
-    const DISPLAY_DURATION = 4200; // 4.2s
-    const PAUSE_DURATION = 1800;   // 1.8s
-    const TOTAL_CYCLE = DISPLAY_DURATION + PAUSE_DURATION; // 6000ms (10 times/minute)
-
-    let innerTimer = null;
-
-    const interval = setInterval(() => {
-      // Hide current toast
+    // Hide first toast at 9 seconds (visible for 5s)
+    const timer2 = setTimeout(() => {
       setIsVisible(false);
+    }, 9000);
 
-      // Wait 1.8s then show next item
-      innerTimer = setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % mixedSocialProofs.length);
-        setIsVisible(true);
-      }, PAUSE_DURATION);
-    }, TOTAL_CYCLE);
+    // Show second toast at 24 seconds
+    const timer3 = setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % mixedSocialProofs.length);
+      setIsVisible(true);
+    }, 24000);
+
+    // Hide second toast at 29 seconds (visible for 5s)
+    const timer4 = setTimeout(() => {
+      setIsVisible(false);
+    }, 29000);
 
     return () => {
-      clearTimeout(initialTimer);
-      if (innerTimer) clearTimeout(innerTimer);
-      clearInterval(interval);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
     };
   }, [isDismissed]);
 
+  const handleDismiss = () => {
+    setIsVisible(false);
+    setIsDismissed(true);
+    try {
+      sessionStorage.setItem('sakhawat_social_proof_dismissed', 'true');
+    } catch (e) {}
+  };
+
   const currentItem = mixedSocialProofs[currentIndex];
 
-  if (isDismissed) return null;
+  if (isDismissed || !currentItem) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-40 max-w-sm pointer-events-auto">
+    <div className="fixed bottom-6 left-6 z-40 max-w-sm pointer-events-auto select-none">
       <AnimatePresence mode="wait">
         {isVisible && (
           <motion.div
@@ -152,20 +124,22 @@ export const LiveSocialProofToast = () => {
           >
             {/* Close button */}
             <button
-              onClick={() => setIsDismissed(true)}
+              onClick={handleDismiss}
               className="absolute top-2 right-2 p-1 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/60 transition-colors cursor-pointer"
               aria-label="Close notification"
             >
               <X className="w-3.5 h-3.5" />
             </button>
 
-            {/* Avatar with Live Online Ripple Dot */}
+            {/* Zero-Network Instant Gradient Avatar Capsule with Live Radar Pulse */}
             <div className="relative shrink-0">
-              <img
-                src={currentItem.avatar}
-                alt={currentItem.name}
-                className="w-10 h-10 rounded-full object-cover border-2 border-teal-500/40"
-              />
+              <div
+                className={`w-10 h-10 rounded-full bg-gradient-to-br ${currentItem.gradient} p-[1.5px] shadow-md`}
+              >
+                <div className="w-full h-full rounded-full bg-zinc-950/80 flex items-center justify-center font-display font-black text-xs text-white">
+                  {currentItem.initials}
+                </div>
+              </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#09090b] flex items-center justify-center">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               </span>

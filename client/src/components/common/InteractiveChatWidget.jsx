@@ -13,10 +13,11 @@ import {
   ChevronRight,
   Globe,
 } from 'lucide-react';
-import { api } from '../../services/api';
+import { useBrand } from '../../context/BrandContext';
 import { querySmartAssistant, detectLanguage } from '../../services/aiAssistantService';
 
 export const InteractiveChatWidget = ({ onOpenBooking }) => {
+  const { settings: brandSettings } = useBrand();
   const [isOpen, setIsOpen] = useState(false);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -114,57 +115,49 @@ export const InteractiveChatWidget = ({ onOpenBooking }) => {
     },
   ]);
 
-  // Load trained settings from Backend API
+  // Load trained settings from BrandContext
   useEffect(() => {
-    const loadTrainedConfig = async () => {
-      try {
-        const res = await api.get('/settings');
-        if (res.success && res.data) {
-          const d = res.data;
-          const welcomeEn = d.assistant_welcome_msg || assistantConfig.welcome_en;
-          const welcomeBn = d.assistant_welcome_msg_bn || assistantConfig.welcome_bn;
+    if (brandSettings && Object.keys(brandSettings).length > 0) {
+      const d = brandSettings;
+      const welcomeEn = d.assistant_welcome_msg || assistantConfig.welcome_en;
+      const welcomeBn = d.assistant_welcome_msg_bn || assistantConfig.welcome_bn;
 
-          setAssistantConfig({
-            name: d.assistant_name || 'Sakhawat Design Assistant',
-            status_en: d.assistant_status_text || 'Online • Typically replies in seconds',
-            status_bn: d.assistant_status_text_bn || 'অনলাইনে আছেন • কয়েক সেকেন্ডে উত্তর পাবেন',
-            welcome_en: welcomeEn,
-            welcome_bn: welcomeBn,
-            fallback_en: d.assistant_fallback_msg || assistantConfig.fallback_en,
-            fallback_bn: d.assistant_fallback_msg_bn || assistantConfig.fallback_bn,
-            autoPromptSec: Number(d.assistant_auto_prompt_sec) || 4,
-          });
+      setAssistantConfig((prev) => ({
+        ...prev,
+        name: d.assistant_name || prev.name,
+        status_en: d.assistant_status_text || prev.status_en,
+        status_bn: d.assistant_status_text_bn || prev.status_bn,
+        welcome_en: welcomeEn,
+        welcome_bn: welcomeBn,
+        fallback_en: d.assistant_fallback_msg || prev.fallback_en,
+        fallback_bn: d.assistant_fallback_msg_bn || prev.fallback_bn,
+        autoPromptSec: Number(d.assistant_auto_prompt_sec) || prev.autoPromptSec,
+      }));
 
-          // Set initial welcome greeting
-          setMessages([
-            {
-              id: 1,
-              sender: 'bot',
-              text: `${welcomeEn}\n\n🇧🇩 ${welcomeBn}`,
-              time: 'Just now',
-            },
-          ]);
+      // Set initial welcome greeting
+      setMessages([
+        {
+          id: 1,
+          sender: 'bot',
+          text: `${welcomeEn}\n\n🇧🇩 ${welcomeBn}`,
+          time: 'Just now',
+        },
+      ]);
 
-          if (d.assistant_raw_knowledge) {
-            setRawKnowledgeText(d.assistant_raw_knowledge);
-          }
-          if (d.assistant_custom_cards && Array.isArray(d.assistant_custom_cards)) {
-            setCustomKnowledgeCards(d.assistant_custom_cards);
-          }
-          if (d.assistant_knowledge && Array.isArray(d.assistant_knowledge) && d.assistant_knowledge.length > 0) {
-            setKnowledgeRules(d.assistant_knowledge);
-          }
-          if (d.assistant_quick_actions && Array.isArray(d.assistant_quick_actions) && d.assistant_quick_actions.length > 0) {
-            setQuickActions(d.assistant_quick_actions);
-          }
-        }
-      } catch (e) {
-        // silent fallback to default rules
+      if (d.assistant_raw_knowledge) {
+        setRawKnowledgeText(d.assistant_raw_knowledge);
       }
-    };
-
-    loadTrainedConfig();
-  }, []);
+      if (d.assistant_custom_cards && Array.isArray(d.assistant_custom_cards)) {
+        setCustomKnowledgeCards(d.assistant_custom_cards);
+      }
+      if (d.assistant_knowledge && Array.isArray(d.assistant_knowledge) && d.assistant_knowledge.length > 0) {
+        setKnowledgeRules(d.assistant_knowledge);
+      }
+      if (d.assistant_quick_actions && Array.isArray(d.assistant_quick_actions) && d.assistant_quick_actions.length > 0) {
+        setQuickActions(d.assistant_quick_actions);
+      }
+    }
+  }, [brandSettings]);
 
   // Auto prompt after configured seconds of browsing
   useEffect(() => {
