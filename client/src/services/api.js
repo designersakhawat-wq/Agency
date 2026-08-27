@@ -48,9 +48,9 @@ const request = async (endpoint, options = {}) => {
       headers['Content-Type'] = 'application/json';
     }
 
-    // 20-second AbortController timeout protection against hanging requests
+    // 45-second AbortController timeout protection for large uploads & remote cloud operations
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const timeoutId = setTimeout(() => controller.abort(), 45000);
 
     let response;
     try {

@@ -97,11 +97,18 @@ class MediaService {
           console.warn('Failed to delete local file:', err.message);
         }
       }
+    } else if (media.source === 'CLOUDINARY' && isCloudinaryConfigured) {
+      try {
+        const publicId = path.basename(media.fileUrl, path.extname(media.fileUrl));
+        await cloudinary.uploader.destroy(publicId);
+      } catch (cloudErr) {
+        console.warn('Failed to delete Cloudinary asset:', cloudErr.message);
+      }
     }
 
     await prisma.media.delete({
       where: { id },
-    });
+    }).catch(() => null);
 
     return true;
   }

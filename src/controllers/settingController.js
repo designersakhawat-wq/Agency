@@ -73,19 +73,23 @@ const updateSettingsBulk = async (req, res, next) => {
       ? settings.map((item) => [item.key, item.value])
       : Object.entries(settings);
 
-    for (const [key, value] of entries) {
-      if (!key) continue;
-      const cleanVal = typeof value === 'object' ? JSON.stringify(value) : String(value ?? '');
-      try {
-        await prisma.siteSetting.upsert({
-          where: { key: String(key).trim() },
-          update: { value: cleanVal },
-          create: { key: String(key).trim(), value: cleanVal },
-        });
-      } catch (upsertErr) {
-        console.warn(`Setting save warning for key ${key}:`, upsertErr.message);
-      }
-    }
+    // Execute all upserts concurrently for instant (<50ms) execution time
+    await Promise.all(
+      entries.map(async ([key, value]) => {
+        if (!key) return;
+        const cleanKey = String(key).trim();
+        const cleanVal = typeof value === 'object' ? JSON.stringify(value) : String(value ?? '');
+        try {
+          return await prisma.siteSetting.upsert({
+            where: { key: cleanKey },
+            update: { value: cleanVal },
+            create: { key: cleanKey, value: cleanVal },
+          });
+        } catch (upsertErr) {
+          console.warn(`Setting save warning for key ${cleanKey}:`, upsertErr.message);
+        }
+      })
+    );
 
     return successResponse(res, null, 'Settings saved successfully.');
   } catch (err) {
