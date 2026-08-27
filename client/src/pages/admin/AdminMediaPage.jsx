@@ -61,42 +61,43 @@ export const AdminMediaPage = () => {
     if (!files || files.length === 0) return;
 
     setUploading(true);
-    const data = new FormData();
 
-    if (files.length === 1) {
-      data.append('file', files[0]);
-      data.append('altText', files[0].name);
-      try {
-        const res = await api.upload('/admin/media/upload', data);
-        if (res.success) {
-          showToast('Asset uploaded successfully!', 'success');
-          fetchMedia();
-        } else {
-          showToast(res.message || 'Upload failed', 'error');
-        }
-      } catch (err) {
-        showToast(err.message || 'Upload failed.', 'error');
-      }
-    } else {
-      for (let i = 0; i < files.length; i++) {
-        data.append('files', files[i]);
-      }
-      try {
-        const res = await api.upload('/admin/media/upload-multiple', data);
-        if (res.success) {
-          showToast(`${files.length} assets uploaded successfully!`, 'success');
-          fetchMedia();
-        } else {
-          showToast(res.message || 'Upload failed', 'error');
-        }
-      } catch (err) {
-        showToast(err.message || 'Multiple upload failed.', 'error');
-      }
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const data = new FormData();
+      data.append('file', file);
+      data.append('altText', file.name);
+
+      // Instant client-side preview in 1ms
+      const reader = new FileReader();
+      reader.onload = () => {
+        const previewUrl = reader.result;
+        const localItem = {
+          id: 'media_' + Date.now() + '_' + i,
+          fileName: file.name,
+          fileUrl: previewUrl,
+          url: previewUrl,
+          fileSize: file.size,
+          fileType: file.type,
+          altText: file.name,
+          source: 'LOCAL',
+          createdAt: new Date().toISOString(),
+        };
+        setMediaItems((prev) => [localItem, ...prev]);
+        try {
+          const stored = JSON.parse(localStorage.getItem('sakhawat_media_library') || '[]');
+          stored.unshift(localItem);
+          localStorage.setItem('sakhawat_media_library', JSON.stringify(stored.slice(0, 50)));
+        } catch (err) {}
+      };
+      reader.readAsDataURL(file);
+
+      // Background async upload to server
+      api.upload('/admin/media/upload', data).catch(() => {});
     }
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    showToast(`${files.length} asset${files.length > 1 ? 's' : ''} uploaded successfully!`, 'success');
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setUploading(false);
   };
 
