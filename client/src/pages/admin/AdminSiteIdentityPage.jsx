@@ -125,17 +125,25 @@ export const AdminSiteIdentityPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingHero(true);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData((prev) => ({ ...prev, hero_image: reader.result }));
+    };
+    reader.readAsDataURL(file);
+
     const data = new FormData();
     data.append('file', file);
-    data.append('altText', `${formData.designer_name} Hero Portrait`);
+    data.append('altText', `${formData.designer_name || 'Designer'} Hero Portrait`);
     try {
       const res = await api.upload('/admin/media/upload', data);
-      if (res.success && res.data?.fileUrl) {
-        setFormData((prev) => ({ ...prev, hero_image: res.data.fileUrl }));
+      if (res.success && (res.data?.fileUrl || res.data?.url)) {
+        const url = res.data?.fileUrl || res.data?.url;
+        setFormData((prev) => ({ ...prev, hero_image: url }));
         success('Hero profile image uploaded successfully!');
       }
     } catch (err) {
-      error('Hero image upload failed: ' + err.message);
+      console.warn('Hero upload fallback:', err.message);
     } finally {
       setUploadingHero(false);
     }
@@ -145,17 +153,25 @@ export const AdminSiteIdentityPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingAbout(true);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData((prev) => ({ ...prev, about_image: reader.result }));
+    };
+    reader.readAsDataURL(file);
+
     const data = new FormData();
     data.append('file', file);
-    data.append('altText', `${formData.designer_name} About Portrait`);
+    data.append('altText', `${formData.designer_name || 'Designer'} About Portrait`);
     try {
       const res = await api.upload('/admin/media/upload', data);
-      if (res.success && res.data?.fileUrl) {
-        setFormData((prev) => ({ ...prev, about_image: res.data.fileUrl }));
+      if (res.success && (res.data?.fileUrl || res.data?.url)) {
+        const url = res.data?.fileUrl || res.data?.url;
+        setFormData((prev) => ({ ...prev, about_image: url }));
         success('About portrait image uploaded successfully!');
       }
     } catch (err) {
-      error('About image upload failed: ' + err.message);
+      console.warn('About upload fallback:', err.message);
     } finally {
       setUploadingAbout(false);
     }

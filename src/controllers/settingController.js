@@ -1,5 +1,31 @@
+const fs = require('fs');
+const path = require('path');
 const prisma = require('../config/db');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+
+// Helper to convert Base64 data URLs to permanent disk files
+const saveBase64Image = (dataUrl, suggestedName = 'setting-asset') => {
+  if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
+    return dataUrl;
+  }
+  try {
+    const { UPLOADS_DIR } = require('../config/persistentStorage');
+    const matches = dataUrl.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+    if (!matches) return dataUrl;
+    const rawExt = matches[1].toLowerCase();
+    const ext = rawExt === 'jpeg' ? 'jpg' : (rawExt.includes('svg') ? 'svg' : (rawExt.includes('png') ? 'png' : 'webp'));
+    const buffer = Buffer.from(matches[2], 'base64');
+    const cleanName = (suggestedName || 'asset').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
+    const filename = `${cleanName}-${Date.now()}-${Math.round(Math.random() * 1e6)}.${ext}`;
+    const filePath = path.join(UPLOADS_DIR, filename);
+    fs.writeFileSync(filePath, buffer);
+    console.log(`💾 Saved settings base64 image to disk: ${filePath}`);
+    return `/uploads/${filename}`;
+  } catch (e) {
+    console.warn('Could not save setting base64 image to disk:', e.message);
+    return dataUrl;
+  }
+};
 
 /**
  * Public: Get all public site settings as key-value map
@@ -19,7 +45,9 @@ const getPublicSettings = async (req, res, next) => {
     if (Array.isArray(settings) && settings.length > 0) {
       settings.forEach((item) => {
         let parsedValue = item.value;
-        if (item.value === 'true') {
+        if (typeof parsedValue === 'string' && parsedValue.startsWith('data:image')) {
+          parsedValue = saveBase64Image(parsedValue, item.key);
+        } else if (item.value === 'true') {
           parsedValue = true;
         } else if (item.value === 'false') {
           parsedValue = false;
@@ -78,7 +106,15 @@ const updateSettingsBulk = async (req, res, next) => {
       entries.map(async ([key, value]) => {
         if (!key) return;
         const cleanKey = String(key).trim();
-        const cleanVal = typeof value === 'object' ? JSON.stringify(value) : String(value ?? '');
+        let cleanVal = value;
+        if (typeof cleanVal === 'string' && cleanVal.startsWith('data:image')) {
+          cleanVal = saveBase64Image(cleanVal, cleanKey);
+        } else if (typeof cleanVal === 'object') {
+          cleanVal = JSON.stringify(cleanVal);
+        } else {
+          cleanVal = String(cleanVal ?? '');
+        }
+
         try {
           return await prisma.siteSetting.upsert({
             where: { key: cleanKey },

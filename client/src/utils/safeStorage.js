@@ -13,17 +13,10 @@ const OVERSIZED_KEYS_TO_PURGE_ON_QUOTA = [
   'sakhawat_cached_brand',
 ];
 
-// Helper to sanitize objects before storing
+// Helper to format objects before storing
 const sanitizeForStorage = (data) => {
-  if (!data) return data;
-  try {
-    const jsonStr = typeof data === 'string' ? data : JSON.stringify(data);
-    // Replace any base64 image strings longer than 500 chars with placeholder to save MBs of space
-    const cleanedStr = jsonStr.replace(/"data:image\/[^"]{500,}"/g, '"/placeholder-cleaned.png"');
-    return cleanedStr;
-  } catch (e) {
-    return typeof data === 'string' ? data : JSON.stringify(data);
-  }
+  if (data === null || data === undefined) return '';
+  return typeof data === 'string' ? data : JSON.stringify(data);
 };
 
 export const safeSetItem = (key, value) => {

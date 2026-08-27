@@ -246,6 +246,10 @@ export const HeroSection = ({ settings, onOpenBooking }) => {
                   <img
                     src={heroImage}
                     alt={heroDesignerName}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
 
