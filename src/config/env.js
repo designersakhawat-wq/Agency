@@ -1,11 +1,18 @@
+const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
+
+const defaultDbPath = path.resolve(__dirname, '../../prisma/dev.db');
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = `file:${defaultDbPath}`;
+}
 
 module.exports = {
   PORT: process.env.PORT || 5000,
-  NODE_ENV: process.env.NODE_ENV || 'development',
-  APP_URL: process.env.APP_URL || 'http://localhost:5000',
-  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
-  DATABASE_URL: process.env.DATABASE_URL || 'file:./prisma/dev.db',
+  NODE_ENV: process.env.NODE_ENV || 'production',
+  APP_URL: process.env.APP_URL || 'https://scaaleminte.com',
+  CLIENT_URL: process.env.CLIENT_URL || 'https://scaaleminte.com',
+  DATABASE_URL: process.env.DATABASE_URL,
   
   // JWT
   JWT_SECRET: process.env.JWT_SECRET || 'fallback_secret_sakhawat_design_portfolio_2026',
