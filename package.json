@@ -7,7 +7,7 @@
     "dev": "node --watch server.js",
     "dev:all": "concurrently \"node --watch server.js\" \"cd client && npm run dev\"",
     "start": "node server.js",
-    "build": "vite build && npx prisma generate || exit 0",
+    "build": "vite build && node -e \"const fs=require('fs'); if(!fs.existsSync('client/dist')) fs.mkdirSync('client/dist', {recursive:true}); fs.cpSync('dist', 'client/dist', {recursive:true});\" && npx prisma generate || exit 0",
     "build:client": "cd client && npm run build",
     "postinstall": "prisma generate || exit 0"
   },

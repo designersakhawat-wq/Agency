@@ -9,7 +9,7 @@ export default defineConfig({
     preserveSymlinks: true,
   },
   build: {
-    outDir: path.resolve(__dirname, 'client/dist'),
+    outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
     sourcemap: false,
     chunkSizeWarningLimit: 600,
