@@ -36,7 +36,7 @@ export const AdminInvoicesPage = () => {
   const { currencySymbol } = useCurrency();
   const { siteLogo } = useBrand();
   const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [search, setSearch] = useState('');
 
@@ -77,14 +77,13 @@ export const AdminInvoicesPage = () => {
   });
 
   const fetchInvoices = async () => {
-    setLoading(true);
     try {
-      const res = await api.get('/invoices', { status: statusFilter, search });
-      if (res.success) {
-        setInvoices(res.data || []);
+      const res = await api.get('/invoices', { status: statusFilter, search }).catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setInvoices(res.data);
       }
     } catch (err) {
-      showToast(err.message || 'Failed to load invoices.', 'error');
+      console.error('Failed to load invoices:', err);
     } finally {
       setLoading(false);
     }
@@ -334,9 +333,7 @@ export const AdminInvoicesPage = () => {
       </div>
 
       {/* Invoices List Table */}
-      {loading ? (
-        <Loader message="Loading invoices..." fullScreen />
-      ) : invoices.length === 0 ? (
+      {invoices.length === 0 && !loading ? (
         <div className="text-center py-20 glass-card rounded-2xl border border-zinc-800 space-y-4">
           <FileText className="w-12 h-12 text-zinc-600 mx-auto" />
           <h3 className="text-base font-bold text-white">No Invoices Found</h3>

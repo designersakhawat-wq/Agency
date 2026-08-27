@@ -33,7 +33,7 @@ export const AdminSettingsPage = () => {
   const { showToast } = useToast();
   const { refreshCurrency } = useCurrency();
   const { refreshBranding, applyTheme } = useBrand();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [confirmSettingsOpen, setConfirmSettingsOpen] = useState(false);
@@ -327,10 +327,6 @@ export const AdminSettingsPage = () => {
     settings.currency_code === 'BDT' && settings.currency_mode === 'AUTO_CONVERT'
       ? `${settings.currency_symbol} ${Number(samplePrice * Number(settings.usd_to_bdt_rate || 120)).toLocaleString()}`
       : `${settings.currency_symbol} ${samplePrice.toLocaleString()}`;
-
-  if (loading) {
-    return <Loader message="Loading site settings..." fullScreen />;
-  }
 
   return (
     <div className="space-y-8 max-w-5xl">

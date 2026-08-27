@@ -41,12 +41,14 @@ const AdminServicesPage = () => {
   const [deliverableInput, setDeliverableInput] = useState('');
 
   const fetchServices = async () => {
-    setLoading(true);
     try {
-      const res = await api.get('/services/admin/all');
-      if (res.success) setServices(res.data || []);
+      const res = await api.get('/services/admin/all').catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setServices(res.data);
+        localStorage.setItem('sakhawat_cached_services', JSON.stringify(res.data));
+      }
     } catch (err) {
-      error('Failed to load services: ' + err.message);
+      console.error('Services fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -155,9 +157,6 @@ const AdminServicesPage = () => {
         </Button>
       </div>
 
-      {loading ? (
-        <Loader message="Loading services..." fullScreen />
-      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {services.map((s) => {
             let features = s.features;
@@ -211,7 +210,6 @@ const AdminServicesPage = () => {
             );
           })}
         </div>
-      )}
 
       {/* Edit / Create Modal */}
       <Modal

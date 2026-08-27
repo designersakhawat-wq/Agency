@@ -7,30 +7,29 @@ import { Badge } from '../../components/common/Badge';
 import { Loader } from '../../components/common/Loader';
 import Button from '../../components/common/Button';
 
+import { DEFAULT_PROJECTS } from '../../data/defaultData';
+
 const ProjectDetailPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const [project, setProject] = useState(null);
-  const [related, setRelated] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeImage, setActiveImage] = useState('');
+  const defaultProject = DEFAULT_PROJECTS.find((p) => p.slug === slug || p.id === slug) || DEFAULT_PROJECTS[0];
+  const [project, setProject] = useState(defaultProject);
+  const [related, setRelated] = useState(() => DEFAULT_PROJECTS.filter((p) => p.slug !== slug));
+  const [loading, setLoading] = useState(false);
+  const [activeImage, setActiveImage] = useState(() => defaultProject?.coverImage || '');
 
   useEffect(() => {
     const fetchDetail = async () => {
-      setLoading(true);
       window.scrollTo(0, 0);
       try {
-        const res = await api.get(`/projects/${slug}`);
-        if (res.success && res.data?.project) {
+        const res = await api.get(`/projects/${slug}`).catch(() => null);
+        if (res && res.success && res.data?.project) {
           setProject(res.data.project);
           setActiveImage(res.data.project.coverImage);
           setRelated(res.data.relatedProjects || []);
-        } else {
-          navigate('/portfolio');
         }
       } catch (err) {
         console.error('Error fetching project detail:', err);
-        navigate('/portfolio');
       } finally {
         setLoading(false);
       }
@@ -38,15 +37,7 @@ const ProjectDetailPage = () => {
     fetchDetail();
   }, [slug, navigate]);
 
-  if (loading) {
-    return (
-      <div className="pt-32 pb-24 min-h-screen">
-        <Loader message="Loading case study details..." fullScreen />
-      </div>
-    );
-  }
-
-  if (!project) return null;
+  if (!project && !defaultProject) return null;
 
   // Parse tags & gallery
   let tags = [];

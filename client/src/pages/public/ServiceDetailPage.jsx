@@ -60,25 +60,28 @@ const processSteps = [
   },
 ];
 
+import { DEFAULT_SERVICES } from '../../data/defaultData';
+
 const ServiceDetailPage = () => {
   const { slug } = useParams();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const defaultService = DEFAULT_SERVICES.find((s) => s.slug === slug || s.id === slug) || DEFAULT_SERVICES[0];
+  const [data, setData] = useState(() => ({
+    service: defaultService,
+    packages: defaultService?.packages || [],
+    faqs: [],
+  }));
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchService = async () => {
-      setLoading(true);
-      setError(null);
       try {
-        const res = await api.get(`/services/${slug}`);
-        if (res.success && res.data) {
+        const res = await api.get(`/services/${slug}`).catch(() => null);
+        if (res && res.success && res.data) {
           setData(res.data);
-        } else {
-          setError('Service not found.');
         }
       } catch (err) {
-        setError(err.message || 'Failed to load service details.');
+        console.error('Service details fetch:', err);
       } finally {
         setLoading(false);
       }
@@ -86,11 +89,7 @@ const ServiceDetailPage = () => {
     fetchService();
   }, [slug]);
 
-  if (loading) {
-    return <Loader message="Loading service details..." fullScreen />;
-  }
-
-  if (error || !data?.service) {
+  if (!data?.service && !defaultService) {
     return (
       <div className="pt-36 pb-24 min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
         <h2 className="text-2xl font-bold text-white mb-2">Service Not Found</h2>

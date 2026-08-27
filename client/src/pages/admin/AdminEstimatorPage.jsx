@@ -88,14 +88,14 @@ const DEFAULT_ESTIMATOR_CONFIG = {
 export const AdminEstimatorPage = () => {
   const { showToast } = useToast();
   const { currencySymbol, formatAmount } = useCurrency();
-  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState(DEFAULT_ESTIMATOR_CONFIG);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('services'); // services | addons | settings | preview
   const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
   const [deleteServiceTarget, setDeleteServiceTarget] = useState(null);
   const [deleteAddonTarget, setDeleteAddonTarget] = useState(null);
 
-  const [config, setConfig] = useState(DEFAULT_ESTIMATOR_CONFIG);
 
   // Simulator States for Live Testing
   const [simServiceId, setSimServiceId] = useState('ads');
@@ -235,10 +235,6 @@ export const AdminEstimatorPage = () => {
   const simFinalTotal = simSubtotal - simDiscountAmt;
   const simRoiMin = Math.round(simFinalTotal * (Number(config.roi_multiplier_min) || 3.2));
   const simRoiMax = Math.round(simFinalTotal * (Number(config.roi_multiplier_max) || 5.5));
-
-  if (loading) {
-    return <Loader message="Loading estimator settings..." fullScreen />;
-  }
 
   return (
     <div className="p-6 sm:p-10 max-w-7xl mx-auto space-y-8">

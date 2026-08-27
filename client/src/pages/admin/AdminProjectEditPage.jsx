@@ -194,10 +194,6 @@ const AdminProjectEditPage = () => {
     }
   };
 
-  if (loading) {
-    return <Loader message="Loading project editor..." fullScreen />;
-  }
-
   return (
     <div className="space-y-6 max-w-5xl">
       {/* Header */}

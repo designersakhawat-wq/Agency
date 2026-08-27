@@ -8,9 +8,18 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
+import { DEFAULT_FAQS } from '../../data/defaultData';
+
 const AdminFaqsPage = () => {
-  const [faqs, setFaqs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [faqs, setFaqs] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_faqs');
+      return cached ? JSON.parse(cached) : DEFAULT_FAQS;
+    } catch (e) {
+      return DEFAULT_FAQS;
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -26,12 +35,14 @@ const AdminFaqsPage = () => {
   });
 
   const fetchFaqs = async () => {
-    setLoading(true);
     try {
-      const res = await api.get('/faqs/admin/all');
-      if (res.success) setFaqs(res.data || []);
+      const res = await api.get('/faqs/admin/all').catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setFaqs(res.data);
+        localStorage.setItem('sakhawat_cached_faqs', JSON.stringify(res.data));
+      }
     } catch (err) {
-      error('Failed to load FAQs: ' + err.message);
+      console.error('Failed to load FAQs:', err);
     } finally {
       setLoading(false);
     }
@@ -125,9 +136,6 @@ const AdminFaqsPage = () => {
         </Button>
       </div>
 
-      {loading ? (
-        <Loader message="Loading FAQs..." fullScreen />
-      ) : (
         <div className="space-y-4">
           {faqs.map((f) => (
             <div
@@ -161,7 +169,6 @@ const AdminFaqsPage = () => {
             </div>
           ))}
         </div>
-      )}
 
       {/* Modal */}
       <Modal

@@ -143,9 +143,7 @@ const PortfolioPage = () => {
         </div>
 
         {/* Projects Grid */}
-        {loading ? (
-          <Loader message="Loading portfolio case studies..." fullScreen />
-        ) : projects.length === 0 ? (
+        {filteredProjects.length === 0 && !loading ? (
           <div className="text-center py-24 glass-card rounded-3xl border border-zinc-800 space-y-4">
             <FolderKanban className="w-12 h-12 text-zinc-600 mx-auto" />
             <h3 className="text-base font-bold text-white">No Projects Found</h3>

@@ -29,7 +29,7 @@ const statusVariants = {
 
 const AdminInquiriesPage = () => {
   const [inquiries, setInquiries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -37,17 +37,16 @@ const AdminInquiriesPage = () => {
   const { success, error } = useToast();
 
   const fetchInquiries = async () => {
-    setLoading(true);
     try {
       const res = await api.get('/inquiries/admin/all', {
         status: statusFilter,
         search,
-      });
-      if (res.success) {
-        setInquiries(res.data || []);
+      }).catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setInquiries(res.data);
       }
     } catch (err) {
-      error('Failed to load inquiries: ' + err.message);
+      console.error('Failed to load inquiries:', err);
     } finally {
       setLoading(false);
     }
@@ -133,9 +132,7 @@ const AdminInquiriesPage = () => {
       </div>
 
       {/* Inquiries Table / List */}
-      {loading ? (
-        <Loader message="Loading inquiries..." fullScreen />
-      ) : inquiries.length === 0 ? (
+      {inquiries.length === 0 && !loading ? (
         <div className="text-center py-20 glass-card rounded-2xl border border-zinc-800 space-y-3">
           <Inbox className="w-10 h-10 text-zinc-600 mx-auto" />
           <h3 className="text-sm font-bold text-white">Inbox Clean</h3>

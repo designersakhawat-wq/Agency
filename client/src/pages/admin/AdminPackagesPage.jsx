@@ -9,11 +9,27 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
+import { DEFAULT_PACKAGES, DEFAULT_SERVICES } from '../../data/defaultData';
+
 export const AdminPackagesPage = () => {
   const { formatAmount, currencySymbol } = useCurrency();
-  const [packages, setPackages] = useState([]);
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [packages, setPackages] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_packages');
+      return cached ? JSON.parse(cached) : DEFAULT_PACKAGES;
+    } catch (e) {
+      return DEFAULT_PACKAGES;
+    }
+  });
+  const [services, setServices] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_services');
+      return cached ? JSON.parse(cached) : DEFAULT_SERVICES;
+    } catch (e) {
+      return DEFAULT_SERVICES;
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -36,16 +52,21 @@ export const AdminPackagesPage = () => {
   const [featureInput, setFeatureInput] = useState('');
 
   const fetchPackages = async () => {
-    setLoading(true);
     try {
       const [pkgRes, srvRes] = await Promise.all([
-        api.get('/packages/admin/all'),
-        api.get('/services/admin/all'),
+        api.get('/packages/admin/all').catch(() => null),
+        api.get('/services/admin/all').catch(() => null),
       ]);
-      if (pkgRes.success) setPackages(pkgRes.data || []);
-      if (srvRes.success) setServices(srvRes.data || []);
+      if (pkgRes && pkgRes.success && Array.isArray(pkgRes.data)) {
+        setPackages(pkgRes.data);
+        localStorage.setItem('sakhawat_cached_packages', JSON.stringify(pkgRes.data));
+      }
+      if (srvRes && srvRes.success && Array.isArray(srvRes.data)) {
+        setServices(srvRes.data);
+        localStorage.setItem('sakhawat_cached_services', JSON.stringify(srvRes.data));
+      }
     } catch (err) {
-      error('Failed to load packages: ' + err.message);
+      console.error('Failed to load packages:', err);
     } finally {
       setLoading(false);
     }
@@ -154,9 +175,6 @@ export const AdminPackagesPage = () => {
         </Button>
       </div>
 
-      {loading ? (
-        <Loader message="Loading pricing packages..." fullScreen />
-      ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {packages.map((pkg) => {
             let features = pkg.features;
@@ -218,7 +236,6 @@ export const AdminPackagesPage = () => {
             );
           })}
         </div>
-      )}
 
       {/* Modal */}
       <Modal

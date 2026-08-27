@@ -27,7 +27,7 @@ import { Badge } from '../../components/common/Badge';
 
 export const AdminMediaPage = () => {
   const [mediaItems, setMediaItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -40,14 +40,13 @@ export const AdminMediaPage = () => {
   const { showToast } = useToast();
 
   const fetchMedia = async () => {
-    setLoading(true);
     try {
-      const res = await api.get('/admin/media', { search });
-      if (res.success) {
-        setMediaItems(res.data?.items || res.data || []);
+      const res = await api.get('/admin/media', { search }).catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setMediaItems(res.data);
       }
     } catch (err) {
-      showToast('Failed to load media: ' + (err.message || 'Error'), 'error');
+      console.error('Failed to load media:', err);
     } finally {
       setLoading(false);
     }
@@ -314,11 +313,7 @@ export const AdminMediaPage = () => {
           isDragging ? 'border-2 border-dashed border-teal-400 rounded-2xl bg-teal-500/5 p-6' : ''
         }`}
       >
-        {loading ? (
-          <div className="py-20 flex justify-center">
-            <Loader message="Loading media items..." />
-          </div>
-        ) : mediaItems.length === 0 ? (
+        {mediaItems.length === 0 && !loading ? (
           <div className="text-center py-24 glass-card rounded-2xl border border-zinc-800 space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto text-zinc-500">
               <ImageIcon className="w-8 h-8 text-teal-400/80" />

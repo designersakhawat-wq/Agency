@@ -18,9 +18,18 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
+import { DEFAULT_TESTIMONIALS } from '../../data/defaultData';
+
 export const AdminTestimonialsPage = () => {
-  const [testimonials, setTestimonials] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [testimonials, setTestimonials] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_testimonials');
+      return cached ? JSON.parse(cached) : DEFAULT_TESTIMONIALS;
+    } catch (e) {
+      return DEFAULT_TESTIMONIALS;
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -43,12 +52,14 @@ export const AdminTestimonialsPage = () => {
   });
 
   const fetchTestimonials = async () => {
-    setLoading(true);
     try {
-      const res = await api.get('/testimonials/admin/all');
-      if (res.success) setTestimonials(res.data || []);
+      const res = await api.get('/testimonials/admin/all').catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setTestimonials(res.data);
+        localStorage.setItem('sakhawat_cached_testimonials', JSON.stringify(res.data));
+      }
     } catch (err) {
-      showToast('Failed to load testimonials: ' + err.message, 'error');
+      console.error('Failed to load testimonials:', err);
     } finally {
       setLoading(false);
     }
@@ -188,9 +199,6 @@ export const AdminTestimonialsPage = () => {
         </Button>
       </div>
 
-      {loading ? (
-        <Loader message="Loading testimonials..." fullScreen />
-      ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t) => (
             <div
@@ -264,7 +272,6 @@ export const AdminTestimonialsPage = () => {
             </div>
           ))}
         </div>
-      )}
 
       {/* CREATE / EDIT MODAL */}
       <Modal

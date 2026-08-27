@@ -91,14 +91,14 @@ export const AdminProjectsPage = () => {
   const [tagInput, setTagInput] = useState('');
 
   const fetchProjects = async () => {
-    setLoading(true);
     try {
-      const res = await api.get('/projects/admin/all');
-      if (res.success) {
-        setProjects(res.data || []);
+      const res = await api.get('/projects/admin/all').catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setProjects(res.data);
+        localStorage.setItem('sakhawat_cached_all_projects', JSON.stringify(res.data));
       }
     } catch (err) {
-      showToast('Error loading projects: ' + err.message, 'error');
+      console.error('Projects fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -364,9 +364,7 @@ export const AdminProjectsPage = () => {
       </div>
 
       {/* Table / List */}
-      {loading ? (
-        <Loader message="Loading portfolio items..." fullScreen />
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 && !loading ? (
         <div className="text-center py-16 glass-card rounded-2xl border border-zinc-800 space-y-3">
           <FolderKanban className="w-10 h-10 text-zinc-600 mx-auto" />
           <h3 className="text-sm font-bold text-white">No Projects Found</h3>

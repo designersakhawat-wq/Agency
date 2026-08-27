@@ -17,9 +17,18 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
 
+import { DEFAULT_BRANDS } from '../../data/defaultData';
+
 export const AdminBrandsPage = () => {
-  const [brands, setBrands] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [brands, setBrands] = useState(() => {
+    try {
+      const cached = localStorage.getItem('sakhawat_cached_brands');
+      return cached ? JSON.parse(cached) : DEFAULT_BRANDS;
+    } catch (e) {
+      return DEFAULT_BRANDS;
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -37,12 +46,14 @@ export const AdminBrandsPage = () => {
   });
 
   const fetchBrands = async () => {
-    setLoading(true);
     try {
-      const res = await api.get('/brands/admin/all');
-      if (res.success) setBrands(res.data || []);
+      const res = await api.get('/brands/admin/all').catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setBrands(res.data);
+        localStorage.setItem('sakhawat_cached_brands', JSON.stringify(res.data));
+      }
     } catch (err) {
-      showToast('Failed to load brands: ' + err.message, 'error');
+      console.error('Failed to load brands:', err);
     } finally {
       setLoading(false);
     }
@@ -172,9 +183,6 @@ export const AdminBrandsPage = () => {
         </Button>
       </div>
 
-      {loading ? (
-        <Loader message="Loading brands..." fullScreen />
-      ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
           {brands.map((b) => (
             <div
@@ -233,7 +241,6 @@ export const AdminBrandsPage = () => {
             </div>
           ))}
         </div>
-      )}
 
       {/* CREATE / EDIT MODAL */}
       <Modal

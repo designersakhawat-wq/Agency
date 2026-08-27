@@ -29,7 +29,7 @@ const bookingStatuses = {
 
 const AdminBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [meetingLinkInput, setMeetingLinkInput] = useState('');
@@ -38,16 +38,15 @@ const AdminBookingsPage = () => {
   const { success, error } = useToast();
 
   const fetchBookings = async () => {
-    setLoading(true);
     try {
       const res = await api.get('/bookings/admin/all', {
         status: statusFilter,
-      });
-      if (res.success) {
-        setBookings(res.data || []);
+      }).catch(() => null);
+      if (res && res.success && Array.isArray(res.data)) {
+        setBookings(res.data);
       }
     } catch (err) {
-      error('Failed to load bookings: ' + err.message);
+      console.error('Failed to load bookings:', err);
     } finally {
       setLoading(false);
     }
@@ -156,9 +155,7 @@ const AdminBookingsPage = () => {
       </div>
 
       {/* Bookings Table */}
-      {loading ? (
-        <Loader message="Loading bookings schedule..." fullScreen />
-      ) : bookings.length === 0 ? (
+      {bookings.length === 0 && !loading ? (
         <div className="text-center py-20 glass-card rounded-2xl border border-zinc-800 space-y-3">
           <Calendar className="w-10 h-10 text-zinc-600 mx-auto" />
           <h3 className="text-sm font-bold text-white">No Scheduled Bookings</h3>
