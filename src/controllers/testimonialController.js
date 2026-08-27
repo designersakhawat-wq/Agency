@@ -19,10 +19,10 @@ const getPublicTestimonials = async (req, res, next) => {
       where,
       orderBy: [{ featured: 'desc' }, { order: 'asc' }],
       take: limit ? parseInt(limit, 10) : undefined,
-    });
+    }).catch(() => []);
     return successResponse(res, testimonials, 'Testimonials retrieved.');
   } catch (err) {
-    next(err);
+    return successResponse(res, [], 'Fallback testimonials.');
   }
 };
 

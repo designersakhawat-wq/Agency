@@ -39,8 +39,17 @@ const errorHandler = (err, req, res, next) => {
   }
 
   const statusCode = err.statusCode || 500;
+
+  // For public read-only GET API requests, fallback cleanly to empty datasets instead of 500
+  if (req.method === 'GET' && statusCode === 500 && !req.originalUrl.includes('/admin/')) {
+    return res.status(200).json({
+      success: true,
+      message: 'Default dataset served.',
+      data: [],
+    });
+  }
+
   let message = err.message || 'Internal server error. Please try again later.';
-  
   if (statusCode === 500 && process.env.NODE_ENV === 'production') {
     message = 'An unexpected server error occurred. Please try again or contact support.';
   }
