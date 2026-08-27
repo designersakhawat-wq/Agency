@@ -210,10 +210,21 @@ const AdminServicesPage = () => {
 
   // Filter projects currently belonging to this service (strictly attached or created for this service)
   const currentServiceProjects = allProjects.filter((p) => {
-    if (!editTarget) return false;
-    if (p.serviceId === editTarget.id) return true;
-    if (p.serviceSlug === editTarget.slug) return true;
-    if (p.category === editTarget.title) return true;
+    if (!p) return false;
+    const targetId = editTarget?.id || formData?.id;
+    const targetSlug = editTarget?.slug || formData?.slug || (formData?.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const targetTitle = (editTarget?.title || formData?.title || '').toLowerCase().trim();
+
+    if (targetId && (p.serviceId === targetId || p.serviceSlug === targetId)) return true;
+    if (targetSlug && (p.serviceSlug === targetSlug || p.serviceId === targetSlug)) return true;
+
+    const pCat = (p.category || '').toLowerCase().trim();
+    if (targetTitle && pCat === targetTitle) return true;
+    if (targetSlug && pCat.includes(targetSlug)) return true;
+    if (targetSlug && targetSlug.includes('logo') && (pCat.includes('logo') || pCat.includes('brand'))) return true;
+    if (targetSlug && targetSlug.includes('ads') && (pCat.includes('ads') || pCat.includes('social') || pCat.includes('post') || pCat.includes('creative'))) return true;
+    if (targetSlug && targetSlug.includes('ugc') && (pCat.includes('ugc') || pCat.includes('video') || pCat.includes('motion') || pCat.includes('reel'))) return true;
+    if (targetSlug && targetSlug.includes('cover') && (pCat.includes('cover') || pCat.includes('banner') || pCat.includes('header'))) return true;
     return false;
   });
 
