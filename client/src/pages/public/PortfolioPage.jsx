@@ -341,45 +341,52 @@ export const PortfolioPage = () => {
     setVideoAspect(isVerticalVideo(project) ? 'vertical' : 'horizontal');
   };
 
-  // Filter projects by search query
+  // Filter projects by search query (100% null-safe)
   const searchedProjects = useMemo(() => {
-    if (!searchQuery.trim()) return projects;
+    const safeProjects = (projects || []).filter(Boolean);
+    if (!searchQuery.trim()) return safeProjects;
     const q = searchQuery.toLowerCase().trim();
-    return projects.filter((p) => {
+    return safeProjects.filter((p) => {
+      if (!p) return false;
       const titleMatch = p.title && p.title.toLowerCase().includes(q);
       const clientMatch = p.client && p.client.toLowerCase().includes(q);
       const catMatch = p.category && p.category.toLowerCase().includes(q);
-      const tagMatch = p.tags && Array.isArray(p.tags) && p.tags.some((t) => t.toLowerCase().includes(q));
+      const tagMatch = p.tags && Array.isArray(p.tags) && p.tags.some((t) => t && t.toLowerCase().includes(q));
       return titleMatch || clientMatch || catMatch || tagMatch;
     });
   }, [projects, searchQuery]);
 
-  // Group projects by service
+  // Group projects by service (100% null-safe)
   const serviceSections = useMemo(() => {
-    return services.map((service) => {
+    const safeServices = (services || []).filter(Boolean);
+    return safeServices.map((service) => {
+      const sSlug = service.slug || '';
+      const sTitle = service.title || '';
       const serviceProjects = searchedProjects.filter((p) => {
+        if (!p) return false;
+        const pCat = (p.category || '').toLowerCase();
         if (p.serviceId === service.id) return true;
         if (p.serviceSlug === service.slug) return true;
         if (p.category === service.title) return true;
-        if (p.category && p.category.toLowerCase().includes(service.title.toLowerCase())) return true;
+        if (sTitle && pCat.includes(sTitle.toLowerCase())) return true;
         if (
-          service.slug.includes('logo') &&
-          (p.category?.toLowerCase().includes('logo') || p.category?.toLowerCase().includes('brand'))
+          sSlug.includes('logo') &&
+          (pCat.includes('logo') || pCat.includes('brand'))
         )
           return true;
         if (
-          service.slug.includes('ads') &&
-          (p.category?.toLowerCase().includes('ads') || p.category?.toLowerCase().includes('social'))
+          sSlug.includes('ads') &&
+          (pCat.includes('ads') || pCat.includes('social'))
         )
           return true;
         if (
-          service.slug.includes('ugc') &&
-          (p.category?.toLowerCase().includes('ugc') || p.category?.toLowerCase().includes('video'))
+          sSlug.includes('ugc') &&
+          (pCat.includes('ugc') || pCat.includes('video'))
         )
           return true;
         if (
-          service.slug.includes('cover') &&
-          (p.category?.toLowerCase().includes('cover') || p.category?.toLowerCase().includes('banner'))
+          sSlug.includes('cover') &&
+          (pCat.includes('cover') || pCat.includes('banner'))
         )
           return true;
         return false;
@@ -396,9 +403,13 @@ export const PortfolioPage = () => {
   const generalProjects = useMemo(() => {
     const assignedIds = new Set();
     serviceSections.forEach((sec) => {
-      sec.projects.forEach((p) => assignedIds.add(p.id));
+      if (sec && Array.isArray(sec.projects)) {
+        sec.projects.forEach((p) => {
+          if (p && p.id) assignedIds.add(p.id);
+        });
+      }
     });
-    return searchedProjects.filter((p) => !assignedIds.has(p.id));
+    return searchedProjects.filter((p) => p && p.id && !assignedIds.has(p.id));
   }, [serviceSections, searchedProjects]);
 
   const scrollToSection = (slug) => {

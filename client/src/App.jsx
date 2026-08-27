@@ -18,16 +18,37 @@ import LiveSocialProofToast from './components/common/LiveSocialProofToast';
 import InteractiveChatWidget from './components/common/InteractiveChatWidget';
 import ExitIntentModal from './components/common/ExitIntentModal';
 
+// Function to dynamically import with auto-reload on version mismatch
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    const pageHasBeenForceRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
+    );
+
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasBeenForceRefreshed) {
+        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        window.location.reload();
+        return;
+      }
+      throw error;
+    }
+  });
+
 // Public Pages (HomePage loaded directly for zero-delay above-the-fold render, secondary pages lazy-loaded)
 import HomePage from './pages/public/HomePage';
-const PortfolioPage = lazy(() => import('./pages/public/PortfolioPage'));
-const ProjectDetailPage = lazy(() => import('./pages/public/ProjectDetailPage'));
-const ServicesPage = lazy(() => import('./pages/public/ServicesPage'));
-const ServiceDetailPage = lazy(() => import('./pages/public/ServiceDetailPage'));
-const AboutPage = lazy(() => import('./pages/public/AboutPage'));
-const BookingPage = lazy(() => import('./pages/public/BookingPage'));
-const ContactPage = lazy(() => import('./pages/public/ContactPage'));
-const NotFoundPage = lazy(() => import('./pages/public/NotFoundPage'));
+const PortfolioPage = lazyWithRetry(() => import('./pages/public/PortfolioPage'));
+const ProjectDetailPage = lazyWithRetry(() => import('./pages/public/ProjectDetailPage'));
+const ServicesPage = lazyWithRetry(() => import('./pages/public/ServicesPage'));
+const ServiceDetailPage = lazyWithRetry(() => import('./pages/public/ServiceDetailPage'));
+const AboutPage = lazyWithRetry(() => import('./pages/public/AboutPage'));
+const BookingPage = lazyWithRetry(() => import('./pages/public/BookingPage'));
+const ContactPage = lazyWithRetry(() => import('./pages/public/ContactPage'));
+const NotFoundPage = lazyWithRetry(() => import('./pages/public/NotFoundPage'));
 
 // Lazy-Loaded Admin Pages (Loaded only when navigating to /admin/*)
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
