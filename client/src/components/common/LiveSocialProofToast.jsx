@@ -114,12 +114,14 @@ export const LiveSocialProofToast = () => {
     const PAUSE_DURATION = 1800;   // 1.8s
     const TOTAL_CYCLE = DISPLAY_DURATION + PAUSE_DURATION; // 6000ms (10 times/minute)
 
+    let innerTimer = null;
+
     const interval = setInterval(() => {
       // Hide current toast
       setIsVisible(false);
 
       // Wait 1.8s then show next item
-      setTimeout(() => {
+      innerTimer = setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % mixedSocialProofs.length);
         setIsVisible(true);
       }, PAUSE_DURATION);
@@ -127,6 +129,7 @@ export const LiveSocialProofToast = () => {
 
     return () => {
       clearTimeout(initialTimer);
+      if (innerTimer) clearTimeout(innerTimer);
       clearInterval(interval);
     };
   }, [isDismissed]);
