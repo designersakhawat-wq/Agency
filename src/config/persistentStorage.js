@@ -63,12 +63,14 @@ if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const PERSISTENT_DB_FILE = path.join(DB_DIR, 'production.db');
 
-// If persistent DB does not exist yet, initialize it safely from baseline dev.db if present
+// If persistent DB does not exist or is empty (0 bytes), initialize it safely from baseline dev.db if present
 const baselineDb = path.resolve(__dirname, '../../prisma/dev.db');
-if (!fs.existsSync(PERSISTENT_DB_FILE) && fs.existsSync(baselineDb)) {
+const isDbEmpty = !fs.existsSync(PERSISTENT_DB_FILE) || (fs.existsSync(PERSISTENT_DB_FILE) && fs.statSync(PERSISTENT_DB_FILE).size === 0);
+
+if (isDbEmpty && fs.existsSync(baselineDb) && fs.statSync(baselineDb).size > 0) {
   try {
     fs.copyFileSync(baselineDb, PERSISTENT_DB_FILE);
-    console.log(`📦 Initialized persistent database baseline at: ${PERSISTENT_DB_FILE}`);
+    console.log(`📦 Initialized persistent database baseline (${fs.statSync(PERSISTENT_DB_FILE).size} bytes) at: ${PERSISTENT_DB_FILE}`);
   } catch (err) {
     console.warn('Could not copy baseline DB:', err.message);
   }
