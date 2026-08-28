@@ -215,7 +215,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
         {/* ========================================================================= */}
         {/* 3. 3D COVERFLOW / FOCAL IMAGE CAROUSEL (FAST & SNAPPY SPRING EFFECT)      */}
         {/* ========================================================================= */}
-        <div className="relative h-[380px] sm:h-[460px] md:h-[520px] lg:h-[560px] flex items-center justify-center overflow-hidden my-2">
+        <div className="relative h-[440px] sm:h-[520px] md:h-[580px] lg:h-[620px] flex items-center justify-center overflow-x-clip overflow-y-visible my-2 py-4">
           <div className="relative w-full h-full flex items-center justify-center">
             {filteredProjects.map((project, idx) => {
               // Calculate relative offset from currentIndex
@@ -237,30 +237,30 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
 
               if (isCenter) {
                 xOffset = 0;
-                scale = 1.15;
+                scale = 1.12;
                 zIndex = 30;
                 opacity = 1;
                 rotateY = 0;
               } else if (offset === 1) {
-                xOffset = 280;
+                xOffset = 260;
                 scale = 0.88;
                 zIndex = 20;
                 opacity = 0.85;
                 rotateY = -8;
               } else if (offset === -1) {
-                xOffset = -280;
+                xOffset = -260;
                 scale = 0.88;
                 zIndex = 20;
                 opacity = 0.85;
                 rotateY = 8;
               } else if (offset === 2) {
-                xOffset = 480;
+                xOffset = 450;
                 scale = 0.72;
                 zIndex = 10;
                 opacity = 0.35;
                 rotateY = -15;
               } else if (offset === -2) {
-                xOffset = -480;
+                xOffset = -450;
                 scale = 0.72;
                 zIndex = 10;
                 opacity = 0.35;
@@ -289,7 +289,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
                   }}
                 >
                   <div
-                    className={`relative w-[260px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-[4/5] rounded-[2rem] overflow-hidden bg-zinc-950 border transition-all duration-300 shadow-2xl ${
+                    className={`relative w-[240px] sm:w-[280px] md:w-[330px] lg:w-[370px] aspect-[4/5] rounded-[2rem] overflow-hidden bg-zinc-950 border transition-all duration-300 shadow-2xl ${
                       isCenter
                         ? 'border-teal-400/80 shadow-2xl shadow-teal-950 ring-2 ring-teal-400/30'
                         : 'border-zinc-800/80 shadow-black/90 hover:border-zinc-700'
@@ -304,7 +304,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
 
                     {/* Clean Dark Overlay for Active Card */}
                     <div
-                      className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-5 sm:p-6 ${
+                      className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-4 sm:p-5 ${
                         isCenter
                           ? 'bg-gradient-to-t from-black/95 via-black/30 to-black/10 opacity-100'
                           : 'bg-black/30 opacity-60 hover:opacity-100'
@@ -316,17 +316,17 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
                           {project.category}
                         </span>
 
-                        <span className="w-8 h-8 rounded-full bg-zinc-950/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg">
+                        <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-950/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg">
                           <Eye className="w-3.5 h-3.5 text-teal-400" />
                         </span>
                       </div>
 
                       {/* Bottom Info Bar */}
-                      <div className="space-y-1 bg-zinc-950/75 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 shadow-lg">
+                      <div className="space-y-1 bg-zinc-950/75 backdrop-blur-md p-3 sm:p-3.5 rounded-2xl border border-white/10 shadow-lg">
                         <span className="text-[10px] text-zinc-400 font-mono block">
                           {project.client} • {project.year}
                         </span>
-                        <h3 className="text-sm sm:text-base font-bold font-display text-white line-clamp-1">
+                        <h3 className="text-xs sm:text-sm font-bold font-display text-white line-clamp-1">
                           {project.title}
                         </h3>
                       </div>
@@ -341,7 +341,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
         {/* ========================================================================= */}
         {/* 4. CIRCULAR NAVIGATION CONTROLS                                           */}
         {/* ========================================================================= */}
-        <div className="flex flex-col items-center justify-center gap-3 pt-1">
+        <div className="flex flex-col items-center justify-center gap-3 pt-4">
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrev}
