@@ -20,10 +20,10 @@ export const DEFAULT_SETTINGS = {
   hero_title: 'Creative Graphic Designer Helping Brands Stand Out, Sell Better, and Look Professional.',
   hero_subtitle:
     'Specializing in high-converting advertising creatives, memorable brand identities, e-commerce product design, and dynamic UGC video content.',
-  brand_primary_color: '#ccff00',
-  brand_secondary_color: '#00f5d4',
+  brand_primary_color: '#14b8a6',
+  brand_secondary_color: '#06b6d4',
   brand_button_text_mode: 'auto',
-  theme_preset: 'neon_lime',
+  theme_preset: 'cyber_teal',
   hero_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
   about_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
   site_logo: '',

@@ -318,7 +318,7 @@ export const AboutPage = () => {
       : DEFAULT_TOOLCHAIN;
 
   return (
-    <div className="pt-44 sm:pt-48 pb-28 min-h-screen relative overflow-hidden bg-black text-white">
+    <div className="pt-44 sm:pt-48 pb-28 min-h-screen relative overflow-hidden transition-colors duration-300 text-slate-900 dark:text-white">
       {/* Ambient background glows */}
       <div className="ambient-glow-teal top-20 left-1/4 opacity-20 pointer-events-none" />
       <div className="ambient-glow-cyan bottom-40 right-10 opacity-15 pointer-events-none" />
@@ -330,57 +330,57 @@ export const AboutPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           {/* Left Text Bio */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-300 text-xs font-bold uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-teal-500 dark:text-teal-400" />
               <span>{heroBadge}</span>
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-white leading-[1.1]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight text-slate-900 dark:text-white leading-[1.1]">
                 {heroHeading}
               </h1>
-              <p className="text-sm font-bold text-teal-400">
+              <p className="text-sm font-bold text-teal-600 dark:text-teal-400">
                 {designerName} — {designerTitle}
               </p>
             </div>
 
-            <p className="text-base sm:text-lg text-zinc-300 leading-relaxed font-light">
+            <p className="text-base sm:text-lg text-slate-700 dark:text-zinc-300 leading-relaxed font-light">
               {bio1}
             </p>
 
-            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
               {bio2}
             </p>
 
             {/* Quick Metrics & Key Attributes */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              <div className="p-3.5 rounded-2xl bg-zinc-950/90 border border-zinc-800/80 shadow-md">
-                <span className="text-2xl font-black font-display text-white block">{yearsExp}</span>
-                <span className="text-[11px] text-zinc-400 font-medium">Years Experience</span>
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-950/90 border border-slate-200 dark:border-zinc-800/80 shadow-md">
+                <span className="text-2xl font-black font-display text-slate-900 dark:text-white block">{yearsExp}</span>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">Years Experience</span>
               </div>
-              <div className="p-3.5 rounded-2xl bg-zinc-950/90 border border-zinc-800/80 shadow-md">
-                <span className="text-2xl font-black font-display text-teal-400 block">{projectsCount}</span>
-                <span className="text-[11px] text-zinc-400 font-medium">Projects Delivered</span>
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-950/90 border border-slate-200 dark:border-zinc-800/80 shadow-md">
+                <span className="text-2xl font-black font-display text-teal-600 dark:text-teal-400 block">{projectsCount}</span>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">Projects Delivered</span>
               </div>
-              <div className="p-3.5 rounded-2xl bg-zinc-950/90 border border-zinc-800/80 shadow-md">
-                <span className="text-2xl font-black font-display text-white block">Global</span>
-                <span className="text-[11px] text-zinc-400 font-medium">USA, Dubai, BD</span>
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-950/90 border border-slate-200 dark:border-zinc-800/80 shadow-md">
+                <span className="text-2xl font-black font-display text-slate-900 dark:text-white block">Global</span>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">USA, Dubai, BD</span>
               </div>
-              <div className="p-3.5 rounded-2xl bg-zinc-950/90 border border-zinc-800/80 shadow-md">
-                <span className="text-2xl font-black font-display text-amber-400 block">{clientRating}</span>
-                <span className="text-[11px] text-zinc-400 font-medium">Client Rating</span>
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-950/90 border border-slate-200 dark:border-zinc-800/80 shadow-md">
+                <span className="text-2xl font-black font-display text-amber-500 dark:text-amber-400 block">{clientRating}</span>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">Client Rating</span>
               </div>
             </div>
 
             {/* Direct Connect Buttons */}
             <div className="flex flex-wrap items-center gap-3 pt-3">
               <Link to="/book-a-meeting">
-                <Button variant="primary" size="md" icon={Calendar} className="font-black px-6 shadow-lg shadow-teal-950/50">
+                <Button variant="primary" size="md" icon={Calendar} className="font-black px-6 shadow-lg shadow-teal-500/20">
                   Book Discovery Call
                 </Button>
               </Link>
               <a href={whatsappUrl} target="_blank" rel="noreferrer">
-                <Button variant="secondary" size="md" icon={MessageCircle} className="font-bold text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/10">
+                <Button variant="secondary" size="md" icon={MessageCircle} className="font-bold text-emerald-600 dark:text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/10">
                   Chat on WhatsApp
                 </Button>
               </a>
@@ -394,8 +394,8 @@ export const AboutPage = () => {
 
           {/* Right Visual Card with Glowing Frame */}
           <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl overflow-hidden glass-card p-3 border-2 border-teal-500/40 shadow-2xl bg-zinc-950/90">
-              <div className="rounded-2xl overflow-hidden aspect-[4/5] bg-zinc-900 relative group">
+            <div className="relative rounded-3xl overflow-hidden glass-card p-3 border-2 border-teal-500/40 shadow-2xl bg-white dark:bg-zinc-950/90">
+              <div className="rounded-2xl overflow-hidden aspect-[4/5] bg-slate-100 dark:bg-zinc-900 relative group">
                 <img
                   src={aboutImage}
                   alt={designerName}
@@ -418,17 +418,17 @@ export const AboutPage = () => {
               <div className="p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-base font-bold text-white">{designerName}</h4>
-                    <p className="text-xs text-teal-400 font-semibold">{designerTitle}</p>
+                    <h4 className="text-base font-bold text-slate-900 dark:text-white">{designerName}</h4>
+                    <p className="text-xs text-teal-600 dark:text-teal-400 font-semibold">{designerTitle}</p>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono">
+                  <span className="text-xs px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 font-mono">
                     Remote 🌐
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-800/80 text-[11px] text-zinc-400 flex items-center justify-between">
+                <div className="pt-2 border-t border-slate-200 dark:border-zinc-800/80 text-[11px] text-slate-500 dark:text-zinc-400 flex items-center justify-between">
                   <span>📍 {location.split('(')[0]}</span>
-                  <span className="text-zinc-300 font-bold">{languagesStr}</span>
+                  <span className="text-slate-700 dark:text-zinc-300 font-bold">{languagesStr}</span>
                 </div>
               </div>
             </div>
@@ -440,14 +440,14 @@ export const AboutPage = () => {
             ========================================================================= */}
         <div className="space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Design Standards</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black font-display text-white">
+            <h2 className="text-3xl sm:text-4xl font-black font-display text-slate-900 dark:text-white">
               Why Brands & Agencies Choose To Work With Me
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400">
               Clear deliverables, commercial licenses, and zero guesswork from concept to final release.
             </p>
           </div>
@@ -458,22 +458,22 @@ export const AboutPage = () => {
               return (
                 <div
                   key={idx}
-                  className="p-6 rounded-3xl bg-zinc-950/80 border border-zinc-800/80 hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between space-y-4 group hover:shadow-xl hover:shadow-teal-950/20"
+                  className="p-6 rounded-3xl bg-white dark:bg-zinc-950/80 border border-slate-200 dark:border-zinc-800/80 hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between space-y-4 group hover:shadow-xl hover:shadow-teal-950/10"
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20 group-hover:scale-110 transition-transform">
                     <Icon className="w-6 h-6" />
                   </div>
 
                   <div className="space-y-1.5 flex-1">
-                    <h3 className="text-base font-bold text-white group-hover:text-teal-300 transition-colors">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-300 transition-colors">
                       {pillar.title}
                     </h3>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
                       {pillar.desc}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-zinc-900 text-[11px] font-semibold text-teal-400 flex items-center gap-1">
+                  <div className="pt-2 border-t border-slate-100 dark:border-zinc-900 text-[11px] font-semibold text-teal-600 dark:text-teal-400 flex items-center gap-1">
                     <Check className="w-3.5 h-3.5" />
                     <span>Guaranteed Standard</span>
                   </div>
@@ -487,20 +487,20 @@ export const AboutPage = () => {
             3. CORE DESIGN DISCIPLINES (Connecting to Services & Portfolio)
             ========================================================================= */}
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-zinc-800">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-zinc-800">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 text-xs font-bold uppercase tracking-wider mb-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider mb-2">
                 <Layers className="w-3.5 h-3.5" />
                 <span>Expert Capabilities</span>
               </div>
-              <h2 className="text-3xl font-black font-display text-white">
+              <h2 className="text-3xl font-black font-display text-slate-900 dark:text-white">
                 Core Design Disciplines
               </h2>
             </div>
 
             <Link
               to="/services"
-              className="text-xs font-bold text-teal-400 hover:text-teal-300 flex items-center gap-1"
+              className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:text-teal-500 flex items-center gap-1"
             >
               <span>Explore All 4 Services & Pricing</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -513,32 +513,32 @@ export const AboutPage = () => {
               return (
                 <div
                   key={idx}
-                  className="p-6 rounded-3xl bg-zinc-950/90 border border-zinc-800/80 hover:border-teal-500/40 transition-all flex flex-col justify-between space-y-4 group"
+                  className="p-6 rounded-3xl bg-white dark:bg-zinc-950/90 border border-slate-200 dark:border-zinc-800/80 hover:border-teal-500/40 transition-all flex flex-col justify-between space-y-4 group shadow-sm hover:shadow-md"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 text-teal-400 flex items-center justify-center shrink-0 group-hover:border-teal-500/40 transition-all">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:border-teal-500/40 transition-all">
                       <Icon className="w-6 h-6" />
                     </div>
                     <div className="space-y-1">
-                      <h3 className="text-lg font-bold text-white group-hover:text-teal-300 transition-colors">
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-300 transition-colors">
                         {disc.title}
                       </h3>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
                         {disc.desc}
                       </p>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-zinc-900 flex items-center justify-between text-xs font-semibold">
+                  <div className="pt-3 border-t border-slate-100 dark:border-zinc-900 flex items-center justify-between text-xs font-semibold">
                     <Link
                       to={disc.portfolioLink}
-                      className="text-teal-400 hover:underline flex items-center gap-1"
+                      className="text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
                     >
                       <span>View Works Slider 🖼️</span>
                     </Link>
                     <Link
                       to={disc.link}
-                      className="text-zinc-300 hover:text-white flex items-center gap-1"
+                      className="text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-1"
                     >
                       <span>Service Scope & Packages</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -555,14 +555,14 @@ export const AboutPage = () => {
             ========================================================================= */}
         <div className="space-y-8">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider">
               <Briefcase className="w-3.5 h-3.5" />
               <span>Track Record</span>
             </div>
-            <h2 className="text-3xl font-black font-display text-white">
+            <h2 className="text-3xl font-black font-display text-slate-900 dark:text-white">
               Work Experience & Agency Roles
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400">
               Direct design contributions across e-commerce brands, IT training institutes, and international digital teams.
             </p>
           </div>
@@ -571,18 +571,18 @@ export const AboutPage = () => {
             {experiences.map((exp, idx) => (
               <div
                 key={idx}
-                className="p-6 sm:p-7 rounded-3xl bg-zinc-950/80 border border-zinc-800/80 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-teal-500/40 transition-colors shadow-md"
+                className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-zinc-950/80 border border-slate-200 dark:border-zinc-800/80 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-teal-500/40 transition-colors shadow-sm hover:shadow-md"
               >
                 <div className="space-y-2 max-w-2xl">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-mono font-bold text-teal-400 px-2.5 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/20">
+                    <span className="text-xs font-mono font-bold text-teal-600 dark:text-teal-400 px-2.5 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/20">
                       {exp.period}
                     </span>
-                    <span className="text-xs text-zinc-400 font-medium">📍 {exp.location}</span>
+                    <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">📍 {exp.location}</span>
                   </div>
-                  <h3 className="text-xl font-bold font-display text-white">{exp.role}</h3>
-                  <h4 className="text-xs font-bold text-teal-300">{exp.company}</h4>
-                  <p className="text-xs text-zinc-400 leading-relaxed pt-1">{exp.desc}</p>
+                  <h3 className="text-xl font-bold font-display text-slate-900 dark:text-white">{exp.role}</h3>
+                  <h4 className="text-xs font-bold text-teal-600 dark:text-teal-300">{exp.company}</h4>
+                  <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed pt-1">{exp.desc}</p>
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 md:flex-col md:items-end shrink-0">
@@ -590,7 +590,7 @@ export const AboutPage = () => {
                     exp.tags.map((tag, tIdx) => (
                       <span
                         key={tIdx}
-                        className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-300 border border-zinc-800"
+                        className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-800"
                       >
                         {tag}
                       </span>
@@ -606,14 +606,14 @@ export const AboutPage = () => {
             ========================================================================= */}
         <div className="space-y-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider">
               <Wrench className="w-3.5 h-3.5" />
               <span>Tool Mastery</span>
             </div>
-            <h2 className="text-3xl font-black font-display text-white">
+            <h2 className="text-3xl font-black font-display text-slate-900 dark:text-white">
               Software Stack & Technical Toolkit
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-400">
               Industry-standard software stack leveraged for rapid turnarounds and pristine master vector/video exports.
             </p>
           </div>
@@ -624,26 +624,26 @@ export const AboutPage = () => {
               return (
                 <div
                   key={idx}
-                  className="p-5 rounded-2xl bg-zinc-950/90 border border-zinc-800/80 space-y-3 hover:border-teal-500/40 transition-all flex flex-col justify-between group hover:shadow-xl hover:shadow-teal-950/20"
+                  className="p-5 rounded-2xl bg-white dark:bg-zinc-950/90 border border-slate-200 dark:border-zinc-800/80 space-y-3 hover:border-teal-500/40 transition-all flex flex-col justify-between group hover:shadow-md"
                 >
                   <div className="flex items-center gap-3.5">
                     <ToolIcon />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
-                        <h3 className="text-sm font-bold text-white group-hover:text-teal-300 transition-colors truncate">
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-300 transition-colors truncate">
                           {tool.name}
                         </h3>
-                        <span className="text-xs font-mono font-bold text-teal-400 shrink-0">
+                        <span className="text-xs font-mono font-bold text-teal-600 dark:text-teal-400 shrink-0">
                           {tool.level}
                         </span>
                       </div>
-                      <p className="text-[11px] text-zinc-400 leading-snug line-clamp-1 mt-0.5">
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-snug line-clamp-1 mt-0.5">
                         {tool.category}
                       </p>
                     </div>
                   </div>
 
-                  <div className="w-full h-1.5 rounded-full bg-zinc-900 overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-zinc-900 overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-teal-500 to-teal-400 rounded-full transition-all duration-700"
                       style={{ width: tool.level }}
@@ -658,12 +658,12 @@ export const AboutPage = () => {
         {/* =========================================================================
             6. BOTTOM DIRECT CALL TO ACTION (Dynamic CMS)
             ========================================================================= */}
-        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-teal-950/80 via-zinc-950 to-teal-950/80 border border-teal-500/40 text-center space-y-6 shadow-2xl relative overflow-hidden">
+        <div className="p-8 sm:p-12 rounded-3xl bg-teal-500/10 dark:bg-gradient-to-r dark:from-teal-950/80 dark:via-zinc-950 dark:to-teal-950/80 border border-teal-500/40 text-center space-y-6 shadow-2xl relative overflow-hidden">
           <div className="space-y-2 relative z-10">
-            <h2 className="text-3xl sm:text-4xl font-black font-display text-white">
+            <h2 className="text-3xl sm:text-4xl font-black font-display text-slate-900 dark:text-white">
               {ctaHeading}
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-300 max-w-xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-300 max-w-xl mx-auto leading-relaxed">
               {ctaSubtitle}
             </p>
           </div>
@@ -675,7 +675,7 @@ export const AboutPage = () => {
               </Button>
             </Link>
             <a href={whatsappUrl} target="_blank" rel="noreferrer">
-              <Button variant="secondary" size="lg" icon={MessageCircle} className="text-emerald-400 border-emerald-500/40">
+              <Button variant="secondary" size="lg" icon={MessageCircle} className="text-emerald-600 dark:text-emerald-400 border-emerald-500/40">
                 WhatsApp: {whatsappNum}
               </Button>
             </a>

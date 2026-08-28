@@ -276,19 +276,19 @@ const ServicesPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="p-6 sm:p-8 rounded-3xl glass-card border border-teal-500/30 relative overflow-hidden shadow-2xl bg-zinc-950/80 card-shine"
+          className="p-6 sm:p-8 rounded-3xl glass-card border border-teal-500/30 relative overflow-hidden shadow-2xl bg-white dark:bg-zinc-950/80 card-shine"
         >
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-800/80 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-zinc-800/80 pb-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                   <Target className="w-4 h-4" />
                 </div>
-                <h2 className="text-lg sm:text-xl font-bold font-display text-white">
+                <h2 className="text-lg sm:text-xl font-bold font-display text-slate-900 dark:text-white">
                   What Problem Are You Trying to Solve?
                 </h2>
               </div>
-              <span className="text-xs text-zinc-400 font-mono">
+              <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
                 Select an issue to reveal the exact ROI-driven fix
               </span>
             </div>
@@ -307,18 +307,18 @@ const ServicesPage = () => {
                     transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                     className={`p-4 rounded-2xl text-left transition-all duration-300 cursor-pointer flex items-center gap-3 relative ${
                       isSelected
-                        ? 'bg-teal-500/20 border-2 border-teal-400 shadow-xl shadow-teal-950/50'
-                        : 'bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700'
+                        ? 'bg-teal-500/15 border-2 border-teal-500 shadow-xl shadow-teal-500/10'
+                        : 'bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 hover:border-teal-500/40'
                     }`}
                   >
                     <div
                       className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                        isSelected ? 'bg-teal-500 text-zinc-950 shadow-md' : 'bg-zinc-800 text-zinc-400'
+                        isSelected ? 'bg-teal-500 text-zinc-950 shadow-md' : 'bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
                     </div>
-                    <span className={`text-xs font-bold leading-snug ${isSelected ? 'text-white' : 'text-zinc-300'}`}>
+                    <span className={`text-xs font-bold leading-snug ${isSelected ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-zinc-300'}`}>
                       {prob.title}
                     </span>
                   </motion.button>
@@ -334,14 +334,14 @@ const ServicesPage = () => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -12, scale: 0.98 }}
                 transition={{ duration: 0.35, ease: 'easeOut' }}
-                className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-teal-950/40 via-zinc-900 to-zinc-950 border border-teal-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xl"
+                className="p-5 sm:p-6 rounded-2xl bg-teal-50/90 dark:bg-gradient-to-r dark:from-teal-950/40 dark:via-zinc-900 dark:to-zinc-950 border border-teal-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xl"
               >
                 <div className="space-y-1.5 max-w-xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold font-mono">
+                  <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-teal-500/20 text-teal-700 dark:text-teal-300 text-xs font-bold font-mono">
                     <TrendingUp className="w-3.5 h-3.5" />
                     <span>Projected Result: {selectedDiagnostic.roiImpact}</span>
                   </div>
-                  <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed font-medium">
+                  <p className="text-xs sm:text-sm text-slate-800 dark:text-zinc-200 leading-relaxed font-medium">
                     {selectedDiagnostic.reason}
                   </p>
                 </div>
@@ -359,11 +359,9 @@ const ServicesPage = () => {
                         price: 99,
                       })
                     }
-                    className="w-full sm:w-auto cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-300 hover:text-teal-600 dark:hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
                   >
-                    <Button variant="secondary" size="sm" icon={MessageCircle} className="w-full text-xs">
-                      Instant Order
-                    </Button>
+                    Instant Order
                   </button>
                 </div>
               </motion.div>

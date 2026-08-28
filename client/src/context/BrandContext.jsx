@@ -243,8 +243,8 @@ const getInitialBrandState = () => {
     const raw = localStorage.getItem('sakhawat_cached_brand') || localStorage.getItem('sakhawat_cached_settings');
     if (raw) {
       const d = JSON.parse(raw);
-      const pColor = d.brand_primary_color || d.accent_color || '#ccff00';
-      const sColor = d.brand_secondary_color || '#00f5d4';
+      const pColor = d.brand_primary_color || d.accent_color || '#14b8a6';
+      const sColor = d.brand_secondary_color || '#06b6d4';
       const bTextMode = d.brand_button_text_mode || 'auto';
       applyGlobalThemeCSS(pColor, sColor, bTextMode);
       return {
@@ -252,19 +252,19 @@ const getInitialBrandState = () => {
         siteFavicon: d.site_favicon || '',
         primaryColor: pColor,
         secondaryColor: sColor,
-        themePreset: d.theme_preset || 'neon_lime',
+        themePreset: d.theme_preset || 'cyber_teal',
         buttonTextMode: bTextMode,
       };
     }
   } catch (e) {}
 
-  applyGlobalThemeCSS('#ccff00', '#00f5d4', 'auto');
+  applyGlobalThemeCSS('#14b8a6', '#06b6d4', 'auto');
   return {
     siteLogo: '',
     siteFavicon: '',
-    primaryColor: '#ccff00',
-    secondaryColor: '#00f5d4',
-    themePreset: 'neon_lime',
+    primaryColor: '#14b8a6',
+    secondaryColor: '#06b6d4',
+    themePreset: 'cyber_teal',
     buttonTextMode: 'auto',
   };
 };
