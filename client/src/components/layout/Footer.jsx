@@ -16,7 +16,7 @@ export const Footer = ({ onOpenBooking }) => {
   const { siteLogo } = useBrand();
 
   return (
-    <footer className="relative bg-zinc-950 border-t border-zinc-800/80 pt-16 pb-12 overflow-hidden">
+    <footer className="relative bg-white dark:bg-zinc-950 border-t border-slate-200 dark:border-zinc-800/80 pt-16 pb-12 overflow-hidden transition-colors duration-300">
       {/* Background ambient glow */}
       <div className="ambient-glow-teal -top-40 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none" />
 

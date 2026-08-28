@@ -49,28 +49,164 @@
   }
 
   /* ========================================================================= */
-  /* LIGHT THEME SYSTEM OVERRIDES (APPLE-GRADE CLEAN LIGHT AESTHETICS)          */
+  /* 🌟 COMPLETE COMPREHENSIVE LIGHT THEME SYSTEM (APPLE / STRIPE CLEAN AESTHETIC) */
   /* ========================================================================= */
   html.light {
     color-scheme: light;
   }
 
   html.light body {
-    background-color: #f8fafc;
-    color: #1e293b;
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
   }
 
+  /* Section Backgrounds in Light Mode */
+  html.light section,
+  html.light main {
+    background-color: transparent !important;
+  }
+
+  html.light [class*="bg-[#060608]"],
+  html.light [class*="bg-[#09090b]"],
+  html.light [class*="bg-[#040406]"],
+  html.light [class*="bg-[#0b0f17]"],
+  html.light [class*="bg-[#0d1218]"] {
+    background-color: #f8fafc !important;
+  }
+
+  /* Headings & Paragraphs */
   html.light h1,
   html.light h2,
   html.light h3,
   html.light h4,
   html.light h5,
   html.light h6 {
-    color: #0f172a;
+    color: #0f172a !important;
   }
 
   html.light p {
-    color: #475569;
+    color: #475569 !important;
+  }
+
+  /* Deep Zinc Color Overrides for Light Mode */
+  html.light .bg-zinc-950:not(.keep-dark):not(.fixed.inset-0) {
+    background-color: #ffffff !important;
+  }
+
+  html.light .bg-zinc-950\/95,
+  html.light .bg-zinc-950\/90,
+  html.light .bg-zinc-950\/85,
+  html.light .bg-zinc-950\/80,
+  html.light .bg-zinc-950\/75,
+  html.light .bg-zinc-950\/70,
+  html.light .bg-zinc-950\/60,
+  html.light .bg-zinc-950\/50 {
+    background-color: rgba(255, 255, 255, 0.92) !important;
+  }
+
+  html.light .bg-zinc-900:not(.keep-dark) {
+    background-color: #f1f5f9 !important;
+  }
+
+  html.light .bg-zinc-900\/90,
+  html.light .bg-zinc-900\/80,
+  html.light .bg-zinc-900\/70,
+  html.light .bg-zinc-900\/60,
+  html.light .bg-zinc-900\/50,
+  html.light .bg-zinc-900\/40,
+  html.light .bg-zinc-900\/30 {
+    background-color: rgba(241, 245, 249, 0.85) !important;
+  }
+
+  html.light .bg-zinc-850,
+  html.light .bg-zinc-800 {
+    background-color: #e2e8f0 !important;
+  }
+
+  /* Border Overrides for Light Mode */
+  html.light .border-zinc-800,
+  html.light .border-zinc-850,
+  html.light .border-zinc-700,
+  html.light .border-zinc-900,
+  html.light .border-white\/10,
+  html.light .border-white\/5,
+  html.light .border-white\/15,
+  html.light .border-white\/20,
+  html.light .border-white\/\[0\.08\],
+  html.light .border-white\/\[0\.05\] {
+    border-color: #e2e8f0 !important;
+  }
+
+  /* Text Overrides for Light Mode */
+  html.light .text-zinc-500 {
+    color: #64748b !important;
+  }
+
+  html.light .text-zinc-400 {
+    color: #475569 !important;
+  }
+
+  html.light .text-zinc-300 {
+    color: #334155 !important;
+  }
+
+  html.light .text-zinc-200 {
+    color: #1e293b !important;
+  }
+
+  html.light .text-zinc-100 {
+    color: #0f172a !important;
+  }
+
+  html.light .text-white:not(.keep-white):not(button):not(.badge-text) {
+    color: #0f172a !important;
+  }
+
+  /* Specific Accent Text & Gradients */
+  html.light .gradient-text-subtle {
+    background-image: linear-gradient(135deg, #0f172a, #334155, #64748b) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+
+  /* Form Inputs & Fields in Light Mode */
+  html.light input,
+  html.light textarea,
+  html.light select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light input::placeholder,
+  html.light textarea::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  /* Brand Accents & Colors in Light Mode */
+  html.light .bg-teal-500\/10,
+  html.light .bg-teal-500\/15,
+  html.light .bg-teal-500\/20,
+  html.light .bg-emerald-500\/10,
+  html.light .bg-emerald-500\/15,
+  html.light .bg-emerald-500\/20 {
+    background-color: rgba(20, 184, 166, 0.12) !important;
+    border-color: rgba(20, 184, 166, 0.3) !important;
+  }
+
+  html.light .text-teal-400,
+  html.light .text-teal-300 {
+    color: #0d9488 !important;
+  }
+
+  html.light .text-emerald-400,
+  html.light .text-emerald-300 {
+    color: #059669 !important;
+  }
+
+  html.light .text-cyan-400,
+  html.light .text-cyan-300 {
+    color: #0891b2 !important;
   }
 }
 
@@ -83,11 +219,11 @@
   }
 
   html.light .glass-card {
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.92) !important;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02) !important;
   }
 
   .glass-card-hover {
@@ -99,9 +235,9 @@
   }
 
   html.light .glass-card-hover:hover {
-    background: #ffffff;
-    border-color: rgba(var(--brand-primary-rgb, 20, 184, 166), 0.5);
-    box-shadow: 0 20px 35px -10px rgba(var(--brand-primary-rgb, 20, 184, 166), 0.18);
+    background: #ffffff !important;
+    border-color: rgba(var(--brand-primary-rgb, 20, 184, 166), 0.5) !important;
+    box-shadow: 0 20px 35px -10px rgba(var(--brand-primary-rgb, 20, 184, 166), 0.15) !important;
   }
 
   .glass-panel {
@@ -112,35 +248,11 @@
   }
 
   html.light .glass-panel {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(226, 232, 240, 0.95);
-    box-shadow: 0 14px 35px -10px rgba(0, 0, 0, 0.08);
-  }
-
-  .gradient-brand {
-    background-image: linear-gradient(135deg, var(--brand-primary, #14b8a6), var(--brand-secondary, #06b6d4));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .gradient-brand-animated {
-    background-image: linear-gradient(90deg, var(--brand-primary, #14b8a6), var(--brand-secondary, #06b6d4), var(--brand-primary, #14b8a6));
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradient-x 6s ease infinite;
-  }
-
-  .gradient-text-subtle {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-200 to-zinc-400;
-  }
-
-  html.light .gradient-text-subtle {
-    background-image: linear-gradient(135deg, #0f172a, #334155, #64748b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+    box-shadow: 0 14px 35px -10px rgba(0, 0, 0, 0.08) !important;
   }
 
   .ambient-glow-teal {

@@ -252,7 +252,10 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
   };
 
   return (
-    <section id="estimator-section" className="py-20 sm:py-28 relative overflow-hidden bg-[#060608] border-t border-zinc-800/80">
+    <section
+      id="estimator-section"
+      className="py-20 sm:py-28 relative overflow-hidden transition-colors duration-300 border-t border-slate-200 dark:border-zinc-800/80"
+    >
       {/* Background Glows */}
       <div className="ambient-glow-teal top-1/4 -right-20 opacity-20 pointer-events-none" />
       <div className="ambient-glow-cyan bottom-10 -left-20 opacity-15 pointer-events-none" />

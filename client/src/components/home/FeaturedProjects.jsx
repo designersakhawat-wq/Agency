@@ -148,7 +148,7 @@ export const FeaturedProjects = ({ projects = [] }) => {
   return (
     <section
       id="portfolio-section"
-      className="py-20 sm:py-28 relative overflow-hidden bg-[#060608]"
+      className="py-20 sm:py-28 relative overflow-hidden transition-colors duration-300"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >

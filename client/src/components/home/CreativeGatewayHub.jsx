@@ -76,7 +76,7 @@ const DOMAIN_DATA = [
 
 export const CreativeGatewayHub = () => {
   return (
-    <section className="py-20 relative overflow-hidden bg-[#09090b]/60 border-y border-white/[0.04]">
+    <section className="py-20 relative overflow-hidden transition-colors duration-300 border-y border-slate-200 dark:border-white/[0.04]">
       {/* Background ambient lighting */}
       <div className="ambient-glow-teal top-1/4 right-10 opacity-15 pointer-events-none" />
       <div className="ambient-glow-cyan bottom-10 left-10 opacity-15 pointer-events-none" />
