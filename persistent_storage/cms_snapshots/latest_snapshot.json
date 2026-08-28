@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-28T22:16:03.009Z",
+  "timestamp": "2026-08-28T22:31:38.890Z",
   "version": "1.0.0",
   "data": {
     "settings": [
@@ -401,6 +401,13 @@
         "value": "[{\"id\":\"qa_1\",\"label\":\"⚡ Urgent Ads (জরুরি অ্যাড)\",\"query\":\"I need urgent high-converting social media ad creatives.\",\"query_bn\":\"আমার ফেসবুক ও সোশ্যাল মিডিয়ার জন্য জরুরি হাই-কনভার্টিং অ্যাড ডিজাইন লাগবে।\"},{\"id\":\"qa_2\",\"label\":\"🎨 Brand & Logo (লোগো/ব্র্যান্ডিং)\",\"query\":\"I need a full brand identity, logo, and design system.\",\"query_bn\":\"আমার ব্র্যান্ডের জন্য নতুন লোগো এবং ফুল ব্র্যান্ড আইডেন্টিটি ডিজাইন করাতে চাই।\"},{\"id\":\"qa_3\",\"label\":\"💰 Pricing & Rates (খরচ ও দাম)\",\"query\":\"What are your rates and typical delivery timelines?\",\"query_bn\":\"আপনাদের কাজের প্রাইস রেট এবং ডেলিভারি টাইম কত?\"},{\"id\":\"qa_4\",\"label\":\"📅 Book Meeting (মিটিং বুকিং)\",\"query\":\"I want to schedule a 15-minute discovery meeting.\",\"query_bn\":\"আমি প্রজেক্ট নিয়ে কথা বলতে ১৫ মিনিটের একটি ডিসকভারি মিটিং বুক করতে চাই।\"}]",
         "createdAt": "2026-08-26T18:19:56.132Z",
         "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "243388a6-79f5-4c5a-b475-fd72e0160f31",
+        "key": "about_image",
+        "value": "/uploads/profile-photo-1787833931978-929342322.jpg",
+        "createdAt": "2026-08-28T22:25:36.632Z",
+        "updatedAt": "2026-08-28T22:25:36.632Z"
       }
     ],
     "projects": [
@@ -481,7 +488,7 @@
         "year": "2023",
         "summary": "Modern lifestyle product presentations and promotional feed creatives for a consumer electronics store.",
         "description": "Designed high-definition e-commerce product badges, lifestyle feature breakdown graphics, and promotional event banners that highlighted gadget specs in an easily digestible visual format.",
-        "coverImage": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&auto=format&fit=crop&q=80",
+        "coverImage": "/uploads/9062-laptop-mockup-v2-1787833949708-949730261.jpg",
         "galleryImages": "[\"https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1000&auto=format&fit=crop&q=80\"]",
         "liveUrl": null,
         "githubUrl": null,
@@ -504,7 +511,7 @@
         "serviceSlug": null,
         "active": true,
         "createdAt": "2026-08-26T15:00:46.467Z",
-        "updatedAt": "2026-08-26T15:00:46.467Z"
+        "updatedAt": "2026-08-28T22:25:36.578Z"
       },
       {
         "id": "62d57c47-381b-4e51-ad9a-3ca83b1a9db7",
@@ -515,7 +522,7 @@
         "year": "2023",
         "summary": "AI-assisted video editing, YouTube thumbnails, and automotive promotional branding for a US automotive client.",
         "description": "Produced energetic short-form video edits and eye-catching YouTube thumbnail packaging that significantly enhanced click-through rates across video marketing channels.",
-        "coverImage": "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1200&auto=format&fit=crop&q=80",
+        "coverImage": "/uploads/logo-new-01-01-1787835006263-396457564.jpg",
         "galleryImages": "[\"https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1000&auto=format&fit=crop&q=80\"]",
         "liveUrl": null,
         "githubUrl": null,
@@ -538,7 +545,7 @@
         "serviceSlug": null,
         "active": true,
         "createdAt": "2026-08-26T15:00:46.477Z",
-        "updatedAt": "2026-08-26T15:00:46.477Z"
+        "updatedAt": "2026-08-28T22:25:36.593Z"
       },
       {
         "id": "c625f31a-a3e7-4ea9-ade2-bfa0602c428a",
@@ -549,7 +556,7 @@
         "year": "2024",
         "summary": "Corporate digital header suite, LinkedIn banners, and promotional advertising collateral for a tech company in Dubai.",
         "description": "Developed an executive cover branding kit across LinkedIn, Facebook, and storefront channels that cemented brand trust and established an authoritative digital presence.",
-        "coverImage": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80",
+        "coverImage": "/uploads/cover-photo-1787764748710-758629908.jpg",
         "galleryImages": "[\"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1000&auto=format&fit=crop&q=80\"]",
         "liveUrl": null,
         "githubUrl": null,
@@ -572,7 +579,7 @@
         "serviceSlug": null,
         "active": true,
         "createdAt": "2026-08-26T15:00:46.492Z",
-        "updatedAt": "2026-08-26T15:00:46.492Z"
+        "updatedAt": "2026-08-28T22:25:36.601Z"
       }
     ],
     "services": [
@@ -737,7 +744,7 @@
         "clientName": "Marketing Director",
         "clientRole": "Head of Growth",
         "clientCompany": "ORA Organic (Dubai)",
-        "clientAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        "clientAvatar": null,
         "brandLogo": null,
         "serviceId": null,
         "content": "Sakhawat transformed our ad creative process. His understanding of sales psychology and clean e-commerce visual framing directly contributed to our highest ROAS month to date.",
@@ -748,14 +755,14 @@
         "active": true,
         "order": 1,
         "createdAt": "2026-08-26T15:00:46.570Z",
-        "updatedAt": "2026-08-26T15:00:46.570Z"
+        "updatedAt": "2026-08-28T22:25:36.612Z"
       },
       {
         "id": "d4d3e35a-310f-4739-8c3e-18d6659b66cc",
         "clientName": "Managing Director",
         "clientRole": "Executive Lead",
         "clientCompany": "e-Learn IT Institute",
-        "clientAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+        "clientAvatar": null,
         "brandLogo": null,
         "serviceId": null,
         "content": "A consummate professional who delivers consistent, top-tier graphic design and brand identity work. Sakhawat communicates proactively and always meets tight deadlines.",
@@ -766,14 +773,14 @@
         "active": true,
         "order": 2,
         "createdAt": "2026-08-26T15:00:46.581Z",
-        "updatedAt": "2026-08-26T15:00:46.581Z"
+        "updatedAt": "2026-08-28T22:25:36.619Z"
       },
       {
         "id": "6218538e-4327-4612-897a-b8fd4c641abe",
         "clientName": "Operations Lead",
         "clientRole": "Creative Director",
         "clientCompany": "Advanced Digital Automotive (USA)",
-        "clientAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+        "clientAvatar": null,
         "brandLogo": null,
         "serviceId": null,
         "content": "The thumbnail designs and short-form video pacing Sakhawat developed gave our content the professional edge it needed. Highly recommended for any brand needing sales-driven creative.",
@@ -784,7 +791,7 @@
         "active": true,
         "order": 3,
         "createdAt": "2026-08-26T15:00:46.593Z",
-        "updatedAt": "2026-08-26T15:00:46.593Z"
+        "updatedAt": "2026-08-28T22:25:36.625Z"
       }
     ],
     "faqs": [
@@ -1148,7 +1155,7 @@
     ]
   },
   "counts": {
-    "settings": 57,
+    "settings": 58,
     "projects": 5,
     "services": 4,
     "packages": 6,

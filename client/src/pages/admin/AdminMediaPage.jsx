@@ -530,8 +530,8 @@ export const AdminMediaPage = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                     onError={(e) => {
-                      e.currentTarget.src =
-                        'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600';
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = '/placeholder-cleaned.png';
                     }}
                   />
 

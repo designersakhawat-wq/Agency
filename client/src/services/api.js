@@ -40,8 +40,8 @@ const DEFAULT_SETTINGS = {
   email: 'designersakhawat@gmail.com',
   phone: '01781955355',
   location: 'Ishurdi, Pabna, Rajshahi, Bangladesh',
-  hero_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
-  about_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+  hero_image: '/uploads/chatgpt-image-aug-2--2026--10-56-34-pm-1787768328056-874988426.png',
+  about_image: '/uploads/profile-photo-1787833931978-929342322.jpg',
   site_logo: '',
   site_favicon: '',
 };
@@ -75,7 +75,7 @@ const saveStoredSettings = (newSettings) => {
 const readFileAsDataUrl = (file) => {
   return new Promise((resolve) => {
     if (!file || typeof FileReader === 'undefined') {
-      resolve('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800');
+      resolve('');
       return;
     }
     const reader = new FileReader();
@@ -151,7 +151,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
       altText = body.get('altText') || file?.name || 'Uploaded Asset';
     }
 
-    const dataUrl = file ? await readFileAsDataUrl(file) : 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800';
+    const dataUrl = file ? await readFileAsDataUrl(file) : '';
     const newMedia = {
       id: 'media_' + Date.now(),
       fileName: file?.name || `asset-${Date.now()}.png`,
@@ -213,7 +213,7 @@ const handleLocalFallback = async (endpoint, options = {}) => {
         year: payload.year || new Date().getFullYear().toString(),
         summary: payload.summary || `Showcase portfolio project for ${payload.category || 'Creative Design'}.`,
         description: payload.description || `Delivered high-converting visual design deliverables for ${payload.title || 'Project'}.`,
-        coverImage: payload.coverImage || 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800',
+        coverImage: payload.coverImage || '',
         galleryImages: payload.galleryImages || [payload.coverImage].filter(Boolean),
         tags: payload.tags || [payload.category || 'Design'],
         featured: Boolean(payload.featured),

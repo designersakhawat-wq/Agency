@@ -65,8 +65,8 @@ export const MediaSelectField = ({
                 alt={label || 'Media Asset'}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src =
-                    'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600';
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = '/placeholder-cleaned.png';
                 }}
               />
               <button

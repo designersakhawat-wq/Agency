@@ -130,10 +130,14 @@ export const DataVault = {
     setRaw('sakhawat_cached_settings', updated);
   },
 
-  // Merge server settings with local vault settings
+  // Merge server settings with local vault settings (Server is authoritative)
   mergeSettings: (serverSettings = {}) => {
     const vaultSettings = getRaw(VAULT_KEYS.SETTINGS, {});
-    const merged = { ...(serverSettings || {}), ...vaultSettings };
+    const hasServerSettings = serverSettings && typeof serverSettings === 'object' && Object.keys(serverSettings).length > 0;
+    const merged = hasServerSettings
+      ? { ...vaultSettings, ...serverSettings }
+      : { ...vaultSettings };
+    setRaw(VAULT_KEYS.SETTINGS, merged);
     setRaw('sakhawat_cached_settings', merged);
     return merged;
   },
@@ -143,6 +147,8 @@ export const DataVault = {
     if (!mediaItem || (!mediaItem.id && !mediaItem.fileUrl && !mediaItem.url)) return;
     const current = getRaw(VAULT_KEYS.MEDIA, []);
     const itemUrl = mediaItem.fileUrl || mediaItem.url;
+    if (itemUrl && itemUrl.includes('unsplash.com')) return; // Never save Unsplash to media vault
+
     const existsIndex = current.findIndex(
       (m) => (mediaItem.id && m.id === mediaItem.id) || (itemUrl && (m.fileUrl === itemUrl || m.url === itemUrl))
     );
@@ -166,27 +172,34 @@ export const DataVault = {
     setRaw('sakhawat_media_library', updated);
   },
 
-  // Merge server media with local vault media
+  // Merge server media with local vault media (Server is authoritative)
   mergeMedia: (serverMedia = []) => {
     const vaultMedia = getRaw(VAULT_KEYS.MEDIA, []);
     const urlMap = new Set();
     const merged = [];
 
-    (serverMedia || []).forEach((sm) => {
-      if (!sm) return;
-      const url = sm.fileUrl || sm.url;
-      if (url && !urlMap.has(url)) {
-        urlMap.add(url);
-        merged.push({ ...sm, url: url, fileUrl: url });
-      }
-    });
+    // Server media is strictly authoritative
+    if (Array.isArray(serverMedia) && serverMedia.length > 0) {
+      serverMedia.forEach((sm) => {
+        if (!sm) return;
+        const url = sm.fileUrl || sm.url;
+        if (url && !urlMap.has(url) && !url.includes('unsplash.com')) {
+          urlMap.add(url);
+          merged.push({ ...sm, url: url, fileUrl: url });
+        }
+      });
+      setRaw(VAULT_KEYS.MEDIA, merged);
+      setRaw('sakhawat_media_library', merged);
+      return merged;
+    }
 
+    // Fallback when server is offline
     vaultMedia.forEach((vm) => {
       if (!vm) return;
       const url = vm.fileUrl || vm.url;
-      if (url && !urlMap.has(url)) {
+      if (url && !urlMap.has(url) && !url.includes('unsplash.com')) {
         urlMap.add(url);
-        merged.unshift({ ...vm, url: url, fileUrl: url });
+        merged.push({ ...vm, url: url, fileUrl: url });
       }
     });
 

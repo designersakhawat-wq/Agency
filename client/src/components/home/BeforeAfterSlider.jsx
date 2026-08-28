@@ -70,7 +70,7 @@ export const BeforeAfterSlider = ({ onOpenBooking }) => {
               {/* After Image (Right / Bottom Layer) */}
               <div className="absolute inset-0 w-full h-full bg-zinc-900">
                 <img
-                  src="https://images.unsplash.com/photo-1542744094-3a31f272c490?w=1200&auto=format&fit=crop&q=80"
+                  src="/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg"
                   alt="After: High-Converting Creative"
                   className="w-full h-full object-cover"
                 />
@@ -89,7 +89,7 @@ export const BeforeAfterSlider = ({ onOpenBooking }) => {
                 style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
               >
                 <img
-                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80"
+                  src="/uploads/9062-laptop-mockup-v2-1787833949708-949730261.jpg"
                   alt="Before: Generic Stock Design"
                   className="w-full h-full object-cover filter grayscale contrast-75 brightness-75"
                 />

@@ -31,7 +31,7 @@ export const HeroSection = ({ settings, onOpenBooking }) => {
   const heroTrustBadge2 = settings?.hero_trust_badge_2 || 'Global Clients (USA, Dubai, BD)';
 
   const showHeroImage = settings?.hero_show_image !== false;
-  const heroImage = settings?.hero_image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80';
+  const heroImage = settings?.hero_image || '/uploads/chatgpt-image-aug-2--2026--10-56-34-pm-1787768328056-874988426.png';
   const heroCoreSpeciality = settings?.hero_core_speciality || 'Branding • Ad Creatives • UI';
   const heroDesignerName = settings?.hero_designer_name || 'Md Sakhawat Hossain';
   const heroDesignerTitle = settings?.hero_designer_title || 'Creative Graphic Designer';
@@ -248,7 +248,7 @@ export const HeroSection = ({ settings, onOpenBooking }) => {
                     alt={heroDesignerName}
                     onError={(e) => {
                       e.currentTarget.onerror = null;
-                      e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80';
+                      e.currentTarget.src = '/uploads/chatgpt-image-aug-2--2026--10-56-34-pm-1787768328056-874988426.png';
                     }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />

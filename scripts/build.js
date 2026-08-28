@@ -31,14 +31,26 @@ try {
   });
 
   // 3. Synchronize uploaded media assets across all distribution directories
-  const uploadsSource = path.resolve(__dirname, '../uploads');
-  if (fs.existsSync(uploadsSource)) {
-    const uploadTargets = ['../dist/uploads', '../public/uploads', '../build/uploads', '../client/dist/uploads'];
-    uploadTargets.forEach(uDir => {
-      const uPath = path.resolve(__dirname, uDir);
-      if (!fs.existsSync(uPath)) fs.mkdirSync(uPath, { recursive: true });
-      fs.cpSync(uploadsSource, uPath, { recursive: true });
-    });
+  try {
+    const { UPLOADS_DIR } = require('../src/config/persistentStorage');
+    const persistentUploads = UPLOADS_DIR;
+    const localUploads = path.resolve(__dirname, '../uploads');
+    const uploadsSource = fs.existsSync(persistentUploads) && fs.readdirSync(persistentUploads).length > 0
+      ? persistentUploads
+      : (fs.existsSync(localUploads) ? localUploads : null);
+
+    if (uploadsSource && fs.existsSync(uploadsSource)) {
+      const uploadTargets = ['../dist/uploads', '../public/uploads', '../build/uploads', '../client/dist/uploads', '../uploads'];
+      uploadTargets.forEach(uDir => {
+        const uPath = path.resolve(__dirname, uDir);
+        if (uPath !== uploadsSource) {
+          if (!fs.existsSync(uPath)) fs.mkdirSync(uPath, { recursive: true });
+          fs.cpSync(uploadsSource, uPath, { recursive: true });
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('Upload sync warning:', err.message);
   }
 
   // 4. Sync to root assets/ and root index.html

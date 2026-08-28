@@ -67,7 +67,7 @@ export const AdminSettingsPage = () => {
     hero_trust_badge_1: '3+ Years Experience',
     hero_trust_badge_2: 'Global Clients (USA, Dubai, BD)',
     hero_show_image: true,
-    hero_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+    hero_image: '/uploads/chatgpt-image-aug-2--2026--10-56-34-pm-1787768328056-874988426.png',
     hero_core_speciality: 'Branding • Ad Creatives • UI',
     hero_designer_name: 'Md Sakhawat Hossain',
     hero_designer_title: 'Creative Graphic Designer',

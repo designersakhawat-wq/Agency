@@ -373,7 +373,7 @@ class MediaService {
         let newGallery = p.galleryImages;
 
         if (p.coverImage && (p.coverImage === fileUrl || (filename && p.coverImage.includes(filename)))) {
-          newCover = 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800'; // fallback
+          newCover = ''; // cleared - user should select new cover from Media Library
           needsUpdate = true;
           unlinkedLocations.push(`Project: "${p.title}" Cover Image`);
         }
@@ -432,7 +432,7 @@ class MediaService {
         if (b.logoUrl && (b.logoUrl === fileUrl || (filename && b.logoUrl.includes(filename)))) {
           await prisma.clientBrand.update({
             where: { id: b.id },
-            data: { logoUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800' },
+            data: { logoUrl: '' }, // cleared - user should select new logo from Media Library
           }).catch(() => {});
           unlinkedLocations.push(`Brand: "${b.name}" Logo`);
         }

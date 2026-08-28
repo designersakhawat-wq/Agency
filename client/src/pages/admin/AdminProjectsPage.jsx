@@ -673,8 +673,8 @@ const DEFAULT_DESIGN_CATEGORIES = [
                       alt={p.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        e.target.src =
-                          'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600&auto=format&fit=crop&q=80';
+                        e.target.onerror = null;
+                        e.target.src = '/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg';
                       }}
                     />
 

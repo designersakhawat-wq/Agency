@@ -257,7 +257,7 @@ const createProject = async (req, res, next) => {
     const effectiveDescription = (description && typeof description === 'string' && description.trim()) ? description.trim() : `Delivered high-converting visual design deliverables for ${effectiveTitle}.`;
     
     // Convert Base64 image to permanent disk file if needed
-    const persistentCoverImage = saveBase64Image(coverImage, effectiveTitle) || 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800';
+    const persistentCoverImage = saveBase64Image(coverImage, effectiveTitle) || '';
 
     const finalSlug = slug ? generateSlug(slug) : generateSlug(effectiveTitle);
 

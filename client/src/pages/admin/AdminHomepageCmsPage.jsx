@@ -416,11 +416,12 @@ export const AdminHomepageCmsPage = () => {
                   {/* Thumbnail & Badges */}
                   <div className="relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
                     <img
-                      src={project.coverImage || 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600&auto=format&fit=crop&q=80'}
+                      src={project.coverImage || '/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg'}
                       alt={project.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.target.src = 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600&auto=format&fit=crop&q=80';
+                        e.target.onerror = null;
+                        e.target.src = '/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg';
                       }}
                     />
                     <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-bold text-white border border-white/10">

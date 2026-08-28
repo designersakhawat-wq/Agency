@@ -48,7 +48,7 @@ const iconMap = {
 };
 
 // Fallback high-quality image if any URL fails
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=1000&auto=format&fit=crop&q=80';
+const FALLBACK_IMAGE = '/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg';
 
 // Deliverables mapping per service
 const SERVICE_DELIVERABLES_MAP = {

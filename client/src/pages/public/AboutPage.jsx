@@ -285,7 +285,7 @@ export const AboutPage = () => {
   const aboutImage =
     settings?.about_image ||
     settings?.hero_image ||
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80';
+    '/uploads/profile-photo-1787833931978-929342322.jpg';
   const yearsExp = settings?.about_years_exp || settings?.years_experience || '3+';
   const projectsCount = settings?.about_projects_count || '150+';
   const clientRating = settings?.about_client_rating || '5.0 ★';
@@ -401,7 +401,7 @@ export const AboutPage = () => {
                   alt={designerName}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80';
+                    e.currentTarget.src = '/uploads/profile-photo-1787833931978-929342322.jpg';
                   }}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
