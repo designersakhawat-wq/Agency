@@ -302,31 +302,31 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
                       category={project.category}
                     />
 
-                    {/* Clean Dark Overlay for Active Card */}
+                    {/* Clean Minimal Overlay for Active Card */}
                     <div
-                      className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-4 sm:p-5 ${
+                      className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-5 sm:p-6 ${
                         isCenter
-                          ? 'bg-gradient-to-t from-black/95 via-black/30 to-black/10 opacity-100'
-                          : 'bg-black/30 opacity-60 hover:opacity-100'
+                          ? 'bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-100'
+                          : 'bg-black/40 opacity-0 hover:opacity-100'
                       }`}
                     >
-                      {/* Top Badges */}
+                      {/* Top Right Quick Action */}
                       <div className="flex items-center justify-between">
-                        <span className="px-3 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md border border-white/20 text-teal-300 text-[11px] font-bold shadow-md">
+                        <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/90 text-[11px] font-semibold">
                           {project.category}
                         </span>
 
-                        <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-950/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg">
+                        <span className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110">
                           <Eye className="w-3.5 h-3.5 text-teal-400" />
                         </span>
                       </div>
 
-                      {/* Bottom Info Bar */}
-                      <div className="space-y-1 bg-zinc-950/75 backdrop-blur-md p-3 sm:p-3.5 rounded-2xl border border-white/10 shadow-lg">
-                        <span className="text-[10px] text-zinc-400 font-mono block">
+                      {/* Bottom Info (Ultra-Clean, Minimal, No Bulky Boxes) */}
+                      <div className="space-y-1">
+                        <span className="text-[11px] text-teal-300/90 font-medium block">
                           {project.client} • {project.year}
                         </span>
-                        <h3 className="text-xs sm:text-sm font-bold font-display text-white line-clamp-1">
+                        <h3 className="text-base sm:text-lg font-bold font-display text-white tracking-tight line-clamp-1 drop-shadow-md">
                           {project.title}
                         </h3>
                       </div>
@@ -339,40 +339,24 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
         </div>
 
         {/* ========================================================================= */}
-        {/* 4. CIRCULAR NAVIGATION CONTROLS                                           */}
+        {/* 4. CLEAN MINIMALIST CIRCULAR NAVIGATION (MATCHING REFERENCE EXACTLY)      */}
         {/* ========================================================================= */}
-        <div className="flex flex-col items-center justify-center gap-3 pt-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handlePrev}
-              aria-label="Previous Project"
-              className="w-11 h-11 rounded-full bg-zinc-900 hover:bg-teal-400 hover:text-zinc-950 border border-zinc-700 text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg hover:scale-105"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <button
+            onClick={handlePrev}
+            aria-label="Previous Project"
+            className="w-11 h-11 rounded-full bg-zinc-900/90 hover:bg-teal-400 hover:text-zinc-950 border border-zinc-800 text-zinc-300 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg hover:scale-105"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
 
-            {/* Slide Dots */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800">
-              {filteredProjects.map((_, dotIdx) => (
-                <button
-                  key={dotIdx}
-                  onClick={() => setCurrentIndex(dotIdx)}
-                  className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
-                    dotIdx === currentIndex ? 'w-5 bg-teal-400' : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
-                  }`}
-                  aria-label={`Go to slide ${dotIdx + 1}`}
-                />
-              ))}
-            </div>
-
-            <button
-              onClick={handleNext}
-              aria-label="Next Project"
-              className="w-11 h-11 rounded-full bg-zinc-900 hover:bg-teal-400 hover:text-zinc-950 border border-zinc-700 text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg hover:scale-105"
-            >
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            onClick={handleNext}
+            aria-label="Next Project"
+            className="w-11 h-11 rounded-full bg-zinc-900/90 hover:bg-teal-400 hover:text-zinc-950 border border-zinc-800 text-zinc-300 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg hover:scale-105"
+          >
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
