@@ -59,8 +59,8 @@ export const PricingTiers = ({ packages = [], onSelectPackage }) => {
                 whileHover={{ y: -8, transition: { duration: 0.25 } }}
                 className={`relative rounded-3xl p-8 flex flex-col justify-between transition-all duration-300 overflow-visible ${
                   pkg.isPopular
-                    ? 'bg-gradient-to-b from-teal-950/80 via-zinc-900/95 to-zinc-950 border-2 border-teal-500 shadow-2xl shadow-teal-950/60 md:-translate-y-2'
-                    : 'glass-card border border-zinc-800/80 hover:border-teal-500/30 hover:shadow-xl hover:shadow-teal-950/20'
+                    ? 'bg-teal-50/90 dark:bg-gradient-to-b dark:from-teal-950/80 dark:via-zinc-900/95 dark:to-zinc-950 border-2 border-teal-500 shadow-2xl shadow-teal-500/20 md:-translate-y-2'
+                    : 'glass-card border border-slate-200 dark:border-zinc-800/80 hover:border-teal-500/30 hover:shadow-xl hover:shadow-teal-950/20'
                 }`}
               >
                 {/* Popular Ribbon without clipping */}
@@ -75,36 +75,36 @@ export const PricingTiers = ({ packages = [], onSelectPackage }) => {
 
                 <div className="space-y-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-display font-bold text-xl text-white">{pkg.name}</h3>
+                    <h3 className="font-display font-bold text-xl text-slate-900 dark:text-white">{pkg.name}</h3>
                     {pkg.service?.title && (
-                      <span className="text-[10px] text-teal-300 bg-teal-500/15 border border-teal-500/30 px-2.5 py-0.5 rounded-full font-medium">
+                      <span className="text-[10px] text-teal-700 dark:text-teal-300 bg-teal-500/15 border border-teal-500/30 px-2.5 py-0.5 rounded-full font-medium">
                         {pkg.service.title}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-xs text-zinc-400 min-h-[36px] leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-zinc-400 min-h-[36px] leading-relaxed">
                     {pkg.description || 'Comprehensive graphic design & high-conversion visual suite.'}
                   </p>
 
                   {/* Price */}
-                  <div className="flex items-baseline gap-1.5 pb-6 border-b border-zinc-800/80">
-                    <span className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-white">
+                  <div className="flex items-baseline gap-1.5 pb-6 border-b border-slate-200 dark:border-zinc-800/80">
+                    <span className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-slate-900 dark:text-white">
                       {formatAmount(pkg.price)}
                     </span>
-                    <span className="text-xs text-zinc-500 font-medium">
+                    <span className="text-xs text-slate-500 dark:text-zinc-500 font-medium">
                       /{pkg.billingPeriod || 'project'}
                     </span>
                   </div>
 
                   {/* Features List */}
                   <div className="space-y-3">
-                    <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                    <p className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
                       Included in Package:
                     </p>
                     {parsedFeatures.map((feat, fIdx) => (
-                      <div key={fIdx} className="flex items-start gap-3 text-xs text-zinc-300">
-                        <div className="p-0.5 rounded-full bg-teal-500/20 text-teal-400 mt-0.5 shrink-0">
+                      <div key={fIdx} className="flex items-start gap-3 text-xs text-slate-700 dark:text-zinc-300">
+                        <div className="p-0.5 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-400 mt-0.5 shrink-0">
                           <Check className="w-3 h-3" />
                         </div>
                         <span className="leading-relaxed">{feat}</span>

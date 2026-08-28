@@ -70,20 +70,20 @@ const PATHWAY_ROUTES = [
 
 export const InterconnectedExploreHub = () => {
   return (
-    <section className="py-24 relative overflow-hidden bg-gradient-to-b from-transparent via-zinc-950/80 to-transparent">
+    <section className="py-24 relative overflow-hidden transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider">
             <Compass className="w-3.5 h-3.5" />
             <span>Interactive Website Roadmap</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-slate-900 dark:text-white tracking-tight">
             Where Would You Like To Go Next?
           </h2>
 
-          <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed">
             Select your preferred pathway below to explore case studies, calculate project budgets, or book an introductory strategy call.
           </p>
         </div>
@@ -104,8 +104,8 @@ export const InterconnectedExploreHub = () => {
                 whileHover={{ y: -6 }}
                 className={`p-6 sm:p-7 rounded-3xl border shadow-xl flex flex-col justify-between group transition-all duration-300 ${
                   isPrimary
-                    ? 'bg-gradient-to-br from-teal-950/60 via-zinc-950 to-teal-950/80 border-teal-500/50 hover:border-teal-400 hover:shadow-teal-500/20'
-                    : 'bg-zinc-950/90 border-zinc-800/80 hover:border-teal-500/40 hover:shadow-teal-950/20'
+                    ? 'bg-teal-500/10 dark:bg-gradient-to-br dark:from-teal-950/60 dark:via-zinc-950 dark:to-teal-950/80 border-teal-500/50 hover:border-teal-400 hover:shadow-teal-500/20'
+                    : 'bg-white dark:bg-zinc-950/90 border-slate-200 dark:border-zinc-800/80 hover:border-teal-500/40 hover:shadow-teal-950/20'
                 }`}
               >
                 <div className="space-y-4">
@@ -115,7 +115,7 @@ export const InterconnectedExploreHub = () => {
                       className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 shadow-lg ${
                         isPrimary
                           ? 'bg-teal-500 text-zinc-950 font-bold'
-                          : 'bg-zinc-900 border border-zinc-800 text-teal-400 group-hover:border-teal-500/40'
+                          : 'bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-teal-600 dark:text-teal-400 group-hover:border-teal-500/40'
                       }`}
                     >
                       <Icon className="w-6 h-6" />
@@ -128,35 +128,35 @@ export const InterconnectedExploreHub = () => {
 
                   {/* Title & Desc */}
                   <div>
-                    <h3 className="text-xl font-bold font-display text-white group-hover:text-teal-300 transition-colors">
+                    <h3 className="text-xl font-bold font-display text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-300 transition-colors">
                       {route.title}
                     </h3>
-                    <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
                       {route.desc}
                     </p>
                   </div>
 
                   {/* Highlight pill */}
                   <div className="pt-2">
-                    <span className="text-[11px] text-zinc-500 flex items-center gap-1.5">
-                      <Sparkles className="w-3 h-3 text-teal-400" />
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-teal-700 dark:text-teal-400/90">
+                      <Sparkles className="w-3 h-3 text-teal-600 dark:text-teal-400" />
                       <span>{route.highlight}</span>
                     </span>
                   </div>
                 </div>
 
-                {/* Direct Action Link */}
-                <div className="pt-6 mt-4 border-t border-zinc-800/70">
+                {/* Bottom CTA Button */}
+                <div className="pt-6 mt-6 border-t border-slate-100 dark:border-zinc-800/80">
                   <Link
                     to={route.link}
-                    className={`w-full py-2.5 px-4 rounded-2xl text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                    className={`inline-flex items-center justify-between w-full px-5 py-3 rounded-2xl text-xs font-bold transition-all ${
                       isPrimary
-                        ? 'bg-teal-500 hover:bg-teal-400 text-zinc-950 font-black shadow-md hover:shadow-teal-500/30'
-                        : 'bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-800 group-hover:border-teal-500/40'
+                        ? 'bg-teal-500 hover:bg-teal-400 text-zinc-950 shadow-md shadow-teal-500/20'
+                        : 'bg-slate-100 dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 hover:bg-teal-500 hover:text-zinc-950'
                     }`}
                   >
                     <span>{route.actionText}</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </motion.div>
