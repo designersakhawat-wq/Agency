@@ -7,8 +7,11 @@ const { requireAuth, requireRole } = require('../middleware/authMiddleware');
 router.get('/admin/all', requireAuth, requireRole(['ADMIN']), projectController.getAllProjectsAdmin);
 router.get('/all', requireAuth, requireRole(['ADMIN']), projectController.getAllProjectsAdmin);
 router.post('/admin', requireAuth, requireRole(['ADMIN']), projectController.createProject);
+router.post('/', requireAuth, requireRole(['ADMIN']), projectController.createProject);
 router.put('/admin/:id', requireAuth, requireRole(['ADMIN']), projectController.updateProject);
+router.put('/:id', requireAuth, requireRole(['ADMIN']), projectController.updateProject);
 router.delete('/admin/:id', requireAuth, requireRole(['ADMIN']), projectController.deleteProject);
+router.delete('/:id', requireAuth, requireRole(['ADMIN']), projectController.deleteProject);
 
 // Public routes
 router.get('/', projectController.getPublicProjects);

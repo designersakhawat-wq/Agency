@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-28T22:31:38.890Z",
+  "timestamp": "2026-08-28T23:01:57.387Z",
   "version": "1.0.0",
   "data": {
     "settings": [
@@ -495,7 +495,7 @@
         "figmaUrl": null,
         "behanceUrl": null,
         "dribbbleUrl": null,
-        "featured": true,
+        "featured": false,
         "order": 3,
         "tags": "[\"E-commerce\",\"Photoshop\",\"Gadget Design\",\"Lifestyle Visuals\",\"Retouching\"]",
         "challenges": "Complex tech specifications were confusing customers on product pages.",
@@ -511,7 +511,7 @@
         "serviceSlug": null,
         "active": true,
         "createdAt": "2026-08-26T15:00:46.467Z",
-        "updatedAt": "2026-08-28T22:25:36.578Z"
+        "updatedAt": "2026-08-28T23:01:20.235Z"
       },
       {
         "id": "62d57c47-381b-4e51-ad9a-3ca83b1a9db7",
@@ -529,7 +529,7 @@
         "figmaUrl": null,
         "behanceUrl": null,
         "dribbbleUrl": null,
-        "featured": true,
+        "featured": false,
         "order": 4,
         "tags": "[\"UGC Video\",\"Premiere Pro\",\"After Effects\",\"AI Video\",\"Thumbnails\"]",
         "challenges": "Low retention and weak CTR on video ad campaigns.",
@@ -545,7 +545,7 @@
         "serviceSlug": null,
         "active": true,
         "createdAt": "2026-08-26T15:00:46.477Z",
-        "updatedAt": "2026-08-28T22:25:36.593Z"
+        "updatedAt": "2026-08-28T23:01:20.235Z"
       },
       {
         "id": "c625f31a-a3e7-4ea9-ade2-bfa0602c428a",
