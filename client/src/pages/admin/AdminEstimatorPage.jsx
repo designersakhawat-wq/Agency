@@ -719,7 +719,7 @@ export const AdminEstimatorPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3 border-t border-zinc-800">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-3 border-t border-zinc-800">
               <div>
                 <label className="text-xs font-semibold text-zinc-300 block mb-1">
                   Quote CTA Button Text
@@ -729,6 +729,19 @@ export const AdminEstimatorPage = () => {
                   value={config.cta_button_text}
                   onChange={(e) => setConfig({ ...config, cta_button_text: e.target.value })}
                   className="w-full px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white focus:outline-none focus:border-teal-400 font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-zinc-300 block mb-1">
+                  WhatsApp Contact Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 8801781955355"
+                  value={config.whatsapp_number || '8801781955355'}
+                  onChange={(e) => setConfig({ ...config, whatsapp_number: e.target.value })}
+                  className="w-full px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-emerald-300 font-mono focus:outline-none focus:border-teal-400"
                 />
               </div>
 

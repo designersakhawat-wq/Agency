@@ -12,6 +12,13 @@ import {
   ShieldCheck,
   TrendingUp,
   Percent,
+  MessageCircle,
+  Calendar,
+  X,
+  User,
+  Building,
+  FileText,
+  Send,
 } from 'lucide-react';
 import Button from '../common/Button';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -32,6 +39,7 @@ const DEFAULT_CONFIG = {
   turnaround_rush_multiplier: 1.35,
   cta_button_text: 'Lock In This Project Quote',
   guarantee_text: 'Includes free consultation call & revision rights',
+  whatsapp_number: '8801781955355',
   services: [
     {
       id: 'ads',
@@ -85,30 +93,45 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
   const [turnaround, setTurnaround] = useState('standard');
   const [selectedAddons, setSelectedAddons] = useState(['source_files']);
   const [discountClaimed, setDiscountClaimed] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState('8801781955355');
+
+  // WhatsApp Quote Dispatch Modal State
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [clientName, setClientName] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [projectNotes, setProjectNotes] = useState('');
 
   useEffect(() => {
     const fetchConfig = async () => {
       try {
         const res = await api.get('/settings');
-        if (res.success && res.data?.estimator_config) {
-          let parsed = res.data.estimator_config;
-          if (typeof parsed === 'string') {
-            try {
-              parsed = JSON.parse(parsed);
-            } catch (e) {
-              parsed = DEFAULT_CONFIG;
-            }
+        if (res.success && res.data) {
+          if (res.data.contact_whatsapp || res.data.contact_phone) {
+            const raw = String(res.data.contact_whatsapp || res.data.contact_phone).replace(/[^\d]/g, '');
+            const formatted = raw.startsWith('88') ? raw : `88${raw}`;
+            setWhatsappNumber(formatted);
           }
-          const merged = {
-            ...DEFAULT_CONFIG,
-            ...parsed,
-            services: Array.isArray(parsed.services) && parsed.services.length > 0 ? parsed.services : DEFAULT_CONFIG.services,
-            addons: Array.isArray(parsed.addons) && parsed.addons.length > 0 ? parsed.addons : DEFAULT_CONFIG.addons,
-          };
-          setConfig(merged);
-          if (merged.services.length > 0 && !merged.services.find((s) => s.id === serviceType)) {
-            setServiceType(merged.services[0].id);
-            setQuantity(merged.services[0].min || 1);
+
+          if (res.data.estimator_config) {
+            let parsed = res.data.estimator_config;
+            if (typeof parsed === 'string') {
+              try {
+                parsed = JSON.parse(parsed);
+              } catch (e) {
+                parsed = DEFAULT_CONFIG;
+              }
+            }
+            const merged = {
+              ...DEFAULT_CONFIG,
+              ...parsed,
+              services: Array.isArray(parsed.services) && parsed.services.length > 0 ? parsed.services : DEFAULT_CONFIG.services,
+              addons: Array.isArray(parsed.addons) && parsed.addons.length > 0 ? parsed.addons : DEFAULT_CONFIG.addons,
+            };
+            setConfig(merged);
+            if (merged.services.length > 0 && !merged.services.find((s) => s.id === serviceType)) {
+              setServiceType(merged.services[0].id);
+              setQuantity(merged.services[0].min || 1);
+            }
           }
         }
       } catch (err) {
@@ -172,14 +195,62 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
     }
   };
 
-  const handleBookWithQuote = () => {
+  const handleOpenQuoteModal = () => {
     confetti({
       particleCount: 100,
       spread: 90,
       origin: { y: 0.5 },
       colors: ['#14b8a6', '#06b6d4', '#10b981'],
     });
+    setQuoteModalOpen(true);
+  };
 
+  // Generate complete structured WhatsApp message and open WhatsApp
+  const handleSendToWhatsApp = () => {
+    const cleanPhone = (whatsappNumber || '01781955355').replace(/[^\d]/g, '');
+    const finalPhone = cleanPhone.startsWith('88') ? cleanPhone : `88${cleanPhone}`;
+
+    const selectedAddonObjs = selectedAddons
+      .map((id) => addonsList.find((a) => a.id === id))
+      .filter(Boolean);
+
+    let msg = `🎯 *NEW PROJECT ESTIMATE QUOTE* 🎯\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    if (clientName.trim()) msg += `👤 *Client Name:* ${clientName.trim()}\n`;
+    if (companyName.trim()) msg += `🏢 *Company / Brand:* ${companyName.trim()}\n`;
+    msg += `💼 *Design Service:* ${currentService.name}\n`;
+    msg += `🔢 *Volume / Scope:* ${quantity} ${currentService.unitLabel || 'Units'}\n`;
+    msg += `⏱️ *Turnaround:* ${turnaround === 'rush' ? (config.turnaround_rush_label || 'Express Rush (24–48h)') : (config.turnaround_standard_label || 'Standard (3–5 Days)')}\n`;
+
+    if (selectedAddonObjs.length > 0) {
+      msg += `📦 *Add-ons Selected:*\n`;
+      selectedAddonObjs.forEach((a) => {
+        msg += `   • ${a.name} (+${formatAmount(a.price)})\n`;
+      });
+    }
+
+    if (discountClaimed) {
+      msg += `🎁 *Discount Voucher:* ${config.discount_percent || 15}% First-Client Voucher Applied (-${formatAmount(discountAmount)})\n`;
+    }
+
+    msg += `💰 *Total Estimated Quote:* ${formatAmount(finalTotal)}\n`;
+    msg += `📈 *Projected Campaign ROI:* ${formatAmount(estimatedValueMin)} – ${formatAmount(estimatedValueMax)}+\n`;
+
+    if (projectNotes.trim()) {
+      msg += `📝 *Project Scope / Timeline:* ${projectNotes.trim()}\n`;
+    }
+    msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `💬 *Message:* Hi Sakhawat! I customized this project quote on your website estimator and would like to lock in this estimate and get started. Are you available?`;
+
+    const encoded = encodeURIComponent(msg);
+    const waUrl = `https://wa.me/${finalPhone}?text=${encoded}`;
+
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+    setQuoteModalOpen(false);
+  };
+
+  const handleBookMeetingDirect = () => {
+    setQuoteModalOpen(false);
     const quoteSummary = `${currentService.name} (${quantity} ${currentService.unitLabel || 'Units'}) - Est. ${formatAmount(finalTotal)}`;
     if (onOpenBooking) {
       onOpenBooking(quoteSummary);
@@ -441,15 +512,15 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                 </div>
               )}
 
-              {/* CTAs */}
+              {/* Primary Action Button: Lock In Quote & Dispatch to WhatsApp */}
               <div className="space-y-3 pt-2">
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full font-black text-base shadow-xl shadow-teal-950/60"
+                  className="w-full font-black text-base shadow-xl shadow-teal-950/60 bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-zinc-950 cursor-pointer"
                   icon={ArrowRight}
                   iconPosition="right"
-                  onClick={handleBookWithQuote}
+                  onClick={handleOpenQuoteModal}
                 >
                   {config.cta_button_text || 'Lock In This Project Quote'}
                 </Button>
@@ -463,8 +534,175 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
           </div>
         </div>
       </div>
+
+      {/* =========================================================================
+          🎯 WHATSAPP QUOTE CONFIRMATION & DISPATCH MODAL
+          ========================================================================= */}
+      <AnimatePresence>
+        {quoteModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setQuoteModalOpen(false)}
+              className="absolute inset-0 bg-black/85 backdrop-blur-md"
+            />
+
+            {/* Modal Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg rounded-3xl bg-zinc-950 border border-teal-500/40 p-6 sm:p-7 shadow-2xl shadow-teal-950/50 space-y-5 overflow-hidden z-10 max-h-[90vh] overflow-y-auto"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setQuoteModalOpen(false)}
+                className="absolute top-4 right-4 p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Title Header */}
+              <div className="space-y-1 text-left">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-mono font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                  <span>Instant WhatsApp Confirmation</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold font-display text-white">
+                  Lock In Your Custom Project Quote
+                </h3>
+                <p className="text-xs text-zinc-400">
+                  Your customized scope is ready. Send it directly to Sakhawat's WhatsApp for priority scheduling and instant confirmation.
+                </p>
+              </div>
+
+              {/* Quote Breakdown Summary Card */}
+              <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-2.5 text-xs text-zinc-300">
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+                  <span className="font-semibold text-zinc-400">🎨 Chosen Service:</span>
+                  <span className="font-bold text-white text-right">{currentService.name}</span>
+                </div>
+
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+                  <span className="font-semibold text-zinc-400">🔢 Scope / Volume:</span>
+                  <span className="font-bold text-teal-300">{quantity} {currentService.unitLabel || 'Units'}</span>
+                </div>
+
+                <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+                  <span className="font-semibold text-zinc-400">⏱️ Turnaround:</span>
+                  <span className="font-bold text-white">
+                    {turnaround === 'rush' ? (config.turnaround_rush_label || 'Express Rush (24–48h)') : (config.turnaround_standard_label || 'Standard (3–5 Days)')}
+                  </span>
+                </div>
+
+                {selectedAddons.length > 0 && (
+                  <div className="flex items-start justify-between pb-2 border-b border-zinc-800/80 gap-2">
+                    <span className="font-semibold text-zinc-400">📦 Add-ons:</span>
+                    <span className="font-medium text-zinc-200 text-right">
+                      {selectedAddons.map((id) => addonsList.find((a) => a.id === id)?.name).filter(Boolean).join(', ')}
+                    </span>
+                  </div>
+                )}
+
+                {discountClaimed && (
+                  <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80 text-emerald-400">
+                    <span className="font-semibold">🎁 Voucher Discount:</span>
+                    <span className="font-bold font-mono">-{formatAmount(discountAmount)} ({config.discount_percent || 15}% OFF)</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-1 text-sm font-black">
+                  <span className="text-white">💰 Total Estimated Quote:</span>
+                  <span className="text-teal-400 font-mono text-base">{formatAmount(finalTotal)}</span>
+                </div>
+              </div>
+
+              {/* Optional Client Details Fields */}
+              <div className="space-y-3 text-left">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
+                      Your Name (Optional)
+                    </label>
+                    <div className="relative">
+                      <User className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="e.g. Sarah Rahman"
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
+                      Brand / Business Name (Optional)
+                    </label>
+                    <div className="relative">
+                      <Building className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="e.g. Apex Digital"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-teal-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
+                    Project Notes / Deadline (Optional)
+                  </label>
+                  <div className="relative">
+                    <FileText className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-3" />
+                    <textarea
+                      rows={2}
+                      placeholder="Brief details or target launch date..."
+                      value={projectNotes}
+                      onChange={(e) => setProjectNotes(e.target.value)}
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-teal-500 resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2.5 pt-2">
+                {/* Send via WhatsApp (Instant & Pre-filled) */}
+                <button
+                  type="button"
+                  onClick={handleSendToWhatsApp}
+                  className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-black text-sm shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-98 cursor-pointer"
+                >
+                  <MessageCircle className="w-5 h-5 fill-current" />
+                  <span>Send Quote to WhatsApp (Instant Reply)</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                {/* Alternative: Book Video Call */}
+                <button
+                  type="button"
+                  onClick={handleBookMeetingDirect}
+                  className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                >
+                  <Calendar className="w-3.5 h-3.5 text-teal-400" />
+                  <span>Or Schedule a Free 1-on-1 Consultation Call</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
 
 export default InteractiveProjectEstimator;
+
