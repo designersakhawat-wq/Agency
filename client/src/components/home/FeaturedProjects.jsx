@@ -37,14 +37,14 @@ const SafeImage = ({ src, alt, category }) => {
   }, [src, fallback]);
 
   return (
-    <div className="w-full h-full bg-zinc-900 overflow-hidden select-none pointer-events-none relative">
+    <div className="w-full h-full aspect-square bg-zinc-900 overflow-hidden select-none pointer-events-none relative">
       <img
         src={currentSrc}
         alt={alt || 'Creative Work'}
         onError={() => {
           if (currentSrc !== fallback) setCurrentSrc(fallback);
         }}
-        className="w-full h-full object-cover select-none"
+        className="w-full h-full aspect-square object-cover select-none"
         draggable="false"
       />
     </div>
@@ -286,7 +286,7 @@ export const FeaturedProjects = ({ projects = [] }) => {
                   }}
                 >
                   <div
-                    className={`relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px] aspect-[4/5] rounded-[2rem] overflow-hidden bg-zinc-950 border transition-all duration-300 shadow-2xl ${
+                    className={`relative w-[260px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-square rounded-[2rem] overflow-hidden bg-zinc-950 border transition-all duration-300 shadow-2xl ${
                       isCenter
                         ? 'border-teal-400 shadow-2xl shadow-teal-950/80 ring-2 ring-teal-400/30'
                         : 'border-zinc-800 shadow-black hover:border-zinc-700'
