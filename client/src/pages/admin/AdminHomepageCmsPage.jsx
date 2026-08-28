@@ -13,6 +13,14 @@ import {
   TrendingUp,
   MessageSquare,
   HelpCircle,
+  Star,
+  Check,
+  X,
+  Search,
+  Filter,
+  Loader2,
+  FolderKanban,
+  Image as ImageIcon,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { api } from '../../services/api';
@@ -67,9 +75,89 @@ export const AdminHomepageCmsPage = () => {
     final_cta_button_url: '/book-a-meeting',
   });
 
+  const [projects, setProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  const [projectFilter, setProjectFilter] = useState('all'); // 'all' | 'featured' | 'hidden'
+  const [projectCategory, setProjectCategory] = useState('All');
+  const [projectSearch, setProjectSearch] = useState('');
+  const [togglingId, setTogglingId] = useState(null);
+
   useEffect(() => {
     fetchHomepageSettings();
+    fetchProjects();
   }, []);
+
+  const fetchProjects = async () => {
+    setProjectsLoading(true);
+    try {
+      const res = await api.get('/projects/admin/all');
+      if (res.success && Array.isArray(res.data)) {
+        setProjects(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch projects for homepage manager:', err);
+    } finally {
+      setProjectsLoading(false);
+    }
+  };
+
+  const handleToggleFeatured = async (project) => {
+    const newFeatured = !project.featured;
+    setTogglingId(project.id);
+    try {
+      const res = await api.put(`/projects/${project.id}`, { featured: newFeatured });
+      if (res.success) {
+        setProjects((prev) =>
+          prev.map((p) => (p.id === project.id ? { ...p, featured: newFeatured } : p))
+        );
+        success(newFeatured ? `Added "${project.title}" to Homepage 3D Carousel!` : `Removed "${project.title}" from Homepage 3D Carousel.`);
+      } else {
+        error(res.message || 'Failed to update project status.');
+      }
+    } catch (err) {
+      error(err.message || 'Error updating project.');
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const handleBulkToggle = async (shouldFeature) => {
+    const targetProjects = filteredProjectsList;
+    if (targetProjects.length === 0) return;
+    setProjectsLoading(true);
+    try {
+      await Promise.all(
+        targetProjects.map((p) =>
+          api.put(`/projects/${p.id}`, { featured: shouldFeature }).catch(() => null)
+        )
+      );
+      setProjects((prev) => {
+        const targetIds = new Set(targetProjects.map((tp) => tp.id));
+        return prev.map((p) => (targetIds.has(p.id) ? { ...p, featured: shouldFeature } : p));
+      });
+      success(shouldFeature ? `Added ${targetProjects.length} projects to Homepage Carousel!` : `Removed ${targetProjects.length} projects from Homepage Carousel.`);
+    } catch (err) {
+      error('Failed to update projects.');
+    } finally {
+      setProjectsLoading(false);
+    }
+  };
+
+  const filteredProjectsList = projects.filter((p) => {
+    if (projectFilter === 'featured' && !p.featured) return false;
+    if (projectFilter === 'hidden' && p.featured) return false;
+    if (projectCategory !== 'All' && p.category !== projectCategory) return false;
+    if (projectSearch.trim()) {
+      const q = projectSearch.toLowerCase();
+      const matchTitle = (p.title || '').toLowerCase().includes(q);
+      const matchClient = (p.client || '').toLowerCase().includes(q);
+      const matchCat = (p.category || '').toLowerCase().includes(q);
+      return matchTitle || matchClient || matchCat;
+    }
+    return true;
+  });
+
+  const featuredCount = projects.filter((p) => p.featured).length;
 
   const fetchHomepageSettings = async () => {
     try {
@@ -163,6 +251,212 @@ export const AdminHomepageCmsPage = () => {
         >
           {saving ? 'Saving...' : 'Save Homepage Sections'}
         </Button>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 1. DEDICATED HOMEPAGE 3D CAROUSEL FEATURED PROJECTS MANAGER               */}
+      {/* ========================================================================= */}
+      <div className="bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border-2 border-teal-500/40 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+        {/* Ambient Top Glow */}
+        <div className="absolute top-0 right-1/4 w-72 h-32 bg-teal-500/10 blur-3xl pointer-events-none" />
+
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-lg shadow-teal-950/40 shrink-0">
+              <Star className="w-6 h-6 fill-teal-400/30" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-bold font-display text-white">
+                  Homepage 3D Carousel Projects Manager
+                </h2>
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>{featuredCount} Active on 3D Carousel</span>
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 mt-1">
+                Choose exactly which commercial designs and reels appear in the homepage 3D coverflow slider. Click the toggle switch on any project to show or hide instantly.
+              </p>
+            </div>
+          </div>
+
+          {/* Batch Actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleBulkToggle(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-300 text-xs font-bold hover:bg-teal-500 hover:text-zinc-950 transition-all cursor-pointer shadow-md"
+            >
+              ✓ Show All in Filter
+            </button>
+            <button
+              type="button"
+              onClick={() => handleBulkToggle(false)}
+              className="px-3.5 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-bold hover:text-white hover:border-zinc-700 transition-all cursor-pointer"
+            >
+              ✕ Hide All in Filter
+            </button>
+          </div>
+        </div>
+
+        {/* Toolbar: Search & Filters */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-zinc-950/70 p-3 rounded-2xl border border-zinc-800/80">
+          {/* Status Filter Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setProjectFilter('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                projectFilter === 'all'
+                  ? 'bg-teal-500 text-zinc-950 shadow-md'
+                  : 'bg-zinc-900 text-zinc-400 hover:text-white'
+              }`}
+            >
+              All Projects ({projects.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setProjectFilter('featured')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                projectFilter === 'featured'
+                  ? 'bg-emerald-500 text-zinc-950 shadow-md'
+                  : 'bg-zinc-900 text-emerald-400 hover:bg-emerald-500/10'
+              }`}
+            >
+              🟢 Showing on Homepage ({featuredCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setProjectFilter('hidden')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                projectFilter === 'hidden'
+                  ? 'bg-zinc-700 text-white shadow-md'
+                  : 'bg-zinc-900 text-zinc-400 hover:text-white'
+              }`}
+            >
+              ⚪ Hidden ({projects.length - featuredCount})
+            </button>
+          </div>
+
+          {/* Category & Search */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <select
+              value={projectCategory}
+              onChange={(e) => setProjectCategory(e.target.value)}
+              className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium focus:border-teal-500 focus:outline-none"
+            >
+              <option value="All">All Categories</option>
+              <option value="Logo & Branding">Logo & Branding</option>
+              <option value="Ads Creative">Ads Creative</option>
+              <option value="Cover Branding">Cover Branding</option>
+              <option value="E-Commerce">E-Commerce</option>
+              <option value="UGC Video">UGC Video</option>
+            </select>
+
+            <div className="relative flex-1 sm:w-48">
+              <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={projectSearch}
+                onChange={(e) => setProjectSearch(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs placeholder-zinc-500 focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Project Cards Grid */}
+        {projectsLoading ? (
+          <div className="py-12 flex flex-col items-center justify-center gap-3 text-zinc-400">
+            <Loader2 className="w-8 h-8 animate-spin text-teal-400" />
+            <span className="text-xs font-medium">Loading portfolio projects...</span>
+          </div>
+        ) : filteredProjectsList.length === 0 ? (
+          <div className="py-12 text-center text-zinc-400 space-y-2 bg-zinc-950/40 rounded-2xl border border-dashed border-zinc-800">
+            <FolderKanban className="w-8 h-8 mx-auto text-zinc-600" />
+            <p className="text-sm font-medium text-zinc-300">No projects found for current filter.</p>
+            <p className="text-xs text-zinc-500">Try adjusting your search or category selection.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredProjectsList.map((project) => {
+              const isFeatured = Boolean(project.featured);
+              const isBusy = togglingId === project.id;
+
+              return (
+                <div
+                  key={project.id}
+                  className={`rounded-2xl border transition-all duration-300 p-3.5 flex flex-col justify-between space-y-3 ${
+                    isFeatured
+                      ? 'bg-zinc-900/90 border-teal-500/50 shadow-lg shadow-teal-950/30 ring-1 ring-teal-500/20'
+                      : 'bg-zinc-950/60 border-zinc-800/80 hover:border-zinc-700 opacity-75 hover:opacity-100'
+                  }`}
+                >
+                  {/* Thumbnail & Badges */}
+                  <div className="relative aspect-square rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
+                    <img
+                      src={project.coverImage || 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600&auto=format&fit=crop&q=80'}
+                      alt={project.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=600&auto=format&fit=crop&q=80';
+                      }}
+                    />
+                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-bold text-white border border-white/10">
+                      {project.category}
+                    </div>
+
+                    {isFeatured && (
+                      <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-emerald-500 text-zinc-950 text-[10px] font-black shadow-md flex items-center gap-1">
+                        <Star className="w-2.5 h-2.5 fill-zinc-950" />
+                        <span>3D CAROUSEL</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Title & Client Info */}
+                  <div className="space-y-0.5">
+                    <h3 className="text-xs font-bold text-white truncate" title={project.title}>
+                      {project.title}
+                    </h3>
+                    <p className="text-[11px] text-zinc-400 truncate">
+                      {project.client ? `Client: ${project.client}` : 'Personal Project'}
+                    </p>
+                  </div>
+
+                  {/* Big Toggle Switch Button */}
+                  <button
+                    type="button"
+                    disabled={isBusy}
+                    onClick={() => handleToggleFeatured(project)}
+                    className={`w-full py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md ${
+                      isFeatured
+                        ? 'bg-emerald-500 text-zinc-950 hover:bg-emerald-400 shadow-emerald-500/20'
+                        : 'bg-zinc-900 text-zinc-300 hover:text-white border border-zinc-700 hover:border-teal-500/50 hover:bg-teal-500/10'
+                    }`}
+                  >
+                    {isBusy ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : isFeatured ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>Showing on Homepage</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add to 3D Carousel</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSave} className="space-y-8">

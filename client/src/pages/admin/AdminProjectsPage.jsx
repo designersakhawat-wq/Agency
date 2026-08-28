@@ -730,18 +730,19 @@ const DEFAULT_DESIGN_CATEGORIES = [
                       <button
                         type="button"
                         onClick={() => handleToggleFeatured(p)}
-                        className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                        className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                           isFeatured
-                            ? 'bg-amber-500/20 border-amber-500/50 text-amber-400 hover:bg-amber-500/30'
-                            : 'bg-zinc-900 border-zinc-800 text-zinc-600 hover:text-zinc-300'
+                            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/30'
+                            : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300'
                         }`}
                         title={
                           isFeatured
-                            ? '⭐ Featured on Homepage Case Studies. Click to remove.'
-                            : '☆ Click to Feature on Homepage Case Studies.'
+                            ? '⭐ Showing in Homepage 3D Carousel. Click to remove.'
+                            : '☆ Click to show in Homepage 3D Carousel.'
                         }
                       >
-                        <Star className={`w-3.5 h-3.5 ${isFeatured ? 'fill-amber-400 text-amber-400' : 'text-zinc-500'}`} />
+                        <Star className={`w-3.5 h-3.5 ${isFeatured ? 'fill-emerald-400 text-emerald-400' : 'text-zinc-500'}`} />
+                        <span className="text-[10px]">{isFeatured ? '3D Carousel' : 'Hidden'}</span>
                       </button>
                     </div>
 

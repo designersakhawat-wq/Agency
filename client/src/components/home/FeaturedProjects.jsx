@@ -57,10 +57,14 @@ export const FeaturedProjects = ({ projects = [] }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [quickModalProject, setQuickModalProject] = useState(null);
 
-  // Normalize project list
+  // Normalize project list - prioritize explicitly featured projects
   const allProjects = useMemo(() => {
     const list = Array.isArray(projects) && projects.length > 0 ? projects : DEFAULT_PROJECTS;
-    return list.map((p, idx) => ({
+    // Check if there are any explicitly featured projects
+    const explicitFeatured = list.filter((p) => p.featured === true || p.featured === 'true');
+    const displayList = explicitFeatured.length > 0 ? explicitFeatured : list;
+
+    return displayList.map((p, idx) => ({
       ...p,
       id: p.id || `proj-${idx}`,
       title: p.title || 'Creative Showcase',
@@ -295,41 +299,40 @@ export const FeaturedProjects = ({ projects = [] }) => {
                       category={project.category}
                     />
 
-                    {/* Smooth Gradient Overlay */}
+                    {/* Top Clean Floating Badges */}
+                    <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10 pointer-events-none">
+                      <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white text-[11px] font-semibold shadow-md pointer-events-auto">
+                        {project.category}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuickModalProject(project);
+                        }}
+                        aria-label="View 1:1 Image Preview"
+                        className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white flex items-center justify-center shadow-lg hover:scale-110 hover:bg-teal-500 hover:text-zinc-950 transition-all cursor-pointer pointer-events-auto"
+                      >
+                        <Eye className="w-4 h-4 text-teal-300 group-hover:text-zinc-950" />
+                      </button>
+                    </div>
+
+                    {/* Clean Minimal Title Bar on Hover / Active */}
                     <div
-                      className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-5 sm:p-6 ${
-                        isCenter
-                          ? 'bg-gradient-to-t from-black/90 via-black/15 to-transparent opacity-100'
-                          : 'bg-black/40 opacity-0 hover:opacity-100'
+                      className={`absolute bottom-0 inset-x-0 p-3.5 bg-gradient-to-t from-black/75 to-transparent transition-opacity duration-300 ${
+                        isCenter ? 'opacity-90 hover:opacity-100' : 'opacity-0 hover:opacity-100'
                       }`}
                     >
-                      {/* Top Badges */}
-                      <div className="flex items-center justify-between">
-                        <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white text-[11px] font-semibold">
-                          {project.category}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setQuickModalProject(project);
-                          }}
-                          aria-label="View 1:1 Image Preview"
-                          className="w-8 h-8 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-teal-400" />
-                        </button>
-                      </div>
-
-                      {/* Bottom Info */}
-                      <div className="space-y-1">
-                        <span className="text-[11px] text-teal-300 font-medium block">
-                          {project.client} • {project.year}
-                        </span>
-                        <h3 className="text-base sm:text-lg font-bold font-display text-white tracking-tight line-clamp-1 drop-shadow-lg">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-xs sm:text-sm font-bold font-display text-white truncate drop-shadow-md">
                           {project.title}
                         </h3>
+                        {project.client && (
+                          <span className="text-[10px] text-teal-300 font-mono font-semibold shrink-0">
+                            {project.client}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
