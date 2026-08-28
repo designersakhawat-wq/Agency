@@ -18,10 +18,12 @@ build/
 uploads/*
 !uploads/.gitkeep
 
-# Prisma SQLite database lock files
+# Prisma SQLite database files and persistent storage
+*.db
 *.db-journal
 *.db-shm
 *.db-wal
+prisma/dev.db
 persistent_storage/
 
 

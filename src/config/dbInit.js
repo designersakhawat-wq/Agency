@@ -259,7 +259,11 @@ const initDatabaseSchema = async (prisma) => {
 
     console.log('✅ SQLite database schema verified and tables created if missing.');
 
-    // 2. Ensure Administrator Account(s) exist
+    // 2. Safe Auto-Restore: Restore CMS snapshot if and only if database is completely empty
+    const backupService = require('../services/backupService');
+    await backupService.restoreIfEmpty(prisma);
+
+    // 3. Ensure Administrator Account(s) exist
     const adminEmail = (process.env.ADMIN_EMAIL || 'admin@sakhawat.design').toLowerCase().trim();
     const adminPass = process.env.ADMIN_PASSWORD || 'admin123456';
     const adminName = process.env.ADMIN_NAME || 'Md Sakhawat Hossain';
@@ -300,6 +304,8 @@ const initDatabaseSchema = async (prisma) => {
       try {
         const mediaService = require('../services/mediaService');
         await mediaService.scanAndRegisterAllExistingImages();
+        // Capture a fresh snapshot after media scan
+        backupService.triggerDebouncedSnapshot(prisma, 3000);
       } catch (scanErr) {
         console.warn('Media auto-scanner warning:', scanErr.message);
       }

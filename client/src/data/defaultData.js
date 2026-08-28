@@ -36,7 +36,14 @@ export const DEFAULT_SETTINGS = {
     instagram: 'https://instagram.com/designersakhawat',
   },
   service_showcase_config: {
-    aspectRatio: '1:1', // '1:1' | '16:9' | '4:3' | '9:16'
+    aspectRatio: '1:1', // '1:1' | 'fb-cover' | 'linkedin-cover' | '16:9' | '4:3' | '9:16'
+    cover_branding_aspect_ratio: 'fb-cover', // 'fb-cover' | 'linkedin-cover' | '16:9' | '1:1'
+    service_ratios: {
+      'cover-branding': 'fb-cover',
+      'logo-branding': '1:1',
+      'ads-creative': '1:1',
+      'ugc-video': '9:16',
+    },
     defaultViewMode: 'slider', // 'slider' | 'grid'
     autoplay: true,
     autoplayInterval: 4000,

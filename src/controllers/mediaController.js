@@ -179,6 +179,21 @@ const deleteMedia = async (req, res, next) => {
   }
 };
 
+/**
+ * Admin: Optimize single media asset to WebP / SVG
+ * POST /api/admin/media/:id/optimize
+ */
+const optimizeMedia = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { dataUrl, targetFormat, quality } = req.body;
+    const result = await mediaService.optimizeMediaItem(id, { dataUrl, targetFormat, quality });
+    return successResponse(res, result, 'Media asset optimized successfully.');
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   uploadMedia,
   scanExistingMedia,
@@ -186,4 +201,5 @@ module.exports = {
   getAllMediaAdmin,
   updateMedia,
   deleteMedia,
+  optimizeMedia,
 };

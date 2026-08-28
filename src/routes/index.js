@@ -17,6 +17,9 @@ const dashboardRoutes = require('./dashboardRoutes');
 
 const { getHomepageData } = require('../controllers/homepageController');
 
+const backupService = require('../services/backupService');
+const prisma = require('../config/db');
+
 // API Health Check
 router.get('/health', (req, res) => {
   res.json({
@@ -29,6 +32,18 @@ router.get('/health', (req, res) => {
 
 // Consolidated Homepage Bootstrap (1 HTTP request instead of 7)
 router.get('/homepage', getHomepageData);
+
+// Automatic CMS Data Shield: Whenever any data is created/updated/deleted, debounce and snapshot to disk
+router.use((req, res, next) => {
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    res.on('finish', () => {
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        backupService.triggerDebouncedSnapshot(prisma, 1500);
+      }
+    });
+  }
+  next();
+});
 
 // Mount Routes
 router.use('/auth', authRoutes);

@@ -11,7 +11,8 @@ router.post('/scan', requireAuth, requireRole(['ADMIN']), mediaController.scanEx
 router.post('/admin/scan', requireAuth, requireRole(['ADMIN']), mediaController.scanExistingMedia);
 router.get('/all', requireAuth, requireRole(['ADMIN']), mediaController.getAllMediaAdmin);
 router.get('/', requireAuth, requireRole(['ADMIN']), mediaController.getAllMediaAdmin);
-router.get('/:id/usage', requireAuth, requireRole(['ADMIN']), mediaController.getMediaUsage);
+router.post('/:id/optimize', requireAuth, requireRole(['ADMIN']), mediaController.optimizeMedia);
+router.post('/optimize', requireAuth, requireRole(['ADMIN']), mediaController.optimizeMedia);
 router.put('/:id', requireAuth, requireRole(['ADMIN']), mediaController.updateMedia);
 router.delete('/:id', requireAuth, requireRole(['ADMIN']), mediaController.deleteMedia);
 

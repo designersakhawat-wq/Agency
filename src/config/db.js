@@ -2,15 +2,22 @@ const path = require('path');
 const fs = require('fs');
 const { PERSISTENT_DB_FILE } = require('./persistentStorage');
 
-// Ensure DATABASE_URL points to the permanent database across all redeploys
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = `file:${PERSISTENT_DB_FILE}`;
-}
+const currentDbUrl = process.env.DATABASE_URL || '';
+const isRemoteDb = currentDbUrl.startsWith('mysql:') || currentDbUrl.startsWith('postgresql:') || currentDbUrl.startsWith('postgres:');
+const normalizedPath = PERSISTENT_DB_FILE.replace(/\\/g, '/');
+const finalDbUrl = isRemoteDb ? currentDbUrl : `file:${normalizedPath}`;
+
+process.env.DATABASE_URL = finalDbUrl;
 
 let prisma;
 try {
   const { PrismaClient } = require('@prisma/client');
   prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: finalDbUrl,
+      },
+    },
     log: ['error'],
   });
 } catch (e) {

@@ -76,14 +76,18 @@ if (isDbEmpty && fs.existsSync(baselineDb) && fs.statSync(baselineDb).size > 0) 
   }
 }
 
-// Ensure Prisma connects to the permanent database
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = `file:${PERSISTENT_DB_FILE}`;
+// Ensure Prisma connects to the permanent database across development and production
+const currentDbUrl = process.env.DATABASE_URL || '';
+const isRemoteDb = currentDbUrl.startsWith('mysql:') || currentDbUrl.startsWith('postgresql:') || currentDbUrl.startsWith('postgres:');
+
+if (!isRemoteDb) {
+  const normalizedPath = PERSISTENT_DB_FILE.replace(/\\/g, '/');
+  process.env.DATABASE_URL = `file:${normalizedPath}`;
 }
 
 // Copy existing local uploads to persistent uploads if any
 const localUploadsDir = path.resolve(__dirname, '../../uploads');
-if (fs.existsSync(localUploadsDir)) {
+if (fs.existsSync(localUploadsDir) && localUploadsDir !== UPLOADS_DIR) {
   try {
     const files = fs.readdirSync(localUploadsDir);
     for (const file of files) {

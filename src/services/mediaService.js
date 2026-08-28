@@ -505,6 +505,147 @@ class MediaService {
       unlinkedLocations,
     };
   }
+
+  /**
+   * Optimize and convert a single Media asset to WebP/SVG format
+   */
+  async optimizeMediaItem(id, { dataUrl, targetFormat = 'webp', quality = 0.85 }) {
+    const media = await prisma.media.findUnique({ where: { id } });
+    if (!media) {
+      throw new Error('Media asset not found');
+    }
+
+    const { UPLOADS_DIR } = require('../config/persistentStorage');
+    const oldUrl = media.fileUrl;
+    const oldFilename = path.basename(oldUrl.split('?')[0]);
+    const cleanBaseName = media.fileName.replace(/\.[^/.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const ext = targetFormat === 'svg' ? 'svg' : 'webp';
+    const newFileName = `${cleanBaseName}-opt-${Date.now().toString().slice(-6)}.${ext}`;
+    const newFilePath = path.join(UPLOADS_DIR, newFileName);
+    const newFileUrl = `/uploads/${newFileName}`;
+
+    let newFileSize = 0;
+
+    if (dataUrl && typeof dataUrl === 'string' && dataUrl.startsWith('data:')) {
+      const base64Data = dataUrl.replace(/^data:[a-zA-Z0-9/+-]+;base64,/, '');
+      const buffer = Buffer.from(base64Data, 'base64');
+      fs.writeFileSync(newFilePath, buffer);
+      newFileSize = buffer.length;
+    } else {
+      const oldFilePath = path.join(UPLOADS_DIR, oldFilename);
+      if (fs.existsSync(oldFilePath)) {
+        const buffer = fs.readFileSync(oldFilePath);
+        fs.writeFileSync(newFilePath, buffer);
+        newFileSize = buffer.length;
+      } else {
+        newFileSize = media.fileSize || 1024;
+      }
+    }
+
+    // Update Media Database Record
+    const updatedMedia = await prisma.media.update({
+      where: { id },
+      data: {
+        fileName: `${cleanBaseName}.${ext}`,
+        fileUrl: newFileUrl,
+        fileType: ext === 'svg' ? 'image/svg+xml' : 'image/webp',
+        fileSize: newFileSize,
+        source: 'LOCAL',
+      },
+    });
+
+    // Update References across Projects, Testimonials, Brands, Settings, User
+    const updatedReferences = [];
+
+    // 1. Projects
+    try {
+      const projects = await prisma.project.findMany().catch(() => []);
+      for (const p of projects) {
+        let changed = false;
+        let newCover = p.coverImage;
+        let newGallery = p.galleryImages;
+
+        if (p.coverImage && (p.coverImage === oldUrl || (oldFilename && p.coverImage.includes(oldFilename)))) {
+          newCover = newFileUrl;
+          changed = true;
+        }
+
+        if (p.galleryImages && (p.galleryImages.includes(oldUrl) || (oldFilename && p.galleryImages.includes(oldFilename)))) {
+          try {
+            let gArr = typeof p.galleryImages === 'string' ? JSON.parse(p.galleryImages) : p.galleryImages;
+            if (Array.isArray(gArr)) {
+              gArr = gArr.map((img) => (img === oldUrl || (oldFilename && img.includes(oldFilename)) ? newFileUrl : img));
+              newGallery = JSON.stringify(gArr);
+              changed = true;
+            }
+          } catch (e) {}
+        }
+
+        if (changed) {
+          await prisma.project.update({
+            where: { id: p.id },
+            data: { coverImage: newCover, galleryImages: newGallery },
+          }).catch(() => {});
+          updatedReferences.push(`Project: "${p.title}"`);
+        }
+      }
+    } catch (err) {}
+
+    // 2. Testimonials
+    try {
+      const testimonials = await prisma.testimonial.findMany().catch(() => []);
+      for (const t of testimonials) {
+        let tChanged = false;
+        let uData = {};
+        if (t.clientAvatar && (t.clientAvatar === oldUrl || (oldFilename && t.clientAvatar.includes(oldFilename)))) {
+          uData.clientAvatar = newFileUrl;
+          tChanged = true;
+        }
+        if (t.brandLogo && (t.brandLogo === oldUrl || (oldFilename && t.brandLogo.includes(oldFilename)))) {
+          uData.brandLogo = newFileUrl;
+          tChanged = true;
+        }
+        if (tChanged) {
+          await prisma.testimonial.update({ where: { id: t.id }, data: uData }).catch(() => {});
+          updatedReferences.push(`Testimonial: "${t.clientName}"`);
+        }
+      }
+    } catch (err) {}
+
+    // 3. Brands
+    try {
+      const brands = await prisma.clientBrand.findMany().catch(() => []);
+      for (const b of brands) {
+        if (b.logoUrl && (b.logoUrl === oldUrl || (oldFilename && b.logoUrl.includes(oldFilename)))) {
+          await prisma.clientBrand.update({ where: { id: b.id }, data: { logoUrl: newFileUrl } }).catch(() => {});
+          updatedReferences.push(`Brand: "${b.name}"`);
+        }
+      }
+    } catch (err) {}
+
+    // 4. Site Settings
+    try {
+      const settings = await prisma.siteSetting.findMany().catch(() => []);
+      for (const s of settings) {
+        if (s.value && (s.value === oldUrl || (oldFilename && typeof s.value === 'string' && s.value.includes(oldFilename)))) {
+          await prisma.siteSetting.update({ where: { id: s.id }, data: { value: newFileUrl } }).catch(() => {});
+          updatedReferences.push(`Setting: "${s.key}"`);
+        }
+      }
+    } catch (err) {}
+
+    const savedBytes = Math.max(0, (media.fileSize || 0) - newFileSize);
+    const reductionPercent = media.fileSize ? Math.round((savedBytes / media.fileSize) * 100) : 0;
+
+    return {
+      media: updatedMedia,
+      oldSize: media.fileSize || 0,
+      newSize: newFileSize,
+      savedBytes,
+      reductionPercent,
+      updatedReferences,
+    };
+  }
 }
 
 module.exports = new MediaService();

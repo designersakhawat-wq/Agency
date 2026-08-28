@@ -1,0 +1,1062 @@
+{
+  "timestamp": "2026-08-28T16:48:17.063Z",
+  "version": "1.0.0",
+  "data": {
+    "settings": [
+      {
+        "id": "b634eb2b-8d2d-483d-8a56-e6ebf54b201d",
+        "key": "site_title",
+        "value": "Md Sakhawat Hossain — Creative Graphic Designer",
+        "createdAt": "2026-08-26T15:00:45.957Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "2fe293dc-3c16-442c-9fd8-b2342d15ac9c",
+        "key": "site_description",
+        "value": "Professional Creative Graphic Designer with 3+ years experience specializing in Logo & Branding, Ads Creative, E-commerce, UGC Video, and Cover Branding.",
+        "createdAt": "2026-08-26T15:00:45.973Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "10ba2df6-d290-4781-81ea-e8e3b5f4cb63",
+        "key": "designer_name",
+        "value": "Md Sakhawat Hossain",
+        "createdAt": "2026-08-26T15:00:45.996Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "2c9db8a9-1bb7-427b-bafb-d830d14b591a",
+        "key": "designer_title",
+        "value": "Creative Graphic Designer",
+        "createdAt": "2026-08-26T15:00:46.018Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "57b11f4e-4c3f-40fa-9b39-dc9a0b617ae9",
+        "key": "contact_email",
+        "value": "designersakhawat@gmail.com",
+        "createdAt": "2026-08-26T15:00:46.033Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "d1a547a2-579c-4c77-a69a-a6adfb73d7dd",
+        "key": "contact_phone",
+        "value": "01781955355",
+        "createdAt": "2026-08-26T15:00:46.049Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "eecd09d5-4f67-424e-bb29-c50d6902b3e2",
+        "key": "contact_location",
+        "value": "Rajshahi, Bangladesh",
+        "createdAt": "2026-08-26T15:00:46.062Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "6c26a729-4df4-4f2c-bda8-0667d4ae19c9",
+        "key": "years_experience",
+        "value": "3+",
+        "createdAt": "2026-08-26T15:00:46.075Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "a2553206-b103-49f8-b571-b8d8afeebe7b",
+        "key": "availability_status",
+        "value": "Immediately Available for Remote Projects",
+        "createdAt": "2026-08-26T15:00:46.086Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "a95cd8bf-add4-465e-84d1-c4ef0d73eb75",
+        "key": "hero_badge",
+        "value": "Available for Remote Creative Contracts",
+        "createdAt": "2026-08-26T15:00:46.098Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "cb083d93-f039-4e8b-99d3-42675c030b2b",
+        "key": "hero_title",
+        "value": "Creative Graphic Designer Helping Brands Stand Out, Sell Better, and Look Professional.",
+        "createdAt": "2026-08-26T15:00:46.113Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "56ba687f-14c5-4771-ad4d-abd8b643c7ed",
+        "key": "hero_subtitle",
+        "value": "Specializing in high-converting advertising creatives, memorable brand identities, e-commerce product design, and dynamic UGC video content.",
+        "createdAt": "2026-08-26T15:00:46.128Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "079df206-2339-4cce-b422-a5333829b0ab",
+        "key": "social_links",
+        "value": "{\"linkedin\":\"https://www.linkedin.com/in/designersakhawat/\",\"behance\":\"https://www.behance.net/sakhawatdesigner\",\"website\":\"https://designersakhawat.com/\",\"facebook\":\"https://facebook.com/designersakhawat\",\"instagram\":\"https://instagram.com/designersakhawat\"}",
+        "createdAt": "2026-08-26T15:00:46.144Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "a298364f-442b-4b35-909f-a9fb501dda3d",
+        "key": "education",
+        "value": "{\"degree\":\"Diploma in Computer Engineering / Computer Science\",\"institution\":\"Rajshahi Polytechnic Institute\",\"passingYear\":\"2020\",\"cgpa\":\"3.32\"}",
+        "createdAt": "2026-08-26T15:00:46.157Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "e5e5e019-3479-48e1-bdd9-6cc00dda7e5a",
+        "key": "hero_years_exp",
+        "value": "4+",
+        "createdAt": "2026-08-26T16:14:31.574Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "e6032fa5-b340-4561-86fc-544cb0df4e4a",
+        "key": "hero_projects_count",
+        "value": "140+",
+        "createdAt": "2026-08-26T16:14:31.574Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "b82120f3-e6cc-4573-adde-03244318088d",
+        "key": "hero_client_satisfaction",
+        "value": "99.4%",
+        "createdAt": "2026-08-26T16:14:31.574Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "2f9e416c-2a95-4097-a07d-56d43bb2926e",
+        "key": "bio_summary",
+        "value": "",
+        "createdAt": "2026-08-26T16:14:31.574Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "e47c47cf-a5ac-498d-82a3-6194263e4f54",
+        "key": "currency_code",
+        "value": "BDT",
+        "createdAt": "2026-08-26T16:32:09.962Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "0bd31f48-4503-49ba-bbd6-b5b0f50bff4e",
+        "key": "currency_symbol",
+        "value": "৳",
+        "createdAt": "2026-08-26T16:32:09.962Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "1fa14bc6-e272-4d9b-8a2c-d1a044c51cc6",
+        "key": "currency_mode",
+        "value": "DIRECT",
+        "createdAt": "2026-08-26T16:32:09.962Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "27be572a-54a5-4822-bcfd-7b52075a4622",
+        "key": "usd_to_bdt_rate",
+        "value": "120",
+        "createdAt": "2026-08-26T16:32:09.962Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "4176b51c-284b-4a4c-84ed-89d10570d238",
+        "key": "estimator_config",
+        "value": "{\"badge\":\"Interactive Cost & ROI Calculator\",\"title\":\"Calculate Your Custom Project & ROI in 60s\",\"subtitle\":\"Select your requirements below to see an instant transparent price quote and lock in an exclusive 15% discount voucher.\",\"discount_percent\":15,\"roi_multiplier_min\":3.2,\"roi_multiplier_max\":5.5,\"turnaround_standard_label\":\"Standard (3–5 Days)\",\"turnaround_standard_sub\":\"Regular schedule\",\"turnaround_rush_label\":\"Express Rush (24–48 Hours)\",\"turnaround_rush_sub\":\"+35% priority surge\",\"turnaround_rush_multiplier\":1.5,\"cta_button_text\":\"Lock In This Project Quote\",\"guarantee_text\":\"Includes free consultation call & revision rights\",\"services\":[{\"id\":\"ads\",\"name\":\"Social Media & Ad Creatives\",\"basePrice\":350,\"unitLabel\":\"Creatives\",\"min\":3,\"max\":60,\"icon\":\"🎯\"},{\"id\":\"branding\",\"name\":\"Logo & Brand Identity\",\"basePrice\":2500,\"unitLabel\":\"Brand Assets / Variations\",\"min\":1,\"max\":5,\"icon\":\"🎨\"},{\"id\":\"packaging\",\"name\":\"Product Packaging & 3D Mockup\",\"basePrice\":2500,\"unitLabel\":\"Packaging SKUs\",\"min\":1,\"max\":50,\"icon\":\"📦\"},{\"id\":\"banner\",\"name\":\"High-Impact Banner & Hero Web Ads\",\"basePrice\":3000,\"unitLabel\":\"Banner Sizes\",\"min\":1,\"max\":60,\"icon\":\"🚀\"}],\"addons\":[{\"id\":\"source_files\",\"name\":\"Editable Source Files (PSD/AI/Figma)\",\"price\":500},{\"id\":\"fast_revisions\",\"name\":\"Unlimited Priority Revisions (2-Day)\",\"price\":500},{\"id\":\"animated_motion\",\"name\":\"Animated Video / Motion Version  File \",\"price\":500}]}",
+        "createdAt": "2026-08-26T16:41:48.231Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "41290a49-e026-4965-add2-170ae58aacd6",
+        "key": "site_logo",
+        "value": "/uploads/logo-png-01-01-1787763443240-155837371.png",
+        "createdAt": "2026-08-26T16:57:27.908Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "55069c5b-945f-4d2f-8882-8486c3eab73c",
+        "key": "site_favicon",
+        "value": "/uploads/main-logo-file-04-1787763904733-796883327.png",
+        "createdAt": "2026-08-26T16:57:27.908Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "5162222a-a607-4a61-90ba-e7cf70366ca5",
+        "key": "theme_preset",
+        "value": "custom",
+        "createdAt": "2026-08-26T16:57:27.908Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "527c7bd8-e9a4-4663-9493-0801156c1ddc",
+        "key": "brand_primary_color",
+        "value": "#c9f31b",
+        "createdAt": "2026-08-26T16:57:27.908Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "78185fdb-09c0-4f1e-a818-c6d98279e258",
+        "key": "brand_secondary_color",
+        "value": "#e0fe71",
+        "createdAt": "2026-08-26T16:57:27.908Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "caed0676-5d0e-4325-aad5-f4a3d3cc20b5",
+        "key": "brand_button_text_mode",
+        "value": "auto",
+        "createdAt": "2026-08-26T18:17:47.930Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "18635a0e-4e2f-43d6-aa77-096487b23e8d",
+        "key": "hero_title_highlight",
+        "value": "Stand Out & Sell Better.",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "0699849e-4982-423c-b0d0-ab7786e866f1",
+        "key": "hero_primary_btn_text",
+        "value": "Explore My Portfolio",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "55ed2bd2-feac-4300-9252-00e97480a065",
+        "key": "hero_primary_btn_link",
+        "value": "/portfolio",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "8ec268c7-7c1e-4081-8306-1aab32b30581",
+        "key": "hero_secondary_btn_text",
+        "value": "Book Discovery Call",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "e5b513b5-ad09-4620-b268-ce17a08e15bf",
+        "key": "hero_trust_badge_1",
+        "value": "3+ Years Experience",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "26379700-7b66-4a4c-8dc7-e5d08a80da87",
+        "key": "hero_trust_badge_2",
+        "value": "Global Clients (USA, Dubai, BD)",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "8c24e218-2f01-4929-b5b2-d0d4dc9d8c03",
+        "key": "hero_show_image",
+        "value": "true",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "9ee80ce5-9de4-4335-9aa0-8b700bd01ef9",
+        "key": "hero_image",
+        "value": "/uploads/chatgpt-image-aug-2--2026--10-56-34-pm-1787768328056-874988426.png",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "fea48e86-fa8e-4c8b-ab70-4b84fd7c3b62",
+        "key": "hero_core_speciality",
+        "value": "Branding • Ad Creatives • UI",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "bb80834b-ba9a-4c95-9c7e-52ca7251b7b9",
+        "key": "hero_designer_name",
+        "value": "Md Sakhawat Hossain",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "8ad3fbbb-af80-4a21-91bd-20e8bd107423",
+        "key": "hero_designer_title",
+        "value": "Creative Graphic Designer",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "83a0c199-db1d-4a7c-beda-bae6340673d0",
+        "key": "hero_designer_status",
+        "value": "Open to Work",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "9939d78d-2031-4b9f-8c60-a5be01ed24d4",
+        "key": "hero_floating_top_val",
+        "value": "150+ Creatives",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "ea7603f8-3aad-4640-9e13-c2915da32447",
+        "key": "hero_floating_top_sub",
+        "value": "High ROI Campaigns",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "348ab0ff-dec5-41cd-a212-728a2a48b075",
+        "key": "hero_floating_bottom_val",
+        "value": "5.0 Star Rating",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "0f43bf9d-f4cf-41ed-8bf3-6b5bf20fcad5",
+        "key": "hero_floating_bottom_sub",
+        "value": "100% Client Praise",
+        "createdAt": "2026-08-26T18:18:52.331Z",
+        "updatedAt": "2026-08-26T18:18:52.331Z"
+      },
+      {
+        "id": "ddba8c75-6481-4ee6-bdfe-cbd1bccd8bc1",
+        "key": "assistant_name",
+        "value": "Sakhawat Design Assistant",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "82f4bb32-7424-45c4-bc31-847f04c705eb",
+        "key": "assistant_status_text",
+        "value": "Online • Typically replies in seconds",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "86b60140-f410-49b0-87fe-9044c1e1a11b",
+        "key": "assistant_status_text_bn",
+        "value": "অনলাইনে আছেন • কয়েক সেকেন্ডে উত্তর পাবেন",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "a4f0900c-5df1-4751-9ac9-47f141309da2",
+        "key": "assistant_welcome_msg",
+        "value": "Hi there! 👋 I'm Sakhawat's Creative Assistant. How can we help you upgrade your brand or boost sales today?",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "77501200-825e-4cf2-a9e4-34ed005e25f9",
+        "key": "assistant_welcome_msg_bn",
+        "value": "হ্যালো! 👋 আমি সাখাওয়াতের এআই ক্রিয়েটিভ অ্যাসিস্ট্যান্ট। আপনার ব্র্যান্ডিং বা বিজ্ঞাপন ডিজাইনে কীভাবে সাহায্য করতে পারি?",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "e263f0a2-3f7b-46a8-a1de-eb34db8672c1",
+        "key": "assistant_fallback_msg",
+        "value": "Thank you for reaching out! Sakhawat is available for remote creative contracts. Click below to book a quick call or request an instant project proposal!",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "79b5d61d-e7d1-428f-89ce-d1d7abf4c2d5",
+        "key": "assistant_fallback_msg_bn",
+        "value": "যোগাযোগের জন্য ধন্যবাদ! সাখাওয়াত বর্তমানে নতুন প্রজেক্টের জন্য প্রস্তুত আছেন। নিচের অপশনে ক্লিক করে সরাসরি ফ্রি মিটিং বুক করতে পারেন অথবা প্রজেক্টের বিস্তারিত জানাতে পারেন!",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "f50735af-2a92-4611-ad70-645659d86042",
+        "key": "assistant_auto_prompt_sec",
+        "value": "4",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "6231bba5-b667-4eab-8021-45c9c966599a",
+        "key": "assistant_raw_knowledge",
+        "value": "About Md Sakhawat Hossain:\nExperienced Creative Director & Brand Identity Specialist with 5+ years of experience helping 120+ international e-commerce, tech, and corporate clients scale their revenue.\n\nSkills & Tools:\nProficient in Figma, Adobe Illustrator, Adobe Photoshop, After Effects, CapCut Pro, Blender 3D, and AI-powered workflow automation.\n\nPayment & Billing Policies:\n- 50% advance upfront before project kick-off, remaining 50% upon final delivery.\n- Accepted Payment Methods: bKash (Personal/Merchant), Nagad, Rocket, Bank Transfer (Bangladesh), Payoneer, Wise, Stripe, and Crypto (USDT).\n\nTurnaround Time & Revision Policy:\n- Express Ad Creatives: 24–48 hours turnaround.\n- Brand Identity & UI/UX Design: 5–7 business days.\n- Unlimited revisions within the project scope until 100% client satisfaction.\n\nWorking Hours & Location:\nBased in Dhaka, Bangladesh (Timezone GMT+6). Available for remote global contracts across USA, UK, Canada, Dubai (UAE), Europe, and Australia.\n\nPayment Method: \nBank Name : Dutch Bangla Rajshahi Branch\nAccount Number : 1351050117225\nName: Md Sakhawat Hossain\nBikash, Nogod, Rocket, Upay: 01747360581",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "7b03f0af-c6cb-4aaa-8830-62ce99e10644",
+        "key": "assistant_custom_cards",
+        "value": "[{\"id\":\"card_1787768380827\",\"title\":\"📌 New Knowledge Topic / Data (নতুন টপিক)\",\"category\":\"Custom Notes\",\"keywords\":\"keywords, কিওয়ার্ড, শব্দ\",\"content\":\"Write your detailed notes, background, or facts in English here.\",\"content_bn\":\"আপনার প্রয়োজনীয় যেকোনো তথ্য, নিয়মাবলী বা উত্তর এখানে বাংলায় লিখুন।\"},{\"id\":\"card_1\",\"title\":\"👤 About Sakhawat & Experience (সাখাওয়াত সম্পর্কিত তথ্য)\",\"category\":\"Bio & Background\",\"keywords\":\"about, bio, experience, who is, sakhawat, profile, ব্যাকগ্রাউন্ড, অভিজ্ঞতা, পরিচয়, কে, সাখাওয়াত কে\",\"content\":\"Md Sakhawat Hossain is a Senior Creative Director & Brand Identity Designer with 5+ years of experience delivering high-converting ad creatives and branding for 120+ global brands.\",\"content_bn\":\"মোঃ সাখাওয়াত হোসেন একজন সিনিয়র ক্রিয়েটিভ ডিরেক্টর এবং ব্র্যান্ড আইডেন্টিটি ডিজাইনার। তিনি বিগত ৫+ বছর ধরে ১২০+ গ্লোবাল ব্র্যান্ড ও ই-কমার্সের জন্য হাই-কনভার্টিং বিজ্ঞাপন এবং ব্র্যান্ড আইডেন্টিটি ডিজাইন করে আসছেন।\"},{\"id\":\"card_2\",\"title\":\"💳 Payment Methods & Advance (পেমেন্ট পদ্ধতি ও শর্ত)\",\"category\":\"Pricing & Billing\",\"keywords\":\"payment, bkash, nagad, rocket, bank, payoneer, wise, advance, taka, বিকাশ, নগদ, পেমেন্ট, টাকা দিবো কিভাবে, এডভান্স\",\"content\":\"We accept bKash, Nagad, Bank Transfer (BD), Wise, Payoneer, and Crypto (USDT). Typically 50% advance is required to secure the project slot, and 50% after final approval.\",\"content_bn\":\"পেমেন্ট মাধ্যম: বিকাশ (bKash), নগদ (Nagad), ব্যাংক ট্রান্সফার, Payoneer, Wise এবং ক্রিপ্টো (USDT)। প্রজেক্ট শুরুর আগে ৫০% অগ্রিম এবং কাজ সম্পন্ন হওয়ার পর বাকি ৫০% পরিশোধ করতে হয়।\"},{\"id\":\"card_3\",\"title\":\"🛠️ Software & Design Tools (ব্যবহৃত সফটওয়্যার ও টুলস)\",\"category\":\"Workflow & Tools\",\"keywords\":\"software, tools, figma, illustrator, photoshop, after effects, capcut, সফটওয়্যার, টুলস, কি দিয়ে কাজ করেন\",\"content\":\"Sakhawat uses industry-standard professional tools including Figma, Adobe Illustrator, Adobe Photoshop, After Effects, and Blender 3D for premium creative assets.\",\"content_bn\":\"সাখাওয়াত প্রফেশনাল ডিজাইন টুলস যেমন: Figma, Adobe Illustrator, Photoshop, After Effects এবং Blender 3D ব্যবহার করে প্রিমিয়াম কোয়ালিটি ডিজাইন তৈরি করেন।\"},{\"id\":\"card_4\",\"title\":\"⏱️ Delivery Time & Rush Orders (ডেলিভারি সময় ও এক্সপ্রেস সার্ভিস)\",\"category\":\"Delivery & Revisions\",\"keywords\":\"delivery, time, how long, rush, fast, urgent, kobe pabo, সময়, কতদিন, ডেলিভারি, দ্রুত\",\"content\":\"Social media ad creatives are delivered within 24–48 hours (Rush 24h delivery available). Full brand identities and UI/UX projects take 5–7 business days.\",\"content_bn\":\"সোশ্যাল মিডিয়া ও বিজ্ঞাপনের কাজ ২৪-৪৮ ঘণ্টার মধ্যে ডেলিভারি দেওয়া হয় (জরুরি ২৪ ঘণ্টার এক্সপ্রেস সুবিধা রয়েছে)। ফুল ব্র্যান্ড আইডেন্টিটি ও ইউআই/ইউএক্স প্রজেক্টে ৫-৭ দিন সময় লাগে।\"},{\"id\":\"card_5\",\"title\":\"🔄 Revision Policy (রিভিশন ও সন্তুষ্টি গ্যারান্টি)\",\"category\":\"Policies\",\"keywords\":\"revision, changes, edit, refund, guarantee, রিভিশন, পরিবর্তন, ঠিক করে দিবেন, এডিট\",\"content\":\"We offer unlimited revisions within the project scope until you are 100% happy with the final creative direction.\",\"content_bn\":\"আপনার ১০০% সন্তুষ্টি নিশ্চিত করতে প্রজেক্ট স্কোপের ভেতর আনলিমিটেড রিভিশন সুবিধা প্রদান করা হয়।\"}]",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "bf9a0562-a5a2-4873-9f15-80a485d606c1",
+        "key": "assistant_knowledge",
+        "value": "[{\"id\":\"rule_1\",\"topic\":\"Urgent Ad Creatives\",\"keywords\":\"urgent, ad, ads, creative, creatives, meta, facebook, instagram, tiktok, 24h, rush, fast, ফেসবুক, অ্যাড, বিজ্ঞাপন, এড, এডস, ad lagbe, urgent ad\",\"response\":\"Awesome! Sakhawat specializes in scroll-stopping ad creatives (Meta, TikTok, Google) with 24–48h express turnaround. Average client CTR increases by 3x. Would you like to lock in a custom quote or jump on a quick call?\",\"response_bn\":\"অবশ্যই! সাখাওয়াত ফেসবুক, ইনস্টাগ্রাম ও গুগলের জন্য হাই-কনভার্টিং বিজ্ঞাপন ডিজাইন করেন (২৪-৪৮ ঘণ্টার এক্সপ্রেস ডেলিভারি)। আপনার কি জরুরি বিজ্ঞাপন দরকার নাকি কাস্টম কোটেশন চান?\",\"action\":\"open_booking\"},{\"id\":\"rule_2\",\"topic\":\"Brand Identity & Logo\",\"keywords\":\"brand, branding, logo, identity, visual, typography, colors, guideline, brand kit, লোগো, ব্র্যান্ডিং, ব্রান্ড, লগো, logo banabo, logo lagbe\",\"response\":\"Great choice! Our Brand Identity suite includes custom logo marks, typography pairings, color palettes, vector assets, and full Figma guidelines. Delivered in 5–7 days with unlimited revisions.\",\"response_bn\":\"দারুণ! আমাদের ব্র্যান্ড আইডেন্টিটি প্যাকেজে পাচ্ছেন কাস্টম লোগো, টাইপোগ্রাফি, কালার প্যালেট, ভেক্টর সোর্স ফাইল এবং ফুল ফিগমা গাইডলাইন (আনলিমিটেড রিভিশনসহ ৫-৭ দিনে ডেলিভারি)।\",\"action\":\"none\"},{\"id\":\"rule_3\",\"topic\":\"Pricing, Rates & Turnaround\",\"keywords\":\"rate, rates, price, prices, cost, pricing, how much, fee, package, budget, দাম, প্রাইস, খরচ, টাকা, কতো, কত, dam koto, khoroch koto, price koto\",\"response\":\"Projects start from $45 for ad creatives and $280 for full brand kits. We currently have a special 15% discount voucher available for first-time clients!\",\"response_bn\":\"বিজ্ঞাপন ডিজাইন প্যাকেজ শুরু $৪৫ (প্রায় ৫,০০০ টাকা) থেকে এবং সম্পূর্ণ ব্র্যান্ড আইডেন্টিটি $২৮০ থেকে। প্রথম অর্ডারে পাচ্ছেন স্পেশাল ১৫% ছাড় ভাউচার!\",\"action\":\"open_booking\"},{\"id\":\"rule_4\",\"topic\":\"Booking & Meetings\",\"keywords\":\"call, meet, meeting, book, schedule, appointment, consult, talk, strategy, কথা, মিটিং, কল, বুক, কন্টাক্ট, kotha bolbo, meeting korbo, call koro\",\"response\":\"Let's get on a call! You can choose any convenient slot directly in our calendar for a free 15-minute creative roadmap.\",\"response_bn\":\"চলুন একটি মিটিংয়ে কথা বলি! আমাদের ক্যালেন্ডার থেকে আপনার সুবিধাজনক সময়ে সরাসরি ১৫ মিনিটের একটি ফ্রি স্ট্র্যাটেজি মিটিং শিডিউল করে নিন।\",\"action\":\"open_booking\"}]",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      },
+      {
+        "id": "0658e3f8-b0b7-4ba2-af4e-6fbc5a7a0607",
+        "key": "assistant_quick_actions",
+        "value": "[{\"id\":\"qa_1\",\"label\":\"⚡ Urgent Ads (জরুরি অ্যাড)\",\"query\":\"I need urgent high-converting social media ad creatives.\",\"query_bn\":\"আমার ফেসবুক ও সোশ্যাল মিডিয়ার জন্য জরুরি হাই-কনভার্টিং অ্যাড ডিজাইন লাগবে।\"},{\"id\":\"qa_2\",\"label\":\"🎨 Brand & Logo (লোগো/ব্র্যান্ডিং)\",\"query\":\"I need a full brand identity, logo, and design system.\",\"query_bn\":\"আমার ব্র্যান্ডের জন্য নতুন লোগো এবং ফুল ব্র্যান্ড আইডেন্টিটি ডিজাইন করাতে চাই।\"},{\"id\":\"qa_3\",\"label\":\"💰 Pricing & Rates (খরচ ও দাম)\",\"query\":\"What are your rates and typical delivery timelines?\",\"query_bn\":\"আপনাদের কাজের প্রাইস রেট এবং ডেলিভারি টাইম কত?\"},{\"id\":\"qa_4\",\"label\":\"📅 Book Meeting (মিটিং বুকিং)\",\"query\":\"I want to schedule a 15-minute discovery meeting.\",\"query_bn\":\"আমি প্রজেক্ট নিয়ে কথা বলতে ১৫ মিনিটের একটি ডিসকভারি মিটিং বুক করতে চাই।\"}]",
+        "createdAt": "2026-08-26T18:19:56.132Z",
+        "updatedAt": "2026-08-26T18:20:21.703Z"
+      }
+    ],
+    "projects": [
+      {
+        "id": "dbe68ddd-2e7d-4967-923c-690f20c2a24f",
+        "title": "ORA Organic — Sales-Driven E-Commerce Product & Ads Campaign",
+        "slug": "ora-organic-ecommerce-ads",
+        "category": "Ads Creative",
+        "client": "ORA Organic (Dubai)",
+        "year": "2024",
+        "summary": "High-converting social media advertising creatives and website product image designs for a premium wellness brand in Dubai.",
+        "description": "Crafted a cohesive visual advertising campaign for ORA Organic, focusing on clean ingredient transparency, lifestyle product framing, and high-impact Meta carousel ads that drove a 42% increase in sales conversions.",
+        "coverImage": "/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg",
+        "galleryImages": "[\"https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1000&auto=format&fit=crop&q=80\",\"https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1000&auto=format&fit=crop&q=80\"]",
+        "liveUrl": "",
+        "githubUrl": "",
+        "figmaUrl": "",
+        "behanceUrl": "",
+        "dribbbleUrl": "",
+        "featured": true,
+        "order": 1,
+        "tags": "[\"Photoshop\",\"Illustrator\",\"Ads Creative\",\"E-Commerce\",\"Product Framing\"]",
+        "challenges": "High ad fatigue and rising customer acquisition costs on Meta channels.",
+        "solutions": "Engineered contrast-rich product benefit carousels with punchy typography hooks and clear value callouts.",
+        "results": "+42% conversion rate increase and lower cost-per-purchase across Instagram ad placements.",
+        "goal": null,
+        "solution": null,
+        "tools": null,
+        "seoTitle": null,
+        "seoDescription": null,
+        "altText": null,
+        "serviceId": null,
+        "serviceSlug": null,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.447Z",
+        "updatedAt": "2026-08-26T17:49:09.773Z"
+      },
+      {
+        "id": "3025d2a4-6786-4293-9401-43aabdbe84d2",
+        "title": "e-Learn IT Institute — Brand Identity & Digital Promotional Suite",
+        "slug": "elearn-it-institute-branding",
+        "category": "Logo & Branding",
+        "client": "e-Learn IT Institute",
+        "year": "2024",
+        "summary": "Complete brand identity refresh, social media marketing templates, and promotional banners for an IT educational institute.",
+        "description": "Led the visual rebranding for e-Learn IT Institute, delivering an authoritative tech-focused logo mark, consistent course enrollment banners, and structured promotional materials used across digital campaigns.",
+        "coverImage": "/uploads/edtech-social-media-post-design--9--1787766737628-820411568.jpg",
+        "galleryImages": "[\"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1000&auto=format&fit=crop&q=80\"]",
+        "liveUrl": "",
+        "githubUrl": "",
+        "figmaUrl": "",
+        "behanceUrl": "",
+        "dribbbleUrl": "",
+        "featured": true,
+        "order": 2,
+        "tags": "[\"Branding\",\"Logo Design\",\"Illustrator\",\"Marketing Creatives\",\"Education\"]",
+        "challenges": "Inconsistent branding across different course marketing channels.",
+        "solutions": "Created a unified brand guidelines system with flexible banner templates for rapid course promotions.",
+        "results": "Boosted brand recall and unified all digital assets across 12+ tech courses.",
+        "goal": null,
+        "solution": null,
+        "tools": null,
+        "seoTitle": null,
+        "seoDescription": null,
+        "altText": null,
+        "serviceId": null,
+        "serviceSlug": null,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.457Z",
+        "updatedAt": "2026-08-26T17:52:22.334Z"
+      },
+      {
+        "id": "312deb7b-9950-47a6-a0c1-1721a34d12b1",
+        "title": "Kenakata Shop — Gadget & Lifestyle E-Commerce Creative Suite",
+        "slug": "kenakata-shop-gadget-design",
+        "category": "E-commerce",
+        "client": "Kenakata Shop",
+        "year": "2023",
+        "summary": "Modern lifestyle product presentations and promotional feed creatives for a consumer electronics store.",
+        "description": "Designed high-definition e-commerce product badges, lifestyle feature breakdown graphics, and promotional event banners that highlighted gadget specs in an easily digestible visual format.",
+        "coverImage": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&auto=format&fit=crop&q=80",
+        "galleryImages": "[\"https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1000&auto=format&fit=crop&q=80\"]",
+        "liveUrl": null,
+        "githubUrl": null,
+        "figmaUrl": null,
+        "behanceUrl": null,
+        "dribbbleUrl": null,
+        "featured": true,
+        "order": 3,
+        "tags": "[\"E-commerce\",\"Photoshop\",\"Gadget Design\",\"Lifestyle Visuals\",\"Retouching\"]",
+        "challenges": "Complex tech specifications were confusing customers on product pages.",
+        "solutions": "Transformed spec sheets into visual infographics and high-converting product thumbnails.",
+        "results": "Increased average time on page and boosted checkout conversions on featured gadget lines.",
+        "goal": null,
+        "solution": null,
+        "tools": null,
+        "seoTitle": null,
+        "seoDescription": null,
+        "altText": null,
+        "serviceId": null,
+        "serviceSlug": null,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.467Z",
+        "updatedAt": "2026-08-26T15:00:46.467Z"
+      },
+      {
+        "id": "62d57c47-381b-4e51-ad9a-3ca83b1a9db7",
+        "title": "Advanced Digital Automotive — AI Video & High-Impact Social Creatives",
+        "slug": "advanced-digital-automotive-video",
+        "category": "UGC Video",
+        "client": "Advanced Digital Automotive (USA)",
+        "year": "2023",
+        "summary": "AI-assisted video editing, YouTube thumbnails, and automotive promotional branding for a US automotive client.",
+        "description": "Produced energetic short-form video edits and eye-catching YouTube thumbnail packaging that significantly enhanced click-through rates across video marketing channels.",
+        "coverImage": "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1200&auto=format&fit=crop&q=80",
+        "galleryImages": "[\"https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1000&auto=format&fit=crop&q=80\"]",
+        "liveUrl": null,
+        "githubUrl": null,
+        "figmaUrl": null,
+        "behanceUrl": null,
+        "dribbbleUrl": null,
+        "featured": true,
+        "order": 4,
+        "tags": "[\"UGC Video\",\"Premiere Pro\",\"After Effects\",\"AI Video\",\"Thumbnails\"]",
+        "challenges": "Low retention and weak CTR on video ad campaigns.",
+        "solutions": "Implemented high-contrast thumbnail compositions and dynamic 3-second hook pacing.",
+        "results": "Achieved 2.8x higher CTR on YouTube video series and improved social ad engagement.",
+        "goal": null,
+        "solution": null,
+        "tools": null,
+        "seoTitle": null,
+        "seoDescription": null,
+        "altText": null,
+        "serviceId": null,
+        "serviceSlug": null,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.477Z",
+        "updatedAt": "2026-08-26T15:00:46.477Z"
+      },
+      {
+        "id": "c625f31a-a3e7-4ea9-ade2-bfa0602c428a",
+        "title": "Optiva Max — Multi-Platform Cover Branding & Marketing Kit",
+        "slug": "optiva-max-cover-branding",
+        "category": "Cover Branding",
+        "client": "Optiva Max (Dubai)",
+        "year": "2024",
+        "summary": "Corporate digital header suite, LinkedIn banners, and promotional advertising collateral for a tech company in Dubai.",
+        "description": "Developed an executive cover branding kit across LinkedIn, Facebook, and storefront channels that cemented brand trust and established an authoritative digital presence.",
+        "coverImage": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80",
+        "galleryImages": "[\"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1000&auto=format&fit=crop&q=80\"]",
+        "liveUrl": null,
+        "githubUrl": null,
+        "figmaUrl": null,
+        "behanceUrl": null,
+        "dribbbleUrl": null,
+        "featured": false,
+        "order": 5,
+        "tags": "[\"Cover Branding\",\"Banner Design\",\"Photoshop\",\"LinkedIn Branding\",\"B2B\"]",
+        "challenges": "Outdated header banners did not reflect the modern capabilities of the company.",
+        "solutions": "Designed sleek, typography-forward banners optimized for both desktop and mobile viewports.",
+        "results": "Unified digital branding across executive and corporate profiles.",
+        "goal": null,
+        "solution": null,
+        "tools": null,
+        "seoTitle": null,
+        "seoDescription": null,
+        "altText": null,
+        "serviceId": null,
+        "serviceSlug": null,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.492Z",
+        "updatedAt": "2026-08-26T15:00:46.492Z"
+      }
+    ],
+    "services": [
+      {
+        "id": "447818e4-9155-475a-a2ea-58ddf7c801ec",
+        "title": "Logo & Branding",
+        "slug": "logo-branding",
+        "tagline": "Distinctive visual identities that command trust and recognition",
+        "description": "End-to-end brand identity systems including primary and secondary logos, comprehensive brand style guidelines, color palettes, typography pairings, and ready-to-use vector assets tailored for your industry.",
+        "icon": "Palette",
+        "features": "[\"Original Vector Logo Design (AI, EPS, SVG, PNG)\",\"Comprehensive Brand Style Guide & Usage Rules\",\"Curated Color Hierarchy & Typography System\",\"Social Media Profile & Banner Brand Pack\",\"Favicon & Brand Icon Assets\",\"Full Commercial Rights & Ownership Transfer\"]",
+        "deliverables": "[\"Master Vector Source Files (.AI, .EPS)\",\"Print-Ready & Web-Optimized Asset Exports\",\"Full Color, Monochrome & Inverted Logo Variations\",\"Digital Brand Guidelines PDF Document\"]",
+        "order": 1,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.174Z",
+        "updatedAt": "2026-08-26T15:00:46.174Z"
+      },
+      {
+        "id": "f01333a0-a23c-46c7-ae4f-a29b5a217f3a",
+        "title": "Ads Creative",
+        "slug": "ads-creative",
+        "tagline": "High-converting social advertising designs engineered for sales",
+        "description": "Strategic promotional creatives for Meta (Facebook & Instagram), TikTok, and Google Ads. Designed with psychological triggers, compelling hooks, and clear calls-to-action to lower CPA and maximize ROAS.",
+        "icon": "Megaphone",
+        "features": "[\"Sales-Driven Static Ad Banners & Carousels\",\"Meta (1:1 Feed & 9:16 Story/Reels) Formats\",\"A/B Testing Creative Variations (Hooks & Layouts)\",\"Engaging Typography & High-Impact Copy Layout\",\"Product Cutouts & Professional Retouching\",\"Optimized for High Click-Through Rates (CTR)\"]",
+        "deliverables": "[\"High-Resolution Ad Creatives (1080x1080, 1080x1920)\",\"Editable Source Files (.PSD / Figma)\",\"Platform-Compliant Formats with zero text penalty\"]",
+        "order": 2,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.237Z",
+        "updatedAt": "2026-08-26T15:00:46.237Z"
+      },
+      {
+        "id": "ce77b10f-43b8-4878-929b-7479398c6033",
+        "title": "UGC Video",
+        "slug": "ugc-video",
+        "tagline": "Authentic short-form video content designed for TikTok & Reels",
+        "description": "Dynamic user-generated content (UGC) and short-form video editing for TikTok, Instagram Reels, and YouTube Shorts. Crafted with fast pacing, captivating captions, motion graphics, and sound design to hook viewers in the first 3 seconds.",
+        "icon": "Video",
+        "features": "[\"Scroll-Stopping 3-Second Visual Hooks\",\"Engaging Animated Captions & Subtitles\",\"Sound Effects, Voiceover Sync & Audio Leveling\",\"B-Roll Stitching & Dynamic Transitions\",\"AI-Assisted Video Enhancement & Color Grading\",\"Format Optimization for TikTok, Reels & Shorts (9:16)\"]",
+        "deliverables": "[\"Full HD 1080x1920 MP4 Video Files\",\"Vertical Formats Optimized for Mobile Feeds\",\"Thumbnail Covers Included\"]",
+        "order": 3,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.293Z",
+        "updatedAt": "2026-08-26T15:00:46.293Z"
+      },
+      {
+        "id": "c28f29d9-06b3-47e4-b143-72c9b7a6eeed",
+        "title": "Cover Branding",
+        "slug": "cover-branding",
+        "tagline": "Professional social banners, YouTube covers, and digital storefront graphics",
+        "description": "Custom digital header and banner branding for LinkedIn, Facebook Pages, YouTube Channels, Twitter/X, and E-commerce storefronts. Aligns your brand across every touchpoint to convey authority and trust.",
+        "icon": "Layout",
+        "features": "[\"Custom Responsive Banners (Desktop + Mobile Safe Zones)\",\"LinkedIn Personal & Company Page Headers\",\"YouTube Channel Art & Podcast Cover Design\",\"Facebook Page, Group & Event Covers\",\"E-commerce Storefront Banners (Shopify, Daraz, Amazon)\",\"Consistent Brand Color & Typography Integration\"]",
+        "deliverables": "[\"Multi-Platform Dimension-Ready Graphics\",\"Editable PSD / Figma Master Source Files\",\"Crisp, Lossless PNG Files\"]",
+        "order": 4,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.352Z",
+        "updatedAt": "2026-08-26T15:00:46.352Z"
+      }
+    ],
+    "packages": [
+      {
+        "id": "d5df4643-3089-4f91-a8e8-1b527b4107bb",
+        "serviceId": "447818e4-9155-475a-a2ea-58ddf7c801ec",
+        "name": "Basic Logo Identity",
+        "description": "Essential vector logo package ideal for early-stage startups and personal brands.",
+        "price": "149",
+        "billingPeriod": "per-project",
+        "features": "[\"2 Initial Logo Concepts\",\"3 Iterative Revision Rounds\",\"High-Resolution PNG & JPEG (Transparent)\",\"Vector Source Files (.AI, .EPS)\",\"3 Business Days Delivery\"]",
+        "excludedFeatures": null,
+        "isPopular": false,
+        "order": 1,
+        "active": true,
+        "ctaText": "Start Logo Project",
+        "createdAt": "2026-08-26T15:00:46.193Z",
+        "updatedAt": "2026-08-26T15:57:22.566Z"
+      },
+      {
+        "id": "e98f0844-3578-4720-bf79-9cd7188f2205",
+        "serviceId": "447818e4-9155-475a-a2ea-58ddf7c801ec",
+        "name": "Standard Brand Suite",
+        "description": "Complete visual identity package with color systems, typography, and social branding.",
+        "price": "299",
+        "billingPeriod": "per-project",
+        "features": "[\"3 Distinct Custom Concepts\",\"Unlimited Revisions during drafting\",\"Complete Brand Guidelines Document (PDF)\",\"Color Palette & Font System Tokens\",\"Social Media Kit (Avatar + Covers)\",\"Full Commercial Rights\",\"5 Business Days Delivery\"]",
+        "excludedFeatures": null,
+        "isPopular": false,
+        "order": 2,
+        "active": true,
+        "ctaText": "Book Brand Suite",
+        "createdAt": "2026-08-26T15:00:46.211Z",
+        "updatedAt": "2026-08-26T15:57:22.566Z"
+      },
+      {
+        "id": "5bf3ecf6-431d-4609-8b47-1c163c8c7afd",
+        "serviceId": "f01333a0-a23c-46c7-ae4f-a29b5a217f3a",
+        "name": "Starter Ads Pack",
+        "description": "Ideal for testing a new campaign hook or promoting a seasonal sale.",
+        "price": "99",
+        "billingPeriod": "per-project",
+        "features": "[\"3 High-Converting Ad Creatives\",\"Feed (1:1) & Story (9:16) Formats\",\"2 Revision Rounds per creative\",\"Source Files Included (.PSD)\",\"2 Business Days Delivery\"]",
+        "excludedFeatures": null,
+        "isPopular": false,
+        "order": 1,
+        "active": true,
+        "ctaText": "Order Starter Ads",
+        "createdAt": "2026-08-26T15:00:46.249Z",
+        "updatedAt": "2026-08-26T15:57:22.566Z"
+      },
+      {
+        "id": "89763ccc-46ff-4956-9ccf-47de10fae7d8",
+        "serviceId": "f01333a0-a23c-46c7-ae4f-a29b5a217f3a",
+        "name": "Growth Campaign Bundle",
+        "description": "Comprehensive creative suite for ongoing paid advertising campaigns.",
+        "price": "199",
+        "billingPeriod": "per-project",
+        "features": "[\"8 Custom Ad Creatives / Carousels\",\"A/B Testing Variations (Hooks + Visuals)\",\"Full Feed + Story + Banner Dimensions\",\"Unlimited Revision Cycles\",\"Commercial Usage Included\",\"3 Business Days Delivery\"]",
+        "excludedFeatures": null,
+        "isPopular": true,
+        "order": 2,
+        "active": true,
+        "ctaText": "Scale Paid Ads",
+        "createdAt": "2026-08-26T15:00:46.264Z",
+        "updatedAt": "2026-08-26T15:57:22.580Z"
+      },
+      {
+        "id": "30b3a688-98b9-4c05-8e4b-5192a80009fa",
+        "serviceId": "ce77b10f-43b8-4878-929b-7479398c6033",
+        "name": "Single UGC Video",
+        "description": "1 polished 15-45s vertical video ready for ad campaigns or organic posting.",
+        "price": "149",
+        "billingPeriod": "per-project",
+        "features": "[\"1 Short-Form Video (Up to 45s)\",\"Engaging Animated Dynamic Captions\",\"Sound Effects & Licensed Music Sync\",\"2 Revision Rounds\",\"2 Business Days Delivery\"]",
+        "excludedFeatures": null,
+        "isPopular": false,
+        "order": 1,
+        "active": true,
+        "ctaText": "Order Single Video",
+        "createdAt": "2026-08-26T15:00:46.307Z",
+        "updatedAt": "2026-08-26T15:57:22.566Z"
+      },
+      {
+        "id": "34b11554-9a4e-4d75-9499-66d46be4eb56",
+        "serviceId": "c28f29d9-06b3-47e4-b143-72c9b7a6eeed",
+        "name": "Multi-Channel Brand Pack",
+        "description": "Consistent branding across your 3 most critical digital channels.",
+        "price": "149",
+        "billingPeriod": "per-project",
+        "features": "[\"3 Platform Covers (e.g. LinkedIn + YouTube + FB)\",\"Cohesive Visual Styling & Messaging\",\"Matching Profile Pictures / Avatars\",\"Unlimited Design Revisions\",\"Full Source Files (.PSD / Figma)\",\"3 Business Days Delivery\"]",
+        "excludedFeatures": null,
+        "isPopular": false,
+        "order": 2,
+        "active": true,
+        "ctaText": "Brand All Channels",
+        "createdAt": "2026-08-26T15:00:46.376Z",
+        "updatedAt": "2026-08-26T15:57:22.566Z"
+      }
+    ],
+    "testimonials": [
+      {
+        "id": "26882ebe-39a7-435e-afea-8749ba798c41",
+        "clientName": "Marketing Director",
+        "clientRole": "Head of Growth",
+        "clientCompany": "ORA Organic (Dubai)",
+        "clientAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        "brandLogo": null,
+        "serviceId": null,
+        "content": "Sakhawat transformed our ad creative process. His understanding of sales psychology and clean e-commerce visual framing directly contributed to our highest ROAS month to date.",
+        "rating": 5,
+        "projectTitle": "E-commerce Ads Campaign",
+        "status": "APPROVED",
+        "featured": true,
+        "active": true,
+        "order": 1,
+        "createdAt": "2026-08-26T15:00:46.570Z",
+        "updatedAt": "2026-08-26T15:00:46.570Z"
+      },
+      {
+        "id": "d4d3e35a-310f-4739-8c3e-18d6659b66cc",
+        "clientName": "Managing Director",
+        "clientRole": "Executive Lead",
+        "clientCompany": "e-Learn IT Institute",
+        "clientAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+        "brandLogo": null,
+        "serviceId": null,
+        "content": "A consummate professional who delivers consistent, top-tier graphic design and brand identity work. Sakhawat communicates proactively and always meets tight deadlines.",
+        "rating": 5,
+        "projectTitle": "Brand Identity & Marketing Assets",
+        "status": "APPROVED",
+        "featured": true,
+        "active": true,
+        "order": 2,
+        "createdAt": "2026-08-26T15:00:46.581Z",
+        "updatedAt": "2026-08-26T15:00:46.581Z"
+      },
+      {
+        "id": "6218538e-4327-4612-897a-b8fd4c641abe",
+        "clientName": "Operations Lead",
+        "clientRole": "Creative Director",
+        "clientCompany": "Advanced Digital Automotive (USA)",
+        "clientAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+        "brandLogo": null,
+        "serviceId": null,
+        "content": "The thumbnail designs and short-form video pacing Sakhawat developed gave our content the professional edge it needed. Highly recommended for any brand needing sales-driven creative.",
+        "rating": 5,
+        "projectTitle": "Video & Thumbnail Creatives",
+        "status": "APPROVED",
+        "featured": true,
+        "active": true,
+        "order": 3,
+        "createdAt": "2026-08-26T15:00:46.593Z",
+        "updatedAt": "2026-08-26T15:00:46.593Z"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "68b9a914-355b-4051-a053-06e796ac6b55",
+        "question": "What source files and formats do you deliver upon project completion?",
+        "answer": "Depending on the service, you receive fully organized master vector files (.AI, .EPS), editable layered files (.PSD or Figma), high-resolution web-ready PNGs (with transparent backgrounds), JPEGs, and print-ready PDFs with full commercial rights.",
+        "category": "General",
+        "order": 1,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.505Z",
+        "updatedAt": "2026-08-26T15:00:46.505Z"
+      },
+      {
+        "id": "f1ff1fc4-f2ce-4939-9ef8-617570dc3834",
+        "question": "How does your creative design and revision workflow work?",
+        "answer": "We begin with a thorough creative consultation to understand your brand goals and audience. Next, I develop initial concepts for your review. We then refine the chosen direction through collaborative revision rounds before preparing final export packages.",
+        "category": "Process",
+        "order": 2,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.517Z",
+        "updatedAt": "2026-08-26T15:00:46.517Z"
+      },
+      {
+        "id": "fa03676c-7e11-43fa-ae97-469763175342",
+        "question": "Can I request a custom package tailored to my exact business needs?",
+        "answer": "Yes! While I offer transparent tiered packages for Logo & Branding, Ads Creative, UGC Video, and Cover Branding, I frequently tailor custom scopes for monthly retainers and multi-platform campaign launches. Use the \"Book a Meeting\" form to discuss your scope.",
+        "category": "Pricing",
+        "order": 3,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.529Z",
+        "updatedAt": "2026-08-26T15:00:46.529Z"
+      },
+      {
+        "id": "138f2735-9a73-4a26-ac90-b7c019200834",
+        "question": "How fast is the turnaround time for ads and video creatives?",
+        "answer": "Standard ad creatives and single UGC videos are typically delivered within 2 to 3 business days. Rush delivery is also available upon request for time-sensitive marketing campaigns.",
+        "category": "Deliverables",
+        "order": 4,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.545Z",
+        "updatedAt": "2026-08-26T15:00:46.545Z"
+      },
+      {
+        "id": "59f3f6ed-20ab-49b9-b7cb-8a7007851de1",
+        "question": "Do you work with international remote clients across different time zones?",
+        "answer": "Yes, I have extensive experience working remotely with international clients across the USA, Dubai (UAE), and Bangladesh, utilizing asynchronous communication and structured updates via ClickUp, Email, and scheduled video consultations.",
+        "category": "General",
+        "order": 5,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.555Z",
+        "updatedAt": "2026-08-26T15:00:46.555Z"
+      }
+    ],
+    "brands": [
+      {
+        "id": "56f70703-432d-44f3-ba32-c477b411d213",
+        "name": "Designer Sakhawat",
+        "logoUrl": "/uploads/logo-png-01-1787765065222-324029582.png",
+        "websiteUrl": "https://elearnitinstitute.com/",
+        "order": 1,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.398Z",
+        "updatedAt": "2026-08-26T17:24:35.879Z"
+      },
+      {
+        "id": "72c00e0f-278f-4197-ba25-7356e043a5d0",
+        "name": "eLearn  IT Institute",
+        "logoUrl": "/uploads/logo-with-slogan-png-1787765104313-13025576.png",
+        "websiteUrl": "https://advanceddigitalauto.com",
+        "order": 2,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.408Z",
+        "updatedAt": "2026-08-26T17:25:22.242Z"
+      },
+      {
+        "id": "7622fb05-ca54-45e6-b9c1-0f919ab0bc2c",
+        "name": "UnisSoper",
+        "logoUrl": "/uploads/asset-73x-1787765138134-584015621.png",
+        "websiteUrl": "https://optivamax.com",
+        "order": 3,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.417Z",
+        "updatedAt": "2026-08-26T17:30:00.828Z"
+      },
+      {
+        "id": "e1b6e151-3d6b-47a3-bfa8-b5caed989f71",
+        "name": "Nadwah",
+        "logoUrl": "/uploads/logo-png-02-1787765284094-303257007.png",
+        "websiteUrl": "https://oraorganic.com",
+        "order": 4,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.426Z",
+        "updatedAt": "2026-08-26T17:29:47.146Z"
+      },
+      {
+        "id": "36cd84c7-969b-44b3-9ce5-11da4b221aaf",
+        "name": "Kenakata Shop",
+        "logoUrl": "/uploads/main-logo-v2-01-1787766286161-967016318.png",
+        "websiteUrl": "https://kenakatashop.com",
+        "order": 5,
+        "active": true,
+        "createdAt": "2026-08-26T15:00:46.437Z",
+        "updatedAt": "2026-08-26T17:44:46.945Z"
+      },
+      {
+        "id": "802c0d74-f911-4428-9666-19560e60d5e4",
+        "name": "Digital Advantages",
+        "logoUrl": "/uploads/digital-advantage-1787767764324-786627515.png",
+        "websiteUrl": null,
+        "order": 6,
+        "active": true,
+        "createdAt": "2026-08-26T18:09:25.949Z",
+        "updatedAt": "2026-08-26T18:09:25.949Z"
+      }
+    ],
+    "media": [
+      {
+        "id": "1d273f13-df62-4be6-80a2-bf9ccd891772",
+        "fileName": "logo png-01-01.png",
+        "fileUrl": "/uploads/logo-png-01-01-1787763443240-155837371.png",
+        "fileType": "image/png",
+        "fileSize": 19944,
+        "altText": "Website Brand Logo",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T16:57:23.254Z",
+        "updatedAt": "2026-08-26T16:57:23.254Z"
+      },
+      {
+        "id": "8c598b6f-4743-419c-975e-f6ed74b5ccb2",
+        "fileName": "main logo file-04.png",
+        "fileUrl": "/uploads/main-logo-file-04-1787763904733-796883327.png",
+        "fileType": "image/png",
+        "fileSize": 262864,
+        "altText": "Site Favicon",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:05:04.741Z",
+        "updatedAt": "2026-08-26T17:05:04.741Z"
+      },
+      {
+        "id": "af053185-944e-41c3-8c0b-d5f4768f7bcf",
+        "fileName": "cover photo.jpg",
+        "fileUrl": "/uploads/cover-photo-1787764748710-758629908.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 809177,
+        "altText": "ORA Organic — Sales-Driven E-Commerce Product & Ads Campaign",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:19:08.734Z",
+        "updatedAt": "2026-08-26T17:19:08.734Z"
+      },
+      {
+        "id": "5b6308a7-d1d9-45ab-97b8-d1a91f171f61",
+        "fileName": "logo png-01.png",
+        "fileUrl": "/uploads/logo-png-01-1787765065222-324029582.png",
+        "fileType": "image/png",
+        "fileSize": 16968,
+        "altText": "e-Learn IT Institute Logo",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:24:25.224Z",
+        "updatedAt": "2026-08-26T17:24:25.224Z"
+      },
+      {
+        "id": "e0a343d0-9456-4350-ae43-f9c71cf708b4",
+        "fileName": "Logo With Slogan PNG.png",
+        "fileUrl": "/uploads/logo-with-slogan-png-1787765104313-13025576.png",
+        "fileType": "image/png",
+        "fileSize": 204341,
+        "altText": "Advanced Digital Automotive Logo",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:25:04.318Z",
+        "updatedAt": "2026-08-26T17:25:04.318Z"
+      },
+      {
+        "id": "9e5bc74d-c696-4d0a-b398-313842d83aef",
+        "fileName": "Asset_73x.png",
+        "fileUrl": "/uploads/asset-73x-1787765138134-584015621.png",
+        "fileType": "image/png",
+        "fileSize": 64621,
+        "altText": "Optiva Max (Dubai) Logo",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:25:38.139Z",
+        "updatedAt": "2026-08-26T17:25:38.139Z"
+      },
+      {
+        "id": "7eb9badf-9eee-4d33-beef-aacb6874366d",
+        "fileName": "Logo PNG-02.png",
+        "fileUrl": "/uploads/logo-png-02-1787765284094-303257007.png",
+        "fileType": "image/png",
+        "fileSize": 72281,
+        "altText": "ORA Organic (Dubai) Logo",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:28:04.098Z",
+        "updatedAt": "2026-08-26T17:28:04.098Z"
+      },
+      {
+        "id": "ace7886d-e7ea-456f-8388-55a6cfe73065",
+        "fileName": "main logo v2-01.png",
+        "fileUrl": "/uploads/main-logo-v2-01-1787766286161-967016318.png",
+        "fileType": "image/png",
+        "fileSize": 164559,
+        "altText": "Kenakata Shop Logo",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:44:46.169Z",
+        "updatedAt": "2026-08-26T17:44:46.169Z"
+      },
+      {
+        "id": "9daae7e5-96a4-48a6-95a3-5e628a9ce46a",
+        "fileName": "amazon-listing-images-electric-shaver-hero (1).jpg",
+        "fileUrl": "/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 5770446,
+        "altText": "ORA Organic — Sales-Driven E-Commerce Product & Ads Campaign",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:49:05.135Z",
+        "updatedAt": "2026-08-26T17:49:05.135Z"
+      },
+      {
+        "id": "dc3fdacb-bbed-4bd9-9dd5-afef7fa89b97",
+        "fileName": "EdTech Social Media Post Design (9).jpg",
+        "fileUrl": "/uploads/edtech-social-media-post-design--9--1787766737628-820411568.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 8290058,
+        "altText": "e-Learn IT Institute — Brand Identity & Digital Promotional Suite",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T17:52:17.695Z",
+        "updatedAt": "2026-08-26T17:52:17.695Z"
+      },
+      {
+        "id": "b165d581-5f19-4e57-8676-1a5375041615",
+        "fileName": "Digital Advantage.png",
+        "fileUrl": "/uploads/digital-advantage-1787767764324-786627515.png",
+        "fileType": "image/png",
+        "fileSize": 87235,
+        "altText": "Digital Advantages  Logo",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T18:09:24.329Z",
+        "updatedAt": "2026-08-26T18:09:24.329Z"
+      },
+      {
+        "id": "4bf20f78-2e42-40ca-86e4-abe91622af74",
+        "fileName": "ChatGPT Image Aug 2, 2026, 10_56_34 PM.png",
+        "fileUrl": "/uploads/chatgpt-image-aug-2--2026--10-56-34-pm-1787768328056-874988426.png",
+        "fileType": "image/png",
+        "fileSize": 2270603,
+        "altText": "Hero Showcase Photo",
+        "source": "LOCAL",
+        "createdAt": "2026-08-26T18:18:48.079Z",
+        "updatedAt": "2026-08-26T18:18:48.079Z"
+      }
+    ],
+    "users": [
+      {
+        "id": "02b58bc1-f4a6-4331-b051-92315723e983",
+        "email": "admin@sakhawat.design",
+        "password": "$2b$10$4hsA4Rk8FJd1PXhicpvaaOpRjXS9M76Y7FyECUaDY6Pg3SEdKKhLm",
+        "name": "Md Sakhawat Hossain",
+        "role": "ADMIN",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+        "createdAt": "2026-08-26T15:00:45.939Z",
+        "updatedAt": "2026-08-26T16:17:30.465Z"
+      }
+    ]
+  },
+  "counts": {
+    "settings": 57,
+    "projects": 5,
+    "services": 4,
+    "packages": 6,
+    "testimonials": 3,
+    "faqs": 5,
+    "brands": 6,
+    "media": 12,
+    "users": 1
+  }
+}

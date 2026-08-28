@@ -301,26 +301,50 @@ const ServiceDetailPage = () => {
   // Lightbox active project
   const currentLightboxProject = lightboxIndex !== null ? servicePortfolioProjects[lightboxIndex] : null;
 
-  // Aspect ratio classes based on config (Default: 1:1 Square)
-  const ratioSetting = showcaseConfig.aspectRatio || '1:1';
+  // Determine active ratio (supports per-service override, cover-branding presets, and global ratio)
+  const defaultRatio = useMemo(() => {
+    if (showcaseConfig.service_ratios && showcaseConfig.service_ratios[slug]) {
+      return showcaseConfig.service_ratios[slug];
+    }
+    if (slug === 'cover-branding') {
+      return showcaseConfig.cover_branding_aspect_ratio || 'fb-cover';
+    }
+    return showcaseConfig.aspectRatio || '1:1';
+  }, [showcaseConfig, slug]);
+
+  const [activeRatio, setActiveRatio] = useState(defaultRatio);
+
+  useEffect(() => {
+    setActiveRatio(defaultRatio);
+  }, [defaultRatio]);
+
+  // Aspect ratio classes based on active ratio
   let sliderContainerRatioClass = 'max-w-2xl mx-auto aspect-square';
   let gridCardRatioClass = 'aspect-square';
 
-  if (ratioSetting === '16:9') {
-    sliderContainerRatioClass = 'w-full aspect-[16/9]';
+  if (activeRatio === 'fb-cover' || activeRatio === '820:312' || activeRatio === '2.63:1') {
+    sliderContainerRatioClass = 'w-full max-w-4xl mx-auto aspect-[820/312]';
+    gridCardRatioClass = 'aspect-[820/312]';
+  } else if (activeRatio === 'linkedin-cover' || activeRatio === '1584:396' || activeRatio === '4:1') {
+    sliderContainerRatioClass = 'w-full max-w-5xl mx-auto aspect-[1584/396]';
+    gridCardRatioClass = 'aspect-[1584/396]';
+  } else if (activeRatio === '16:9') {
+    sliderContainerRatioClass = 'w-full max-w-4xl mx-auto aspect-[16/9]';
     gridCardRatioClass = 'aspect-[16/9]';
-  } else if (ratioSetting === '4:3') {
+  } else if (activeRatio === '4:3') {
     sliderContainerRatioClass = 'max-w-3xl mx-auto aspect-[4/3]';
     gridCardRatioClass = 'aspect-[4/3]';
-  } else if (ratioSetting === '9:16') {
+  } else if (activeRatio === '9:16') {
     sliderContainerRatioClass = 'max-w-md mx-auto aspect-[9/16]';
     gridCardRatioClass = 'aspect-[9/16]';
   }
 
-  // Grid column class based on config
+  // Grid column class based on config and aspect ratio
   const gridColsSetting = Number(showcaseConfig.gridCols) || 3;
   let gridColsClass = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
-  if (gridColsSetting === 2) {
+  if (activeRatio === 'fb-cover' || activeRatio === 'linkedin-cover') {
+    gridColsClass = 'grid-cols-1 md:grid-cols-2';
+  } else if (gridColsSetting === 2) {
     gridColsClass = 'grid-cols-1 sm:grid-cols-2';
   } else if (gridColsSetting === 4) {
     gridColsClass = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
@@ -463,8 +487,66 @@ const ServiceDetailPage = () => {
               </h2>
             </div>
 
-            {/* Interactive Slider Controls & View Toggle */}
-            <div className="flex items-center gap-2.5 self-start md:self-auto">
+            {/* Interactive Slider Controls, Ratio Toggle & View Toggle */}
+            <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+              {/* Aspect Ratio Switcher for Cover Branding / Multi-Ratio services */}
+              {(slug === 'cover-branding' || activeRatio === 'fb-cover' || activeRatio === 'linkedin-cover') && (
+                <div className="flex items-center p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setActiveRatio('fb-cover')}
+                    className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      activeRatio === 'fb-cover'
+                        ? 'bg-blue-600 text-white font-black shadow-md'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                    title="Facebook Cover (820 × 312)"
+                  >
+                    <span className={`w-2 h-2 rounded-full ${activeRatio === 'fb-cover' ? 'bg-white' : 'bg-blue-400'}`} />
+                    <span>FB Cover (820×312)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveRatio('linkedin-cover')}
+                    className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      activeRatio === 'linkedin-cover'
+                        ? 'bg-sky-600 text-white font-black shadow-md'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                    title="LinkedIn Banner (1584 × 396)"
+                  >
+                    <span className={`w-2 h-2 rounded-full ${activeRatio === 'linkedin-cover' ? 'bg-white' : 'bg-sky-300'}`} />
+                    <span>LinkedIn Banner (1584×396)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveRatio('16:9')}
+                    className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                      activeRatio === '16:9'
+                        ? 'bg-teal-500 text-zinc-950 font-black shadow-md'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                    title="16:9 Widescreen"
+                  >
+                    16:9
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveRatio('1:1')}
+                    className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                      activeRatio === '1:1'
+                        ? 'bg-teal-500 text-zinc-950 font-black shadow-md'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                    title="1:1 Square"
+                  >
+                    1:1
+                  </button>
+                </div>
+              )}
               {/* Autoplay Pause/Play Toggle */}
               {viewMode === 'slider' && (
                 <button

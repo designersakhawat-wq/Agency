@@ -55,6 +55,13 @@ import { safeSetItem } from '../../utils/safeStorage';
 
 const DEFAULT_SHOWCASE_CONFIG = {
   aspectRatio: '1:1',
+  cover_branding_aspect_ratio: 'fb-cover',
+  service_ratios: {
+    'cover-branding': 'fb-cover',
+    'logo-branding': '1:1',
+    'ads-creative': '1:1',
+    'ugc-video': '9:16',
+  },
   defaultViewMode: 'slider',
   autoplay: true,
   autoplayInterval: 4000,
@@ -930,12 +937,12 @@ const AdminServicesPage = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {/* 1. Image Aspect Ratio */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
               <ImageIcon className="w-3.5 h-3.5 text-teal-400" />
-              Image Aspect Ratio
+              Global Aspect Ratio
             </label>
             <select
               value={showcaseConfig.aspectRatio || '1:1'}
@@ -944,13 +951,45 @@ const AdminServicesPage = () => {
               }
               className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none"
             >
-              <option value="1:1">1:1 Square (Recommended for Ads & Logos)</option>
+              <option value="1:1">1:1 Square (Ads & Logos)</option>
+              <option value="fb-cover">Facebook Cover (820 × 312)</option>
+              <option value="linkedin-cover">LinkedIn Banner (1584 × 396)</option>
               <option value="16:9">16:9 Landscape / Widescreen</option>
               <option value="4:3">4:3 Standard Display</option>
               <option value="9:16">9:16 Vertical (TikTok / Reels)</option>
             </select>
             <span className="text-[11px] text-zinc-500 block">
-              Used in both slider frame & grid gallery cards.
+              Default fallback for all services.
+            </span>
+          </div>
+
+          {/* 2. Cover Branding Specific Ratio */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+              <Layout className="w-3.5 h-3.5 text-teal-400" />
+              Cover Branding Page Ratio
+            </label>
+            <select
+              value={showcaseConfig.cover_branding_aspect_ratio || 'fb-cover'}
+              onChange={(e) =>
+                setShowcaseConfig({
+                  ...showcaseConfig,
+                  cover_branding_aspect_ratio: e.target.value,
+                  service_ratios: {
+                    ...(showcaseConfig.service_ratios || {}),
+                    'cover-branding': e.target.value,
+                  },
+                })
+              }
+              className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:border-teal-500 focus:outline-none"
+            >
+              <option value="fb-cover">🔵 Facebook Cover (820 × 312)</option>
+              <option value="linkedin-cover">💼 LinkedIn Banner (1584 × 396)</option>
+              <option value="16:9">🖥️ 16:9 Landscape (YouTube)</option>
+              <option value="1:1">🔲 1:1 Square</option>
+            </select>
+            <span className="text-[11px] text-zinc-500 block">
+              Applied to /services/cover-branding page.
             </span>
           </div>
 
