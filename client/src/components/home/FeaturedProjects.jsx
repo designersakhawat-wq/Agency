@@ -1,14 +1,16 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   ArrowUpRight,
   ArrowLeft,
   ArrowRight,
-  Eye,
   Sparkles,
+  Eye,
   MessageCircle,
   X,
+  Play,
+  Pause,
 } from 'lucide-react';
 import Button from '../common/Button';
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
@@ -26,8 +28,8 @@ const CATEGORY_FALLBACKS = {
   default: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&auto=format&fit=crop&q=80',
 };
 
-// Safe Image Component
-const SafeCardImage = ({ src, alt, category }) => {
+// Safe Image Component (Zero broken images, elegant shimmer)
+const SafeImage = ({ src, alt, category }) => {
   const fallback = CATEGORY_FALLBACKS[category] || CATEGORY_FALLBACKS.default;
   const [imgSrc, setImgSrc] = useState(src || fallback);
   const [loaded, setLoaded] = useState(false);
@@ -37,19 +39,20 @@ const SafeCardImage = ({ src, alt, category }) => {
   }, [src, fallback]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-zinc-900">
+    <div className="relative w-full h-full overflow-hidden bg-zinc-950 select-none pointer-events-none">
       {!loaded && (
-        <div className="absolute inset-0 bg-zinc-800/60 animate-pulse" />
+        <div className="absolute inset-0 bg-zinc-900 animate-pulse" />
       )}
       <img
         src={imgSrc}
-        alt={alt || 'Project Preview'}
+        alt={alt || 'Design Craft'}
         onLoad={() => setLoaded(true)}
         onError={() => setImgSrc(fallback)}
-        className={`w-full h-full object-cover transform transition-transform duration-700 ease-out group-hover:scale-108 ${
+        className={`w-full h-full object-cover transition-all duration-700 ${
           loaded ? 'opacity-100' : 'opacity-0'
         }`}
         loading="lazy"
+        draggable="false"
       />
     </div>
   );
@@ -57,29 +60,28 @@ const SafeCardImage = ({ src, alt, category }) => {
 
 export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [modalProject, setModalProject] = useState(null);
-  const scrollRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [quickModalProject, setQuickModalProject] = useState(null);
 
-  // Normalize project data
+  // Consolidated & normalized projects list
   const allProjects = useMemo(() => {
     const list = Array.isArray(projects) && projects.length > 0 ? projects : DEFAULT_PROJECTS;
     return list.map((p, idx) => ({
       ...p,
       id: p.id || `proj-${idx}`,
-      title: p.title || 'Creative Project',
+      title: p.title || 'Creative Showcase',
       category: p.category || 'Brand Identity',
-      summary: p.summary || p.description || 'High-impact visual creative engineered for brand growth.',
+      summary: p.summary || p.description || 'High-converting design craft engineered for brand elevation.',
       coverImage: p.coverImage || CATEGORY_FALLBACKS[p.category] || CATEGORY_FALLBACKS.default,
-      client: p.client || 'Agency Client',
+      client: p.client || 'Client Project',
       year: p.year || '2025',
     }));
   }, [projects]);
 
   const categories = ['All', 'Logo & Branding', 'Ads Creative', 'Cover Branding', 'E-Commerce', 'UGC Video'];
 
+  // Filtered list based on active category tab
   const filteredProjects = useMemo(() => {
     if (activeCategory === 'All') return allProjects;
     const target = activeCategory.toLowerCase();
@@ -104,286 +106,341 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
     });
   }, [allProjects, activeCategory]);
 
-  const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 10);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-      const total = scrollWidth - clientWidth;
-      setScrollProgress(total > 0 ? (scrollLeft / total) * 100 : 0);
-    }
-  };
+  const totalItems = filteredProjects.length;
 
+  // Auto-scroll Timer (transitions smoothly every 3.5s)
   useEffect(() => {
-    checkScroll();
-  }, [filteredProjects]);
+    if (!isAutoPlaying || totalItems <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % totalItems);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, totalItems]);
 
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const cardWidth = scrollRef.current.clientWidth > 768 ? 480 : 320;
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -cardWidth : cardWidth,
-        behavior: 'smooth',
-      });
-    }
+  // Reset index when category tab changes
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [activeCategory]);
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % totalItems);
   };
 
-  const handleOpenModal = (project) => {
-    setModalProject(project);
-    tracking.trackViewContent(project.title, 'Portfolio Quick Look', null, 'USD', project.id);
-    if (onSelectProject) onSelectProject(project);
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + totalItems) % totalItems);
+  };
+
+  const handleCardClick = (index, project) => {
+    if (index === currentIndex) {
+      setQuickModalProject(project);
+      tracking.trackViewContent(project.title, 'Featured Gallery Focal Look', null, 'USD', project.id);
+      if (onSelectProject) onSelectProject(project);
+    } else {
+      setCurrentIndex(index);
+    }
   };
 
   const handleWhatsApp = (project) => {
     tracking.trackWhatsAppClick(
-      'Featured Projects Showcase',
+      'Featured Visual Gallery',
       `Similar Project: ${project.title}`,
-      `Client interested in ${project.title}`
+      `Client inquiry for ${project.title}`
     );
     const msg = encodeURIComponent(
-      `Hi Sakhawat! 👋\n\nI saw your work for *${project.title}* on your website and would like to discuss a similar project. Are you available?`
+      `Hi Sakhawat! 👋\n\nI saw your featured work for *${project.title}* on your website and would like to discuss a similar design project for my brand. Are you available?`
     );
     window.open(`https://wa.me/8801781955355?text=${msg}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <section id="portfolio-section" className="py-20 sm:py-28 relative overflow-hidden bg-[#070709]">
-      {/* Subtle Background Glow */}
-      <div className="ambient-glow-teal top-1/2 -left-40 opacity-15 pointer-events-none" />
+    <section
+      id="portfolio-section"
+      className="py-20 sm:py-28 relative overflow-hidden bg-[#060608]"
+      onMouseEnter={() => setIsAutoPlaying(false)}
+      onMouseLeave={() => setIsAutoPlaying(true)}
+    >
+      {/* Background Radial Glow */}
+      <div className="ambient-glow-teal top-1/2 -left-40 opacity-20 pointer-events-none" />
+      <div className="ambient-glow-cyan top-1/2 -right-40 opacity-15 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-10">
         {/* ========================================================================= */}
-        {/* 1. CLEAN MODERN HEADER WITH CONTROLS                                       */}
+        {/* 1. HEADER MATCHING REFERENCE (CENTERED, CLEAN & MINIMAL)                   */}
         {/* ========================================================================= */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Selected Portfolio</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-white tracking-tight">
-              Featured Work
-            </h2>
-            <p className="text-sm sm:text-base text-zinc-400 max-w-xl">
-              Swipe or scroll to explore curated design projects and high-converting marketing assets.
-            </p>
-          </div>
-
-          {/* Right Action Area: Categories & Slider Arrows */}
-          <div className="flex items-center gap-4">
-            {/* Scroll Navigation Arrows */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => scroll('left')}
-                disabled={!canScrollLeft}
-                aria-label="Scroll previous projects"
-                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
-                  canScrollLeft
-                    ? 'bg-zinc-900 border-zinc-700 text-white hover:bg-teal-500 hover:text-black hover:border-teal-400 shadow-md'
-                    : 'bg-zinc-900/40 border-zinc-800/60 text-zinc-600 cursor-not-allowed'
-                }`}
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => scroll('right')}
-                disabled={!canScrollRight}
-                aria-label="Scroll next projects"
-                className={`w-11 h-11 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
-                  canScrollRight
-                    ? 'bg-zinc-900 border-zinc-700 text-white hover:bg-teal-500 hover:text-black hover:border-teal-400 shadow-md'
-                    : 'bg-zinc-900/40 border-zinc-800/60 text-zinc-600 cursor-not-allowed'
-                }`}
-              >
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            <Link to="/portfolio" className="hidden sm:inline-block">
-              <Button variant="outline" size="sm" icon={ArrowUpRight} iconPosition="right">
-                All Works ({allProjects.length})
-              </Button>
-            </Link>
-          </div>
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <span className="text-[11px] font-bold tracking-[0.25em] text-teal-400 uppercase">
+            SELECTED WORKS
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight">
+            Featured Visual Gallery
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-400">
+            A curated showcase of high-converting visual creatives, brand identities, and performance marketing designs.
+          </p>
         </div>
 
         {/* ========================================================================= */}
-        {/* 2. MINIMALIST FILTER TABS                                                 */}
+        {/* 2. PILL FILTER TABS (MATCHING REFERENCE EXACTLY)                          */}
         {/* ========================================================================= */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap">
           {categories.map((cat) => {
             const isActive = activeCategory === cat;
             return (
               <button
                 key={cat}
-                onClick={() => {
-                  setActiveCategory(cat);
-                  if (scrollRef.current) scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-                }}
-                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                onClick={() => setActiveCategory(cat)}
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 cursor-pointer ${
                   isActive
-                    ? 'bg-white text-black font-bold shadow-md shadow-white/10'
-                    : 'text-zinc-400 hover:text-white bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800'
+                    ? 'bg-teal-400 text-zinc-950 font-black shadow-lg shadow-teal-500/25 scale-105'
+                    : 'text-zinc-400 hover:text-white bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800'
                 }`}
               >
                 {cat}
               </button>
             );
           })}
-        </div>
-      </div>
 
-      {/* ========================================================================= */}
-      {/* 3. HORIZONTAL DRAGGABLE SMOOTH-SCROLL SHOWCASE TRACK                      */}
-      {/* ========================================================================= */}
-      <div className="relative mt-6">
-        <div
-          ref={scrollRef}
-          onScroll={checkScroll}
-          className="flex gap-6 overflow-x-auto px-4 sm:px-6 lg:px-8 pb-8 pt-2 no-scrollbar snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {filteredProjects.map((project, idx) => (
-            <motion.div
-              key={project.id || idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: Math.min(idx * 0.05, 0.2) }}
-              onClick={() => handleOpenModal(project)}
-              className="group relative w-[300px] sm:w-[400px] md:w-[460px] lg:w-[500px] aspect-[16/11] shrink-0 snap-start rounded-3xl overflow-hidden border border-zinc-800/90 hover:border-teal-500/50 transition-all duration-500 shadow-xl hover:shadow-2xl hover:shadow-teal-950/40 bg-zinc-950 flex flex-col justify-end cursor-pointer"
+          <Link
+            to="/portfolio"
+            className="px-4 sm:px-5 py-2 rounded-full text-xs font-semibold text-zinc-300 hover:text-white bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 flex items-center gap-1.5 transition-colors"
+          >
+            <span>View All</span>
+            <ArrowUpRight className="w-3 h-3 text-teal-400" />
+          </Link>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 3. 3D COVERFLOW / FOCAL IMAGE CAROUSEL (MATCHING REFERENCE)               */}
+        {/* ========================================================================= */}
+        <div className="relative h-[380px] sm:h-[460px] md:h-[520px] lg:h-[560px] flex items-center justify-center overflow-hidden my-4">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {filteredProjects.map((project, idx) => {
+              // Calculate relative distance from current active index
+              let offset = (idx - currentIndex + totalItems) % totalItems;
+              if (offset > totalItems / 2) offset -= totalItems;
+
+              // Show active item and 2 adjacent items on left and right
+              const isVisible = Math.abs(offset) <= 2;
+              if (!isVisible) return null;
+
+              const isCenter = offset === 0;
+
+              // Compute transforms for 3D depth and overlap
+              let xOffset = 0;
+              let scale = 1;
+              let zIndex = 20;
+              let opacity = 1;
+              let rotateY = 0;
+
+              if (isCenter) {
+                xOffset = 0;
+                scale = 1.12;
+                zIndex = 30;
+                opacity = 1;
+                rotateY = 0;
+              } else if (offset === 1) {
+                xOffset = 260; // Shift right
+                scale = 0.88;
+                zIndex = 20;
+                opacity = 0.85;
+                rotateY = -6;
+              } else if (offset === -1) {
+                xOffset = -260; // Shift left
+                scale = 0.88;
+                zIndex = 20;
+                opacity = 0.85;
+                rotateY = 6;
+              } else if (offset === 2) {
+                xOffset = 460;
+                scale = 0.72;
+                zIndex = 10;
+                opacity = 0.4;
+                rotateY = -12;
+              } else if (offset === -2) {
+                xOffset = -460;
+                scale = 0.72;
+                zIndex = 10;
+                opacity = 0.4;
+                rotateY = 12;
+              }
+
+              return (
+                <motion.div
+                  key={project.id}
+                  onClick={() => handleCardClick(idx, project)}
+                  className="absolute cursor-pointer transition-shadow"
+                  animate={{
+                    x: xOffset,
+                    scale: scale,
+                    zIndex: zIndex,
+                    opacity: opacity,
+                    rotateY: rotateY,
+                  }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 260,
+                    damping: 26,
+                  }}
+                  style={{
+                    transformStyle: 'preserve-3d',
+                  }}
+                >
+                  <div
+                    className={`relative w-[260px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-950 border transition-all duration-500 shadow-2xl ${
+                      isCenter
+                        ? 'border-teal-500/60 shadow-2xl shadow-teal-950/80 ring-2 ring-teal-500/20'
+                        : 'border-zinc-800/80 shadow-black/80 hover:border-zinc-700'
+                    }`}
+                  >
+                    {/* Pure High-Res Visual Image */}
+                    <SafeImage
+                      src={project.coverImage}
+                      alt={project.title}
+                      category={project.category}
+                    />
+
+                    {/* Subtle bottom gradient on active card with title */}
+                    {isCenter && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-between p-5 sm:p-6">
+                        {/* Category Tag Top Left */}
+                        <div className="flex items-center justify-between">
+                          <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-teal-300 text-xs font-bold shadow-md">
+                            {project.category}
+                          </span>
+
+                          <span className="w-8 h-8 rounded-full bg-zinc-900/90 border border-white/20 text-white flex items-center justify-center shadow-lg">
+                            <Eye className="w-3.5 h-3.5 text-teal-400" />
+                          </span>
+                        </div>
+
+                        {/* Title & Client at Bottom */}
+                        <div className="space-y-1">
+                          <span className="text-[11px] text-zinc-400 font-mono block">
+                            {project.client} • {project.year}
+                          </span>
+                          <h3 className="text-base sm:text-lg font-bold font-display text-white line-clamp-1">
+                            {project.title}
+                          </h3>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 4. CIRCULAR NAVIGATION ARROWS BELOW (MATCHING REFERENCE EXACTLY)           */}
+        {/* ========================================================================= */}
+        <div className="flex flex-col items-center justify-center gap-4 pt-2">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handlePrev}
+              aria-label="Previous Project"
+              className="w-12 h-12 rounded-full bg-zinc-900 hover:bg-teal-500 hover:text-black border border-zinc-700 text-white flex items-center justify-center transition-all duration-300 cursor-pointer shadow-lg hover:scale-105"
             >
-              {/* Full-Bleed Image */}
-              <div className="absolute inset-0 z-0">
-                <SafeCardImage
-                  src={project.coverImage}
-                  alt={project.title}
-                  category={project.category}
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+
+            {/* Slide Index Dot Indicator */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800">
+              {filteredProjects.map((_, dotIdx) => (
+                <button
+                  key={dotIdx}
+                  onClick={() => setCurrentIndex(dotIdx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    dotIdx === currentIndex ? 'w-5 bg-teal-400' : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
+                  }`}
+                  aria-label={`Go to slide ${dotIdx + 1}`}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 opacity-70 group-hover:opacity-50 transition-opacity duration-500" />
-              </div>
+              ))}
+            </div>
 
-              {/* Top Category Tag */}
-              <div className="absolute top-4 left-4 z-10">
-                <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[11px] font-medium shadow-sm">
-                  {project.category}
-                </span>
-              </div>
-
-              {/* Quick View Button Top Right */}
-              <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="w-9 h-9 rounded-full bg-zinc-900/90 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                  <Eye className="w-4 h-4 text-teal-400" />
-                </div>
-              </div>
-
-              {/* Floating Glassmorphic Bottom Pill */}
-              <div className="relative z-10 p-4 m-3 sm:m-4 rounded-2xl bg-zinc-950/80 backdrop-blur-md border border-white/10 group-hover:border-teal-500/30 transition-all duration-300 shadow-xl">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0 flex-1 space-y-0.5">
-                    <div className="flex items-center gap-2 text-[11px] text-zinc-400">
-                      <span>{project.client}</span>
-                      <span>•</span>
-                      <span>{project.year}</span>
-                    </div>
-                    <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-teal-300 transition-colors truncate">
-                      {project.title}
-                    </h3>
-                  </div>
-
-                  {/* Circular Arrow Button */}
-                  <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 group-hover:bg-teal-500 group-hover:text-black flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110">
-                    <ArrowUpRight className="w-4 h-4" />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Minimal Scroll Progress Indicator */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-teal-500 to-cyan-400 rounded-full"
-              style={{ width: `${Math.max(scrollProgress, 15)}%` }}
-            />
+            <button
+              onClick={handleNext}
+              aria-label="Next Project"
+              className="w-12 h-12 rounded-full bg-zinc-900 hover:bg-teal-500 hover:text-black border border-zinc-700 text-white flex items-center justify-center transition-all duration-300 cursor-pointer shadow-lg hover:scale-105"
+            >
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. CLEAN QUICK CASE STUDY MODAL                                           */}
+      {/* 5. INTERACTIVE CASE STUDY QUICK MODAL                                     */}
       {/* ========================================================================= */}
       <AnimatePresence>
-        {modalProject && (
+        {quickModalProject && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setModalProject(null)}
+              onClick={() => setQuickModalProject(null)}
               className="fixed inset-0 bg-black/85 backdrop-blur-md"
             />
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 15 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 15 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 320 }}
-              className="relative w-full max-w-2xl rounded-3xl glass-card border border-zinc-800 bg-zinc-950 p-6 sm:p-7 shadow-2xl z-10 space-y-5 overflow-hidden max-h-[88vh] overflow-y-auto"
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-2xl rounded-3xl glass-card border border-zinc-800 bg-zinc-950 p-6 sm:p-8 shadow-2xl z-10 space-y-6 overflow-hidden max-h-[88vh] overflow-y-auto"
             >
               {/* Close Button */}
               <button
-                onClick={() => setModalProject(null)}
+                onClick={() => setQuickModalProject(null)}
                 className="absolute top-5 right-5 p-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
 
               {/* Modal Header */}
-              <div className="space-y-1 pr-8">
-                <span className="text-xs font-semibold text-teal-400 uppercase tracking-wider block">
-                  {modalProject.category}
+              <div className="space-y-1.5 pr-8">
+                <span className="text-xs font-bold text-teal-400 uppercase tracking-wider block">
+                  {quickModalProject.category}
                 </span>
-                <h3 className="text-xl sm:text-2xl font-bold font-display text-white">
-                  {modalProject.title}
+                <h3 className="text-2xl sm:text-3xl font-display font-black text-white">
+                  {quickModalProject.title}
                 </h3>
-                <span className="text-xs text-zinc-500 block">
-                  {modalProject.client} • {modalProject.year}
+                <span className="text-xs text-zinc-500 block font-mono">
+                  Client: {quickModalProject.client} • Year: {quickModalProject.year}
                 </span>
               </div>
 
               {/* Image Preview */}
-              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800">
-                <SafeCardImage
-                  src={modalProject.coverImage}
-                  alt={modalProject.title}
-                  category={modalProject.category}
+              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-xl">
+                <SafeImage
+                  src={quickModalProject.coverImage}
+                  alt={quickModalProject.title}
+                  category={quickModalProject.category}
                 />
               </div>
 
               {/* Summary */}
               <p className="text-sm text-zinc-300 leading-relaxed">
-                {modalProject.summary}
+                {quickModalProject.summary}
               </p>
 
-              {/* Actions */}
+              {/* Action Buttons */}
               <div className="pt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <button
                   onClick={() => {
-                    handleWhatsApp(modalProject);
-                    setModalProject(null);
+                    handleWhatsApp(quickModalProject);
+                    setQuickModalProject(null);
                   }}
-                  className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-lg shadow-emerald-950/40"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-950/40"
                 >
                   <MessageCircle className="w-4 h-4 fill-current" />
                   <span>Inquire on WhatsApp</span>
                 </button>
 
                 <Link
-                  to={`/portfolio/${modalProject.slug}`}
-                  onClick={() => setModalProject(null)}
+                  to={`/portfolio/${quickModalProject.slug}`}
+                  onClick={() => setQuickModalProject(null)}
                   className="w-full sm:w-auto"
                 >
                   <Button variant="primary" size="md" icon={ArrowUpRight} iconPosition="right" className="w-full justify-center">
