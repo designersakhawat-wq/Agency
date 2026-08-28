@@ -8,7 +8,6 @@ import {
   Clock,
   Gift,
   ShieldCheck,
-  Percent,
   MessageCircle,
   Calendar,
   X,
@@ -16,76 +15,68 @@ import {
   Minus,
   CheckCircle2,
   Sparkles,
+  ArrowRight,
+  Sliders,
 } from 'lucide-react';
 import Button from '../common/Button';
 import { useCurrency } from '../../context/CurrencyContext';
 import { api } from '../../services/api';
 import tracking from '../../services/trackingService';
 
-const DEFAULT_CONFIG = {
-  badge: 'Interactive Price Calculator',
-  title: 'Calculate Project Cost & Get Instant Quote',
-  subtitle:
-    'Customize your design scope below to see the exact price and send a detailed project brief directly to WhatsApp in 1 click.',
-  discount_percent: 15,
-  roi_multiplier_min: 3.2,
-  roi_multiplier_max: 5.5,
-  turnaround_standard_label: 'Standard (3–5 Days)',
-  turnaround_standard_sub: 'Regular queue • Normal fee',
-  turnaround_rush_label: 'Express Rush (24–48 Hours)',
-  turnaround_rush_sub: '+35% surge • Top priority queue',
-  turnaround_rush_multiplier: 1.35,
-  cta_button_text: 'Send Quote to WhatsApp',
-  guarantee_text: 'Free 1-on-1 Consultation • Direct WhatsApp reply within 5 mins',
-  whatsapp_number: '8801781955355',
-  services: [
-    {
-      id: 'ads',
-      name: 'Social Media & Ad Creatives',
-      basePrice: 45,
-      unitLabel: 'Creatives',
-      min: 3,
-      max: 30,
-      icon: '🎯',
-    },
-    {
-      id: 'branding',
-      name: 'Logo & Brand Identity',
-      basePrice: 280,
-      unitLabel: 'Brand Assets',
-      min: 1,
-      max: 6,
-      icon: '🎨',
-    },
-    {
-      id: 'packaging',
-      name: 'Product Packaging & 3D Mockup',
-      basePrice: 120,
-      unitLabel: 'Packaging SKUs',
-      min: 1,
-      max: 10,
-      icon: '📦',
-    },
-    {
-      id: 'banner',
-      name: 'High-Impact Banner & Hero Web Ads',
-      basePrice: 60,
-      unitLabel: 'Banner Sizes',
-      min: 2,
-      max: 15,
-      icon: '🚀',
-    },
-  ],
-  addons: [
-    { id: 'source_files', name: 'Editable Source Files (PSD / AI / Figma)', price: 40 },
-    { id: 'fast_revisions', name: 'Unlimited Priority Revision Rounds (7-Day)', price: 60 },
-    { id: 'animated_motion', name: 'Animated Motion Video / Reels Version', price: 95 },
-  ],
-};
+// Built-in clean defaults with sensible bounds & distinct presets
+const DEFAULT_SERVICES = [
+  {
+    id: 'ads',
+    name: 'Social Media & Ad Creatives',
+    basePrice: 45,
+    unitLabel: 'Creatives',
+    min: 3,
+    max: 30,
+    icon: '🎯',
+    presets: [3, 5, 10, 20],
+  },
+  {
+    id: 'branding',
+    name: 'Logo & Brand Identity',
+    basePrice: 280,
+    unitLabel: 'Brand Concepts',
+    min: 1,
+    max: 6,
+    icon: '🎨',
+    presets: [1, 2, 3, 5],
+  },
+  {
+    id: 'packaging',
+    name: 'Product Packaging & 3D Mockup',
+    basePrice: 120,
+    unitLabel: 'Packaging SKUs',
+    min: 1,
+    max: 10,
+    icon: '📦',
+    presets: [1, 2, 4, 6],
+  },
+  {
+    id: 'banner',
+    name: 'High-Impact Banner & Hero Web Ads',
+    basePrice: 60,
+    unitLabel: 'Banner Sizes',
+    min: 2,
+    max: 15,
+    icon: '🚀',
+    presets: [2, 4, 6, 10],
+  },
+];
+
+const DEFAULT_ADDONS = [
+  { id: 'source_files', name: 'Editable Source Files (PSD / AI / Figma)', price: 40 },
+  { id: 'fast_revisions', name: 'Unlimited Priority Revisions (7-Day)', price: 60 },
+  { id: 'animated_motion', name: 'Animated Video / Motion Reels Version', price: 95 },
+];
 
 export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
   const { formatAmount } = useCurrency();
-  const [config, setConfig] = useState(DEFAULT_CONFIG);
+  const [services, setServices] = useState(DEFAULT_SERVICES);
+  const [addons, setAddons] = useState(DEFAULT_ADDONS);
   const [serviceType, setServiceType] = useState('ads');
   const [quantity, setQuantity] = useState(5);
   const [turnaround, setTurnaround] = useState('standard');
@@ -99,6 +90,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
   const [companyName, setCompanyName] = useState('');
   const [projectNotes, setProjectNotes] = useState('');
 
+  // Fetch settings from API with fallback
   useEffect(() => {
     const fetchConfig = async () => {
       try {
@@ -116,19 +108,14 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
               try {
                 parsed = JSON.parse(parsed);
               } catch (e) {
-                parsed = DEFAULT_CONFIG;
+                parsed = null;
               }
             }
-            const merged = {
-              ...DEFAULT_CONFIG,
-              ...parsed,
-              services: Array.isArray(parsed.services) && parsed.services.length > 0 ? parsed.services : DEFAULT_CONFIG.services,
-              addons: Array.isArray(parsed.addons) && parsed.addons.length > 0 ? parsed.addons : DEFAULT_CONFIG.addons,
-            };
-            setConfig(merged);
-            if (merged.services.length > 0 && !merged.services.find((s) => s.id === serviceType)) {
-              setServiceType(merged.services[0].id);
-              setQuantity(merged.services[0].min || 1);
+            if (parsed && Array.isArray(parsed.services) && parsed.services.length > 0) {
+              setServices(parsed.services);
+            }
+            if (parsed && Array.isArray(parsed.addons) && parsed.addons.length > 0) {
+              setAddons(parsed.addons);
             }
           }
         }
@@ -140,26 +127,29 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
     fetchConfig();
   }, []);
 
-  const serviceOptions = config.services || DEFAULT_CONFIG.services;
-  const currentService = serviceOptions.find((s) => s.id === serviceType) || serviceOptions[0] || {
-    basePrice: 50,
-    unitLabel: 'Units',
-    min: 1,
-    max: 10,
-    name: 'Service',
-  };
+  // Find active service
+  const currentService = useMemo(() => {
+    return services.find((s) => s.id === serviceType) || services[0] || DEFAULT_SERVICES[0];
+  }, [services, serviceType]);
 
-  // Generate clean, strictly unique preset numbers based on min/max
-  const uniquePresets = useMemo(() => {
+  // Ensure quantity stays within valid range when service changes
+  useEffect(() => {
+    const min = currentService.min || 1;
+    const max = currentService.max || 30;
+    setQuantity((prev) => Math.max(min, Math.min(prev, max)));
+  }, [currentService]);
+
+  // Clean, strictly unique preset list
+  const activePresets = useMemo(() => {
+    if (Array.isArray(currentService.presets) && currentService.presets.length > 0) {
+      return Array.from(new Set(currentService.presets));
+    }
     const min = currentService.min || 1;
     const max = currentService.max || 10;
     if (min === 1 && max <= 6) return [1, 2, 3, 5];
     if (min >= 2 && max <= 15) return [2, 4, 6, 10];
-    if (min >= 3 && max >= 20) return [3, 5, 10, 20];
-    return [min, Math.min(min + 2, max), Math.min(min + 5, max), max];
+    return [3, 5, 10, 20];
   }, [currentService]);
-
-  const addonsList = config.addons || DEFAULT_CONFIG.addons;
 
   const toggleAddon = (addonId) => {
     if (selectedAddons.includes(addonId)) {
@@ -169,20 +159,18 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
     }
   };
 
-  // Turnaround multipliers
-  const rushMultiplier = Number(config.turnaround_rush_multiplier) || 1.35;
-  const turnaroundMultiplier = turnaround === 'rush' ? rushMultiplier : 1.0;
+  // Turnaround multiplier
+  const turnaroundMultiplier = turnaround === 'rush' ? 1.35 : 1.0;
 
-  // Calculation
+  // Live calculation
   const baseServiceCost = (Number(currentService.basePrice) || 0) * quantity;
   const addonsTotal = selectedAddons.reduce((acc, addonId) => {
-    const addon = addonsList.find((a) => a.id === addonId);
+    const addon = addons.find((a) => a.id === addonId);
     return acc + (addon ? Number(addon.price) || 0 : 0);
   }, 0);
 
   const subtotal = Math.round((baseServiceCost + addonsTotal) * turnaroundMultiplier);
-  const discountPct = (Number(config.discount_percent) || 15) / 100;
-  const discountAmount = discountClaimed ? Math.round(subtotal * discountPct) : 0;
+  const discountAmount = discountClaimed ? Math.round(subtotal * 0.15) : 0;
   const finalTotal = subtotal - discountAmount;
 
   const handleClaimDiscount = () => {
@@ -213,7 +201,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
     const finalPhone = cleanPhone.startsWith('88') ? cleanPhone : `88${cleanPhone}`;
 
     const selectedAddonObjs = selectedAddons
-      .map((id) => addonsList.find((a) => a.id === id))
+      .map((id) => addons.find((a) => a.id === id))
       .filter(Boolean);
 
     tracking.trackWhatsAppClick(
@@ -238,7 +226,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
     }
 
     if (discountClaimed) {
-      msg += `🎁 *Discount Voucher:* ${config.discount_percent || 15}% Welcome Voucher Applied (-${formatAmount(discountAmount)})\n`;
+      msg += `🎁 *Discount Voucher:* 15% Welcome Voucher Applied (-${formatAmount(discountAmount)})\n`;
     }
 
     msg += `💰 *Total Estimated Quote:* ${formatAmount(finalTotal)}\n`;
@@ -272,12 +260,12 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-10">
         {/* ========================================================================= */}
-        {/* 1. CLEAN & HUMAN TITLE                                                    */}
+        {/* 1. HEADER                                                                 */}
         {/* ========================================================================= */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-bold uppercase tracking-wider">
             <Calculator className="w-3.5 h-3.5 text-teal-400" />
-            <span>{config.badge || 'Instant Price Calculator'}</span>
+            <span>Interactive Cost Calculator</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-white tracking-tight">
@@ -285,39 +273,37 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
           </h2>
 
           <p className="text-xs sm:text-sm text-zinc-400">
-            Select your requirements to see instant pricing and send a customized quote to WhatsApp in 1 click.
+            Select your design service and volume to see instant transparent pricing, then send to WhatsApp in 1 click.
           </p>
         </div>
 
         {/* ========================================================================= */}
-        {/* 2. UNIFIED 2-COLUMN STUDIO ESTIMATOR PANEL                                */}
+        {/* 2. UNIFIED 2-COLUMN STUDIO ESTIMATOR                                      */}
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT 7 COLS: CLEAN 3-STEP SELECTION FORM */}
+          {/* LEFT 7 COLS: CONFIGURATOR */}
           <div className="lg:col-span-7 space-y-6">
-            {/* ------------------------------------------------------------- */}
-            {/* STEP 1: SERVICE SELECTION                                     */}
-            {/* ------------------------------------------------------------- */}
+            {/* STEP 1: SERVICE TILES */}
             <div className="p-6 sm:p-7 rounded-3xl glass-card border border-zinc-800/90 shadow-xl space-y-4 bg-zinc-950/70">
               <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-teal-400 text-zinc-950 font-black text-xs flex items-center justify-center">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-400 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-400 text-zinc-950 flex items-center justify-center text-xs font-black">
                     1
                   </span>
-                  <span>Choose Design Service</span>
-                </h3>
+                  Select Design Service
+                </span>
                 <span className="text-[11px] text-zinc-500 font-mono">Step 1 of 3</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {serviceOptions.map((opt) => {
+                {services.map((opt) => {
                   const isSelected = serviceType === opt.id;
                   return (
                     <button
                       key={opt.id}
                       onClick={() => {
                         setServiceType(opt.id);
-                        setQuantity(Math.max(opt.min || 1, Math.min(quantity, opt.max || 10)));
+                        setQuantity(opt.min || 1);
                       }}
                       className={`p-4 rounded-2xl text-left transition-all duration-200 border cursor-pointer relative flex flex-col justify-between ${
                         isSelected
@@ -338,7 +324,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
 
                       <div>
                         <p className="text-sm font-bold text-white">{opt.name}</p>
-                        <p className="text-[11px] text-teal-400 font-medium mt-0.5">
+                        <p className="text-[11px] text-teal-400 font-semibold mt-0.5">
                           Starts at {formatAmount(opt.basePrice)}
                         </p>
                       </div>
@@ -348,30 +334,28 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
               </div>
             </div>
 
-            {/* ------------------------------------------------------------- */}
-            {/* STEP 2: QUANTITY SELECTION (CLEAN STEPPER + 4 PRESETS)        */}
-            {/* ------------------------------------------------------------- */}
+            {/* STEP 2: QUANTITY CONTROLLER (CLEAN HERO STEPPER + UNIQUE PRESETS) */}
             <div className="p-6 sm:p-7 rounded-3xl glass-card border border-zinc-800/90 shadow-xl space-y-5 bg-zinc-950/70">
               <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-teal-400 text-zinc-950 font-black text-xs flex items-center justify-center">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-400 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-400 text-zinc-950 flex items-center justify-center text-xs font-black">
                     2
                   </span>
-                  <span>Select Quantity ({currentService.unitLabel || 'Units'})</span>
-                </h3>
+                  Select Deliverables Volume
+                </span>
                 <span className="text-[11px] text-zinc-500 font-mono">Step 2 of 3</span>
               </div>
 
-              {/* Stepper Display Card */}
+              {/* Large Interactive Stepper Counter */}
               <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between gap-4">
                 <div>
-                  <span className="text-xs text-zinc-400 block font-medium">Selected Amount:</span>
+                  <span className="text-xs text-zinc-400 block font-medium">Selected Quantity:</span>
                   <span className="text-2xl sm:text-3xl font-black font-display text-white">
                     {quantity} <span className="text-sm font-semibold text-teal-400">{currentService.unitLabel || 'Units'}</span>
                   </span>
                 </div>
 
-                {/* Minus & Plus Buttons */}
+                {/* Stepper Buttons */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setQuantity((prev) => Math.max(currentService.min || 1, prev - 1))}
@@ -397,19 +381,19 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                 </div>
               </div>
 
-              {/* 4 Clean Preset Buttons */}
+              {/* Unique Presets Row */}
               <div className="space-y-1.5">
                 <span className="text-[11px] font-semibold text-zinc-400 block">
-                  Quick Presets:
+                  Quick Select:
                 </span>
                 <div className="grid grid-cols-4 gap-2">
-                  {uniquePresets.map((val) => (
+                  {activePresets.map((val) => (
                     <button
                       key={val}
                       onClick={() => setQuantity(val)}
                       className={`py-2 px-1 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
                         quantity === val
-                          ? 'bg-teal-400 text-zinc-950 border-teal-300 shadow-md font-black'
+                          ? 'bg-teal-400 text-zinc-950 border-teal-300 shadow-md font-black scale-102'
                           : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white'
                       }`}
                     >
@@ -419,7 +403,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                 </div>
               </div>
 
-              {/* Smooth Range Slider */}
+              {/* Slider Bar */}
               <div className="space-y-1 pt-1">
                 <input
                   type="range"
@@ -436,21 +420,19 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
               </div>
             </div>
 
-            {/* ------------------------------------------------------------- */}
-            {/* STEP 3: TURNAROUND & OPTIONAL ADDONS                          */}
-            {/* ------------------------------------------------------------- */}
+            {/* STEP 3: SPEED & ADDONS */}
             <div className="p-6 sm:p-7 rounded-3xl glass-card border border-zinc-800/90 shadow-xl space-y-4 bg-zinc-950/70">
               <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-teal-400 text-zinc-950 font-black text-xs flex items-center justify-center">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-400 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-400 text-zinc-950 flex items-center justify-center text-xs font-black">
                     3
                   </span>
-                  <span>Delivery Speed & Add-ons</span>
-                </h3>
+                  Delivery Speed & Enhancements
+                </span>
                 <span className="text-[11px] text-zinc-500 font-mono">Step 3 of 3</span>
               </div>
 
-              {/* Speed Switcher */}
+              {/* Speed Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={() => setTurnaround('standard')}
@@ -463,11 +445,11 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                   <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
                     <span className="flex items-center gap-1.5">
                       <Clock className="w-4 h-4 text-teal-400" />
-                      <span>{config.turnaround_standard_label || 'Standard (3–5 Days)'}</span>
+                      <span>Standard (3–5 Days)</span>
                     </span>
                     {turnaround === 'standard' && <Check className="w-4 h-4 text-teal-400" />}
                   </div>
-                  <p className="text-[11px] text-zinc-400">Regular schedule • Standard price</p>
+                  <p className="text-[11px] text-zinc-400">Regular schedule • Normal fee</p>
                 </button>
 
                 <button
@@ -481,7 +463,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                   <div className="flex items-center justify-between text-xs font-bold text-amber-300 mb-1">
                     <span className="flex items-center gap-1.5">
                       <Zap className="w-4 h-4 text-amber-400" />
-                      <span>{config.turnaround_rush_label || 'Express Rush (24–48h)'}</span>
+                      <span>Express Rush (24–48h)</span>
                     </span>
                     {turnaround === 'rush' && <Check className="w-4 h-4 text-amber-400" />}
                   </div>
@@ -494,7 +476,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                 <span className="text-[11px] font-semibold text-zinc-400 block">
                   Optional Enhancements:
                 </span>
-                {addonsList.map((addon) => {
+                {addons.map((addon) => {
                   const isChecked = selectedAddons.includes(addon.id);
                   return (
                     <button
@@ -575,7 +557,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                 )}
                 {discountClaimed && (
                   <div className="flex items-center justify-between text-emerald-400 font-bold pt-1.5 border-t border-zinc-800">
-                    <span>Welcome Discount ({config.discount_percent || 15}%)</span>
+                    <span>Welcome Discount (15%)</span>
                     <span>-{formatAmount(discountAmount)}</span>
                   </div>
                 )}
@@ -587,10 +569,10 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                   <div>
                     <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                       <Gift className="w-4 h-4 text-amber-400" />
-                      Special {config.discount_percent || 15}% Voucher
+                      Special 15% First-Order Voucher
                     </p>
                     <p className="text-[11px] text-zinc-400">
-                      Save {formatAmount(Math.round(subtotal * discountPct))} instantly
+                      Save {formatAmount(Math.round(subtotal * 0.15))} instantly
                     </p>
                   </div>
                   <button
@@ -603,7 +585,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
               ) : (
                 <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center gap-2 text-xs text-emerald-300 font-bold">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>{config.discount_percent || 15}% Discount Voucher Applied!</span>
+                  <span>15% Discount Voucher Applied!</span>
                 </div>
               )}
 
@@ -619,7 +601,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
 
                 <p className="text-[11px] text-center text-zinc-400 flex items-center justify-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
-                  <span>{config.guarantee_text || 'Free Consultation • Direct reply within 5 mins'}</span>
+                  <span>Free Consultation • Direct reply within 5 mins</span>
                 </p>
               </div>
             </div>
