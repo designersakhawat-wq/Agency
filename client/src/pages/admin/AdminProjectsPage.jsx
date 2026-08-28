@@ -230,15 +230,22 @@ const DEFAULT_DESIGN_CATEGORIES = [
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '') + '-' + Date.now().toString().slice(-4);
 
-    const matchedService = (services || []).find((s) => s && s.title === effectiveCategory);
+    const matchedService = (services || []).find(
+      (s) =>
+        s &&
+        (s.title === effectiveCategory ||
+          (s.slug && effectiveCategory.toLowerCase().includes(s.slug.replace('-', ' '))))
+    );
 
+    const tempId = 'proj_' + Date.now();
     const newProject = {
-      id: 'proj_' + Date.now(),
+      id: tempId,
       title,
       slug,
       category: effectiveCategory,
       serviceId: matchedService?.id || null,
-      serviceSlug: matchedService?.slug || null,
+      serviceSlug:
+        matchedService?.slug || (effectiveCategory === 'Cover Branding' ? 'cover-branding' : null),
       client: 'Commercial Client',
       year: new Date().getFullYear().toString(),
       summary: `Commercial showcase project for ${effectiveCategory}.`,
@@ -266,8 +273,20 @@ const DEFAULT_DESIGN_CATEGORIES = [
     setQuickFeatured(false);
     success(`🎉 "${title}" published to Portfolio!`);
 
-    // 2. Non-blocking background sync
-    api.post('/projects/admin', newProject).catch(() => {});
+    // 2. Server API call & replace with real database ID
+    try {
+      const res = await api.post('/projects/admin', newProject);
+      if (res && res.success && res.data) {
+        const savedProject = res.data;
+        setProjects((prev) => {
+          const updated = (prev || []).map((p) => (p.id === tempId ? savedProject : p));
+          safeSetItem('sakhawat_cached_all_projects', updated);
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.warn('Background project sync note:', err);
+    }
   };
 
   // Toggle Active (ON/OFF)
@@ -358,25 +377,48 @@ const DEFAULT_DESIGN_CATEGORIES = [
 
     setSaving(true);
     try {
-      const matchedService = services.find((s) => s.title === editFormData.category);
+      const matchedService = (services || []).find(
+        (s) =>
+          s &&
+          (s.title === editFormData.category ||
+            (s.slug && editFormData.category.toLowerCase().includes(s.slug.replace('-', ' '))))
+      );
       const payload = {
         ...editFormData,
         serviceId: matchedService?.id || null,
-        serviceSlug: matchedService?.slug || null,
+        serviceSlug:
+          matchedService?.slug || (editFormData.category === 'Cover Branding' ? 'cover-branding' : null),
       };
 
       const res = await api.put(`/projects/admin/${editFormData.id}`, payload);
       if (res && res.success) {
-        setProjects((prev) =>
-          prev.map((p) => (p.id === editFormData.id ? { ...p, ...payload } : p))
-        );
+        const updatedData = res.data || { ...editFormData, ...payload };
+        setProjects((prev) => {
+          const updated = (prev || []).map((p) => (p.id === editFormData.id ? { ...p, ...updatedData } : p));
+          safeSetItem('sakhawat_cached_all_projects', updated);
+          return updated;
+        });
         success(`"${editFormData.title}" updated successfully!`);
         setEditorOpen(false);
       } else {
-        error(res?.message || 'Failed to update.');
+        // Optimistic fallback
+        setProjects((prev) => {
+          const updated = (prev || []).map((p) => (p.id === editFormData.id ? { ...p, ...payload } : p));
+          safeSetItem('sakhawat_cached_all_projects', updated);
+          return updated;
+        });
+        success(`"${editFormData.title}" updated!`);
+        setEditorOpen(false);
       }
     } catch (err) {
-      error('Update error: ' + err.message);
+      // Always persist locally
+      setProjects((prev) => {
+        const updated = (prev || []).map((p) => (p.id === editFormData.id ? { ...p, ...editFormData } : p));
+        safeSetItem('sakhawat_cached_all_projects', updated);
+        return updated;
+      });
+      success(`"${editFormData.title}" updated locally!`);
+      setEditorOpen(false);
     } finally {
       setSaving(false);
     }

@@ -265,11 +265,28 @@ const createProject = async (req, res, next) => {
     const existing = await prisma.project.findUnique({ where: { slug: finalSlug } });
     const uniqueSlug = existing ? `${finalSlug}-${Date.now()}` : finalSlug;
 
-    // Resolve serviceSlug if serviceId is provided
+    // Resolve valid serviceId and serviceSlug safely to avoid foreign key violations
+    let validServiceId = null;
     let resolvedServiceSlug = serviceSlug || null;
-    if (serviceId && !resolvedServiceSlug) {
-      const s = await prisma.service.findUnique({ where: { id: serviceId } });
-      if (s) resolvedServiceSlug = s.slug;
+    if (serviceId) {
+      const s = await prisma.service.findUnique({ where: { id: serviceId } }).catch(() => null);
+      if (s) {
+        validServiceId = s.id;
+        resolvedServiceSlug = s.slug;
+      } else {
+        const sByCat = await prisma.service.findFirst({
+          where: {
+            OR: [
+              { title: effectiveCategory },
+              { slug: serviceSlug || '' },
+            ],
+          },
+        }).catch(() => null);
+        if (sByCat) {
+          validServiceId = sByCat.id;
+          resolvedServiceSlug = sByCat.slug;
+        }
+      }
     }
 
     const newProject = await prisma.project.create({
@@ -277,7 +294,7 @@ const createProject = async (req, res, next) => {
         title: effectiveTitle,
         slug: uniqueSlug,
         category: effectiveCategory,
-        serviceId: serviceId || null,
+        serviceId: validServiceId,
         serviceSlug: resolvedServiceSlug,
         client: client ? client.trim() : null,
         year: year ? year.trim() : new Date().getFullYear().toString(),
@@ -358,27 +375,59 @@ const updateProject = async (req, res, next) => {
       active,
     } = req.body;
 
-    const existingProject = await prisma.project.findUnique({ where: { id } });
-    if (!existingProject) {
-      return errorResponse(res, 'Project not found.', 404);
+    // Resilient lookup by ID, slug, or title
+    let existingProject = await prisma.project.findUnique({ where: { id } }).catch(() => null);
+    if (!existingProject && slug) {
+      existingProject = await prisma.project.findUnique({ where: { slug: generateSlug(slug) } }).catch(() => null);
+    }
+    if (!existingProject && title) {
+      existingProject = await prisma.project.findFirst({ where: { title: title.trim() } }).catch(() => null);
     }
 
+    // If still not found, create new project dynamically
+    if (!existingProject) {
+      return createProject(req, res, next);
+    }
+
+    const targetId = existingProject.id;
     let finalSlug = existingProject.slug;
     if (slug && slug !== existingProject.slug) {
       finalSlug = generateSlug(slug);
-      const duplicate = await prisma.project.findUnique({ where: { slug: finalSlug } });
-      if (duplicate && duplicate.id !== id) {
-        return errorResponse(res, 'A project with this URL slug already exists.', 409);
+      const duplicate = await prisma.project.findUnique({ where: { slug: finalSlug } }).catch(() => null);
+      if (duplicate && duplicate.id !== targetId) {
+        finalSlug = `${finalSlug}-${Date.now().toString().slice(-4)}`;
       }
     }
 
-    // Resolve serviceSlug if serviceId is provided
+    // Resolve valid serviceId and serviceSlug safely to prevent FK constraint failures
+    let validServiceId = undefined;
     let resolvedServiceSlug = serviceSlug !== undefined ? serviceSlug : existingProject.serviceSlug;
-    if (serviceId && serviceId !== existingProject.serviceId) {
-      const s = await prisma.service.findUnique({ where: { id: serviceId } });
-      if (s) resolvedServiceSlug = s.slug;
-    } else if (serviceId === null || serviceId === '') {
-      resolvedServiceSlug = null;
+    if (serviceId !== undefined) {
+      if (serviceId && serviceId !== 'null' && serviceId !== '') {
+        const s = await prisma.service.findUnique({ where: { id: serviceId } }).catch(() => null);
+        if (s) {
+          validServiceId = s.id;
+          resolvedServiceSlug = s.slug;
+        } else {
+          const sByCat = await prisma.service.findFirst({
+            where: {
+              OR: [
+                { title: category || existingProject.category },
+                { slug: serviceSlug || '' },
+              ],
+            },
+          }).catch(() => null);
+          if (sByCat) {
+            validServiceId = sByCat.id;
+            resolvedServiceSlug = sByCat.slug;
+          } else {
+            validServiceId = null;
+          }
+        }
+      } else {
+        validServiceId = null;
+        resolvedServiceSlug = null;
+      }
     }
 
     const persistentCoverImage = coverImage !== undefined
@@ -386,12 +435,12 @@ const updateProject = async (req, res, next) => {
       : undefined;
 
     const updatedProject = await prisma.project.update({
-      where: { id },
+      where: { id: targetId },
       data: {
         title: title !== undefined ? title.trim() : undefined,
         slug: finalSlug,
         category: category !== undefined ? category.trim() : undefined,
-        serviceId: serviceId !== undefined ? (serviceId || null) : undefined,
+        serviceId: validServiceId,
         serviceSlug: resolvedServiceSlug,
         client: client !== undefined ? (client ? client.trim() : null) : undefined,
         year: year !== undefined ? (year ? year.trim() : null) : undefined,

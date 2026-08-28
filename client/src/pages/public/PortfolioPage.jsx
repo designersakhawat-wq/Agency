@@ -357,39 +357,46 @@ export const PortfolioPage = () => {
     });
   }, [projects, searchQuery]);
 
-  // Group projects by service (100% null-safe)
+  // Group projects by service (100% null-safe & strictly non-overlapping)
   const serviceSections = useMemo(() => {
     const safeServices = (services || []).filter(Boolean);
     return safeServices.map((service) => {
-      const sSlug = service.slug || '';
-      const sTitle = service.title || '';
+      const sSlugLower = (service.slug || '').toLowerCase().trim();
+      const sTitleLower = (service.title || '').toLowerCase().trim();
+
       const serviceProjects = searchedProjects.filter((p) => {
         if (!p) return false;
-        const pCat = (p.category || '').toLowerCase();
-        if (p.serviceId === service.id) return true;
-        if (p.serviceSlug === service.slug) return true;
-        if (p.category === service.title) return true;
-        if (sTitle && pCat.includes(sTitle.toLowerCase())) return true;
-        if (
-          sSlug.includes('logo') &&
-          (pCat.includes('logo') || pCat.includes('brand'))
-        )
-          return true;
-        if (
-          sSlug.includes('ads') &&
-          (pCat.includes('ads') || pCat.includes('social'))
-        )
-          return true;
-        if (
-          sSlug.includes('ugc') &&
-          (pCat.includes('ugc') || pCat.includes('video'))
-        )
-          return true;
-        if (
-          sSlug.includes('cover') &&
-          (pCat.includes('cover') || pCat.includes('banner'))
-        )
-          return true;
+        const pCat = (p.category || '').toLowerCase().trim();
+        const pSlug = (p.serviceSlug || '').toLowerCase().trim();
+
+        // 1. Direct ID / Slug match
+        if (p.serviceId && p.serviceId === service.id) return true;
+        if (pSlug && (pSlug === sSlugLower || pSlug === service.slug)) return true;
+
+        // 2. Exact Title Match
+        if (p.category && p.category.toLowerCase().trim() === sTitleLower) return true;
+
+        // 3. Explicit non-overlapping category grouping
+        if (sSlugLower.includes('cover') || sTitleLower.includes('cover')) {
+          return pCat.includes('cover') || pCat.includes('banner') || pCat.includes('header');
+        }
+
+        if (sSlugLower.includes('ugc') || sSlugLower.includes('video') || sTitleLower.includes('video')) {
+          return pCat.includes('ugc') || pCat.includes('video') || pCat.includes('reel') || pCat.includes('short') || pCat.includes('motion') || pCat.includes('tiktok');
+        }
+
+        if (sSlugLower.includes('ads') || sSlugLower.includes('social') || sTitleLower.includes('ad')) {
+          return pCat.includes('ad') || pCat.includes('post') || pCat.includes('social') || pCat.includes('feed');
+        }
+
+        if (sSlugLower.includes('logo') || sTitleLower.includes('logo')) {
+          // Strictly exclude Cover Branding, Video, and Ads
+          if (pCat.includes('cover') || pCat.includes('banner') || pCat.includes('video') || pCat.includes('ad') || pCat.includes('ugc')) {
+            return false;
+          }
+          return pCat.includes('logo') || pCat.includes('brand') || pCat.includes('identity');
+        }
+
         return false;
       });
 
