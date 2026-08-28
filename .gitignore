@@ -14,17 +14,16 @@ production.env
 # Production builds
 build/
 
-# Local media uploads
-uploads/*
-!uploads/.gitkeep
+# Local media uploads - TRACKED to survive deployments & redeployments
+!uploads/
+!uploads/*
 
-# Prisma SQLite database files and persistent storage
-*.db
+# Prisma SQLite database files
 *.db-journal
 *.db-shm
 *.db-wal
-prisma/dev.db
-persistent_storage/
+!prisma/dev.db
+!prisma/cms_seed_snapshot.json
 
 
 # Logs
