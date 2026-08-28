@@ -16,6 +16,7 @@ import {
   Star,
   Check,
   X,
+  Plus,
   Search,
   Filter,
   Loader2,
