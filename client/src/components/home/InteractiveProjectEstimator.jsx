@@ -79,7 +79,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
   const [serviceType, setServiceType] = useState('ads');
   const [quantity, setQuantity] = useState(5);
   const [turnaround, setTurnaround] = useState('standard');
-  const [selectedAddons, setSelectedAddons] = useState(['source_files']);
+  const [selectedAddons, setSelectedAddons] = useState([]);
   const [discountClaimed, setDiscountClaimed] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState('8801781955355');
 
