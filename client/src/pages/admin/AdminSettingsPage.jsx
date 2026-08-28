@@ -28,6 +28,7 @@ import {
 import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
+import { MediaSelectField } from '../../components/common/MediaSelectField';
 import { safeSetItem } from '../../utils/safeStorage';
 
 export const AdminSettingsPage = () => {
@@ -393,29 +394,6 @@ export const AdminSettingsPage = () => {
 
   return (
     <div className="space-y-8 max-w-5xl">
-      {/* Hidden Upload Inputs */}
-      <input
-        ref={logoInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleLogoUpload}
-        className="hidden"
-      />
-      <input
-        ref={faviconInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFaviconUpload}
-        className="hidden"
-      />
-      <input
-        ref={heroImageInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleHeroImageUpload}
-        className="hidden"
-      />
-
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold font-display text-white">Site Settings & Configuration</h1>
@@ -442,93 +420,23 @@ export const AdminSettingsPage = () => {
             </div>
           </div>
 
-          {/* Logo & Favicon Upload Row */}
+          {/* Logo & Favicon Selection (Media Library Only) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Logo */}
-            <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-3">
-              <label className="text-xs font-bold text-white block">
-                Website Navbar Logo (ওয়েবসাইট লোগো)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={settings.site_logo}
-                  onChange={(e) => setSettings({ ...settings, site_logo: e.target.value })}
-                  placeholder="e.g. /uploads/my-logo.png or https://..."
-                  className="flex-1 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white focus:outline-none focus:border-teal-400 font-mono"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  icon={Upload}
-                  isLoading={uploadingLogo}
-                  onClick={() => logoInputRef.current?.click()}
-                  className="cursor-pointer shrink-0"
-                >
-                  Upload
-                </Button>
-              </div>
+            <MediaSelectField
+              label="Website Navbar Logo"
+              value={settings.site_logo}
+              onChange={(url) => setSettings((prev) => ({ ...prev, site_logo: url }))}
+              helperText="Transparent PNG or SVG vector (400x120px recommended). Select from Media Library."
+              aspectRatio="aspect-auto"
+            />
 
-              {settings.site_logo ? (
-                <div className="flex items-center gap-3 p-2 rounded-xl bg-zinc-950 border border-zinc-800">
-                  <img
-                    src={settings.site_logo}
-                    alt="Logo preview"
-                    className="h-9 max-h-9 w-auto object-contain rounded-lg"
-                  />
-                  <span className="text-[11px] text-emerald-400 font-mono">Active Logo Preview</span>
-                </div>
-              ) : (
-                <p className="text-[11px] text-zinc-400">
-                  💡 লোগো খালি রাখলে স্বয়ংক্রিয়ভাবে আকর্ষণীয় <strong>"SH • Md Sakhawat Hossain"</strong> মার্ক দেখাবে।
-                </p>
-              )}
-              <p className="text-[10px] text-teal-400">📐 রিকমেন্ডেড: 400 × 120 px (Transparent PNG বা SVG), 150 KB-এর নিচে</p>
-            </div>
-
-            {/* Favicon */}
-            <div className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-3">
-              <label className="text-xs font-bold text-white block">
-                Browser Tab Favicon (ব্রাউজার ট্যাব ফেভিকন)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={settings.site_favicon}
-                  onChange={(e) => setSettings({ ...settings, site_favicon: e.target.value })}
-                  placeholder="e.g. /uploads/favicon.png or https://..."
-                  className="flex-1 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700 text-xs text-white focus:outline-none focus:border-teal-400 font-mono"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  icon={Upload}
-                  isLoading={uploadingFavicon}
-                  onClick={() => faviconInputRef.current?.click()}
-                  className="cursor-pointer shrink-0"
-                >
-                  Upload
-                </Button>
-              </div>
-
-              {settings.site_favicon ? (
-                <div className="flex items-center gap-3 p-2 rounded-xl bg-zinc-950 border border-zinc-800">
-                  <img
-                    src={settings.site_favicon}
-                    alt="Favicon preview"
-                    className="w-6 h-6 object-contain rounded"
-                  />
-                  <span className="text-[11px] text-emerald-400 font-mono">Active Favicon Preview</span>
-                </div>
-              ) : (
-                <p className="text-[11px] text-zinc-400">
-                  💡 ব্রাউজার ট্যাবে যে ছোট্ট আইকনটি প্রদর্শিত হবে।
-                </p>
-              )}
-              <p className="text-[10px] text-teal-400">📐 রিকমেন্ডেড: 64 × 64 px (Square PNG / ICO), 50 KB-এর নিচে</p>
-            </div>
+            <MediaSelectField
+              label="Browser Tab Favicon"
+              value={settings.site_favicon}
+              onChange={(url) => setSettings((prev) => ({ ...prev, site_favicon: url }))}
+              helperText="Square 64x64px PNG or ICO icon for browser tabs. Select from Media Library."
+              aspectRatio="aspect-square"
+            />
           </div>
 
           {/* Theme Color Palettes */}

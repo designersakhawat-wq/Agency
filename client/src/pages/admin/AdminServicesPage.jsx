@@ -48,6 +48,7 @@ import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { MediaPickerModal } from '../../components/common/MediaPickerModal';
 
 import { DEFAULT_SERVICES, DEFAULT_SETTINGS, DEFAULT_FAQS, DEFAULT_PROJECTS } from '../../data/defaultData';
 import { safeSetItem } from '../../utils/safeStorage';
@@ -153,10 +154,10 @@ const AdminServicesPage = () => {
   });
 
   // Portfolio Item Easy Upload State
-  const [uploadingCover, setUploadingCover] = useState(false);
   const [quickUploadTitle, setQuickUploadTitle] = useState('');
   const [quickUploadPreview, setQuickUploadPreview] = useState('');
   const [quickUploadFeatured, setQuickUploadFeatured] = useState(false);
+  const [serviceMediaPickerOpen, setServiceMediaPickerOpen] = useState(false);
   const [projectSearch, setProjectSearch] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const showcaseFileInputRef = useRef(null);
@@ -880,15 +881,6 @@ const AdminServicesPage = () => {
 
   return (
     <div className="space-y-10 max-w-7xl">
-      {/* Hidden File Input for 1-Click Upload */}
-      <input
-        ref={showcaseFileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleFileUpload(e.target.files?.[0])}
-        className="hidden"
-      />
-
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
         <div>
@@ -1314,10 +1306,10 @@ const AdminServicesPage = () => {
                     </div>
                     <div className="space-y-1">
                       <h4 className="text-sm font-bold text-white">
-                        Click to Upload or Drag & Drop Image Here
+                        Select Showcase Project from Media Library
                       </h4>
                       <p className="text-xs text-zinc-400">
-                        Supports PNG, JPG, WebP • 1:1 Square recommended for best layout
+                        Select from Centralized Media Library or upload new asset.
                       </p>
                     </div>
                     <div>
@@ -1325,12 +1317,11 @@ const AdminServicesPage = () => {
                         type="button"
                         variant="primary"
                         size="md"
-                        icon={Upload}
-                        isLoading={uploadingCover}
-                        onClick={() => showcaseFileInputRef.current?.click()}
-                        className="cursor-pointer font-bold px-6 shadow-xl"
+                        icon={ImageIcon}
+                        onClick={() => setServiceMediaPickerOpen(true)}
+                        className="cursor-pointer font-bold px-6 shadow-xl bg-indigo-600 hover:bg-indigo-500"
                       >
-                        Choose Image from Device
+                        Choose from Media Library
                       </Button>
                     </div>
                   </div>
@@ -2185,6 +2176,25 @@ const AdminServicesPage = () => {
         message={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
         confirmText="Delete Service"
         variant="danger"
+      />
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={serviceMediaPickerOpen}
+        onClose={() => setServiceMediaPickerOpen(false)}
+        onSelect={(asset) => {
+          const url = asset.fileUrl || asset.url;
+          if (url) {
+            setQuickUploadPreview(url);
+            if (!quickUploadTitle) {
+              const name = (asset.fileName || '').replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
+              setQuickUploadTitle(name);
+            }
+          }
+        }}
+        title="Select Service Showcase Project"
+        subtitle="Choose an image from your Media Library or upload a new asset."
+        currentValue={quickUploadPreview}
       />
     </div>
   );

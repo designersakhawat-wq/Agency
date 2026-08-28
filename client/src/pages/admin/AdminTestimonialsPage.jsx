@@ -21,6 +21,7 @@ import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
+import { MediaSelectField } from '../../components/common/MediaSelectField';
 
 import { DEFAULT_TESTIMONIALS } from '../../data/defaultData';
 import { safeSetItem } from '../../utils/safeStorage';
@@ -210,15 +211,6 @@ export const AdminTestimonialsPage = () => {
 
   return (
     <div className="space-y-6 max-w-6xl pb-16">
-      {/* Hidden Avatar File Upload */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleAvatarUpload}
-        className="hidden"
-      />
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
         <div>
@@ -404,28 +396,14 @@ export const AdminTestimonialsPage = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1">Client Avatar URL</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={formData.clientAvatar}
-                onChange={(e) => setFormData({ ...formData, clientAvatar: e.target.value })}
-                placeholder="https://... or upload photo"
-                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-white text-xs focus:border-teal-500 focus:outline-none"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                icon={Upload}
-                onClick={() => fileInputRef.current?.click()}
-                loading={uploadingAvatar}
-              >
-                Upload
-              </Button>
-            </div>
-          </div>
+          {/* Client Avatar Selection (Media Library Only) */}
+          <MediaSelectField
+            label="Client Avatar Photo"
+            value={formData.clientAvatar}
+            onChange={(url) => setFormData((prev) => ({ ...prev, clientAvatar: url }))}
+            helperText="Professional headshot or client photo (Square 1:1 recommended)."
+            aspectRatio="aspect-square"
+          />
 
           <div>
             <label className="block text-xs font-semibold text-zinc-300 mb-1">Review Content *</label>

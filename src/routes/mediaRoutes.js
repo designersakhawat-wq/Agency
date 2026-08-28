@@ -7,8 +7,11 @@ const { requireAuth, requireRole } = require('../middleware/authMiddleware');
 // Admin Protected
 router.post('/upload', requireAuth, requireRole(['ADMIN']), upload.single('file'), mediaController.uploadMedia);
 router.post('/upload-multiple', requireAuth, requireRole(['ADMIN']), upload.array('files', 10), mediaController.uploadMedia);
+router.post('/scan', requireAuth, requireRole(['ADMIN']), mediaController.scanExistingMedia);
+router.post('/admin/scan', requireAuth, requireRole(['ADMIN']), mediaController.scanExistingMedia);
 router.get('/all', requireAuth, requireRole(['ADMIN']), mediaController.getAllMediaAdmin);
 router.get('/', requireAuth, requireRole(['ADMIN']), mediaController.getAllMediaAdmin);
+router.get('/:id/usage', requireAuth, requireRole(['ADMIN']), mediaController.getMediaUsage);
 router.put('/:id', requireAuth, requireRole(['ADMIN']), mediaController.updateMedia);
 router.delete('/:id', requireAuth, requireRole(['ADMIN']), mediaController.deleteMedia);
 

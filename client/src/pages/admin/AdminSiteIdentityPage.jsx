@@ -20,6 +20,7 @@ import {
   X,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
+import { MediaSelectField } from '../../components/common/MediaSelectField';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { safeSetItem } from '../../utils/safeStorage';
@@ -473,127 +474,23 @@ export const AdminSiteIdentityPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Hero Profile Image */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">
-                Hero Profile Image
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  name="hero_image"
-                  value={formData.hero_image}
-                  onChange={handleChange}
-                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-xs sm:text-sm focus:border-teal-500 focus:outline-none transition-colors"
-                  placeholder="https://... or upload image"
-                />
-                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-colors shrink-0">
-                  <Upload className="w-4 h-4 text-teal-400" />
-                  <span>{uploadingHero ? 'Uploading...' : 'Upload'}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleHeroUpload}
-                    className="hidden"
-                    disabled={uploadingHero}
-                  />
-                </label>
-                {formData.hero_image && (
-                  <button
-                    type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, hero_image: '' }))}
-                    className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors cursor-pointer shrink-0"
-                    title="Remove Hero Image"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+            {/* Hero Profile Image (Media Library Only) */}
+            <MediaSelectField
+              label="Hero Profile Image"
+              value={formData.hero_image}
+              onChange={(url) => setFormData((prev) => ({ ...prev, hero_image: url }))}
+              helperText="Displayed on homepage hero section. Select from Centralized Media Library."
+              aspectRatio="aspect-square"
+            />
 
-              {formData.hero_image && (
-                <div className="mt-3 flex items-center justify-between p-2.5 bg-zinc-950/80 rounded-xl border border-zinc-800">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={formData.hero_image}
-                      alt="Hero Preview"
-                      className="w-12 h-12 rounded-lg object-cover border border-zinc-700 shrink-0"
-                    />
-                    <div>
-                      <span className="text-xs text-white font-semibold block">Hero Image Active</span>
-                      <span className="text-[10px] text-zinc-400">Displayed on homepage hero section</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, hero_image: '' }))}
-                    className="text-xs text-rose-400 hover:text-rose-300 font-bold px-2 py-1 rounded hover:bg-rose-500/10 transition-colors cursor-pointer"
-                  >
-                    Remove
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* About Page Image */}
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">
-                About Page Image
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  name="about_image"
-                  value={formData.about_image}
-                  onChange={handleChange}
-                  className="flex-1 px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-white text-xs sm:text-sm focus:border-teal-500 focus:outline-none transition-colors"
-                  placeholder="https://... or upload image"
-                />
-                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-colors shrink-0">
-                  <Upload className="w-4 h-4 text-teal-400" />
-                  <span>{uploadingAbout ? 'Uploading...' : 'Upload'}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAboutUpload}
-                    className="hidden"
-                    disabled={uploadingAbout}
-                  />
-                </label>
-                {formData.about_image && (
-                  <button
-                    type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, about_image: '' }))}
-                    className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors cursor-pointer shrink-0"
-                    title="Remove About Image"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              {formData.about_image && (
-                <div className="mt-3 flex items-center justify-between p-2.5 bg-zinc-950/80 rounded-xl border border-zinc-800">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={formData.about_image}
-                      alt="About Preview"
-                      className="w-12 h-12 rounded-lg object-cover border border-zinc-700 shrink-0"
-                    />
-                    <div>
-                      <span className="text-xs text-white font-semibold block">About Portrait Active</span>
-                      <span className="text-[10px] text-zinc-400">Displayed on /about story page</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, about_image: '' }))}
-                    className="text-xs text-rose-400 hover:text-rose-300 font-bold px-2 py-1 rounded hover:bg-rose-500/10 transition-colors cursor-pointer"
-                  >
-                    Remove
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* About Page Image (Media Library Only) */}
+            <MediaSelectField
+              label="About Page Portrait"
+              value={formData.about_image}
+              onChange={(url) => setFormData((prev) => ({ ...prev, about_image: url }))}
+              helperText="Displayed on /about story page. Select from Centralized Media Library."
+              aspectRatio="aspect-square"
+            />
 
             <div className="md:col-span-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">

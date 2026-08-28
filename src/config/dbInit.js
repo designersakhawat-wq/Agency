@@ -295,17 +295,15 @@ const initDatabaseSchema = async (prisma) => {
       }
     }
 
-    // 3. If fresh database with 0 services, seed initial default content safely
-    const serviceCount = await prisma.service.count().catch(() => 0);
-    if (serviceCount === 0) {
-      console.log('🌱 Fresh database detected: Seeding initial baseline datasets...');
+    // 4. Auto-discover and register all existing website images into Media Library
+    setTimeout(async () => {
       try {
-        const seed = require('../../prisma/seed');
-        if (typeof seed === 'function') await seed();
-      } catch (seedErr) {
-        console.warn('Initial baseline seed info:', seedErr.message);
+        const mediaService = require('../services/mediaService');
+        await mediaService.scanAndRegisterAllExistingImages();
+      } catch (scanErr) {
+        console.warn('Media auto-scanner warning:', scanErr.message);
       }
-    }
+    }, 1000);
   } catch (err) {
     console.error('Database schema self-heal error:', err.message);
   }

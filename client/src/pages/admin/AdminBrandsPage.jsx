@@ -16,6 +16,7 @@ import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Loader } from '../../components/common/Loader';
 import { Badge } from '../../components/common/Badge';
+import { MediaSelectField } from '../../components/common/MediaSelectField';
 
 import { DEFAULT_BRANDS } from '../../data/defaultData';
 import { safeSetItem } from '../../utils/safeStorage';
@@ -162,15 +163,6 @@ export const AdminBrandsPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Hidden File Upload Input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleLogoUpload}
-        className="hidden"
-      />
-
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
         <div>
           <h1 className="text-2xl font-bold font-display text-white">Client Brands & Logos</h1>
@@ -263,46 +255,15 @@ export const AdminBrandsPage = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1">
-              Brand Logo (ইমেজ আপলোড বা লিংক)
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={formData.logoUrl}
-                onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-                placeholder="e.g. /uploads/brand-logo.png or https://..."
-                className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-3.5 py-2 text-white text-xs focus:outline-none focus:border-teal-500 font-mono"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                icon={Upload}
-                isLoading={uploadingLogo}
-                onClick={() => fileInputRef.current?.click()}
-                className="cursor-pointer shrink-0"
-              >
-                Upload
-              </Button>
-            </div>
-
-            {formData.logoUrl && (
-              <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center gap-3 mt-2">
-                <img
-                  src={formData.logoUrl}
-                  alt="Preview"
-                  className="h-8 max-h-8 max-w-[120px] object-contain rounded"
-                />
-                <span className="text-[11px] text-emerald-400 font-mono">Active Logo Preview</span>
-              </div>
-            )}
-
-            <p className="text-[11px] text-teal-400 mt-1.5">
-              📐 রিকমেন্ডেশন: <strong>Transparent PNG / SVG</strong> • ডাইমেনশন: <strong>400 × 120 px</strong> • সাইজ: <strong>Under 150 KB</strong>
-            </p>
-          </div>
+          {/* Brand Logo Selection (Media Library Only) */}
+          <MediaSelectField
+            label="Brand Logo"
+            value={formData.logoUrl}
+            onChange={(url) => setFormData((prev) => ({ ...prev, logoUrl: url }))}
+            helperText="Transparent PNG or SVG vector mark (400x120px recommended)."
+            aspectRatio="aspect-auto"
+            required
+          />
 
           <div>
             <label className="block text-xs font-semibold text-zinc-300 mb-1">Website URL (Optional)</label>

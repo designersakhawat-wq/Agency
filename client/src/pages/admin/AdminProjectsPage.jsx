@@ -34,6 +34,7 @@ import { Badge } from '../../components/common/Badge';
 import { Loader } from '../../components/common/Loader';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
+import { MediaPickerModal } from '../../components/common/MediaPickerModal';
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
 import { safeSetItem } from '../../utils/safeStorage';
 
@@ -52,13 +53,13 @@ export const AdminProjectsPage = () => {
   const [search, setSearch] = useState('');
 
   // Quick Upload Form State
-  const [uploadingCover, setUploadingCover] = useState(false);
   const [quickTitle, setQuickTitle] = useState('');
   const [quickCategory, setQuickCategory] = useState('Logo & Branding');
   const [quickCoverPreview, setQuickCoverPreview] = useState('');
   const [quickVideoUrl, setQuickVideoUrl] = useState('');
   const [quickFeatured, setQuickFeatured] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   // Edit / Full Details Modal State
@@ -388,15 +389,6 @@ const DEFAULT_DESIGN_CATEGORIES = [
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-20">
-      {/* Hidden File Input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handleFileUpload(e.target.files?.[0])}
-      />
-
       {/* =========================================================================
           1. TOP HEADER & METRIC CARDS
           ========================================================================= */}
@@ -482,26 +474,25 @@ const DEFAULT_DESIGN_CATEGORIES = [
           }`}
         >
           {!quickCoverPreview ? (
-            <div className="space-y-3 py-2">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-400 flex items-center justify-center">
-                <UploadCloud className="w-6 h-6" />
+            <div className="space-y-3 py-4">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
+                <ImageIcon className="w-6 h-6" />
               </div>
               <div>
                 <h4 className="text-xs sm:text-sm font-bold text-white">
-                  Drag & Drop Image or Click Below
+                  Select Project Cover from Media Library
                 </h4>
-                <p className="text-[11px] text-zinc-500">Supports PNG, JPG, WebP (Square 1:1 or 4:3 recommended)</p>
+                <p className="text-[11px] text-zinc-500">Choose from existing media or upload new asset centrally.</p>
               </div>
               <Button
                 type="button"
                 variant="primary"
                 size="md"
-                icon={Upload}
-                isLoading={uploadingCover}
-                onClick={() => fileInputRef.current?.click()}
-                className="font-bold px-6 cursor-pointer"
+                icon={ImageIcon}
+                onClick={() => setMediaPickerOpen(true)}
+                className="font-bold px-6 cursor-pointer bg-indigo-600 hover:bg-indigo-500"
               >
-                Choose Image from Device
+                Choose from Media Library
               </Button>
             </div>
           ) : (
@@ -925,6 +916,25 @@ const DEFAULT_DESIGN_CATEGORIES = [
           </div>
         </form>
       </Modal>
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={mediaPickerOpen}
+        onClose={() => setMediaPickerOpen(false)}
+        onSelect={(asset) => {
+          const url = asset.fileUrl || asset.url;
+          if (url) {
+            setQuickCoverPreview(url);
+            if (!quickTitle) {
+              const name = (asset.fileName || '').replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
+              setQuickTitle(name);
+            }
+          }
+        }}
+        title="Select Project Cover"
+        subtitle="Choose an image from your Media Library or upload a new asset."
+        currentValue={quickCoverPreview}
+      />
     </div>
   );
 };

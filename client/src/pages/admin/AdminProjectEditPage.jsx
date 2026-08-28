@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import { MediaSelectField } from '../../components/common/MediaSelectField';
+import { MediaPickerModal } from '../../components/common/MediaPickerModal';
 
 const DESIGN_CATEGORIES = [
   'Logo & Branding',
@@ -79,8 +81,8 @@ const AdminProjectEditPage = () => {
   const [galleryInput, setGalleryInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
   const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [galleryPickerOpen, setGalleryPickerOpen] = useState(false);
 
   useEffect(() => {
     // Fetch available services for assignment
@@ -559,79 +561,78 @@ const AdminProjectEditPage = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
-              Primary Cover Image URL *
-            </label>
-            <div className="flex gap-3">
-              <input
-                type="text"
-                placeholder="https://... or /uploads/..."
-                value={formData.coverImage}
-                onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:border-teal-500 focus:outline-none"
-                required
-              />
-              <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white transition-colors">
-                <Upload className="w-4 h-4" />
-                <span>{uploadingCover ? 'Uploading...' : 'Upload File'}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  disabled={uploadingCover}
-                />
-              </label>
-            </div>
+          {/* Primary Cover Image (Media Library Only) */}
+          <MediaSelectField
+            label="Primary Project Cover Image"
+            value={formData.coverImage}
+            onChange={(url) => setFormData((prev) => ({ ...prev, coverImage: url }))}
+            helperText="Main showcase visual (16:9 or 4:3 high-res recommended). Select from Centralized Media Library."
+            aspectRatio="aspect-[16/10]"
+            required
+          />
 
-            {formData.coverImage && (
-              <div className="mt-3 w-48 aspect-[16/10] rounded-xl overflow-hidden border border-zinc-700 bg-zinc-950">
-                <img
-                  src={formData.coverImage}
-                  alt="Cover preview"
-                  className="w-full h-full object-cover"
-                />
+          {/* Gallery Images (Media Library Only) */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300">
+                  Gallery Screenshots & Case Study Variations
+                </label>
+                <p className="text-[11px] text-zinc-500">Add multiple visual slides from your Media Library.</p>
               </div>
-            )}
-          </div>
-
-          {/* Gallery Images */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-1.5">
-              Gallery Screenshots / Variations
-            </label>
-            <div className="flex gap-2 mb-3">
-              <input
-                type="text"
-                placeholder="Add image URL..."
-                value={galleryInput}
-                onChange={(e) => setGalleryInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddGalleryImage())}
-                className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-xs text-white focus:border-teal-500 focus:outline-none"
-              />
-              <Button variant="secondary" size="sm" onClick={handleAddGalleryImage} icon={Plus}>
-                Add Gallery Image
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setGalleryPickerOpen(true)}
+                icon={Plus}
+                className="cursor-pointer"
+              >
+                Choose from Media Library
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {formData.galleryImages.map((imgUrl, i) => (
-                <div
-                  key={i}
-                  className="relative group aspect-[16/10] rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950"
-                >
-                  <img src={imgUrl} alt={`Gallery ${i}`} className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveGalleryImage(i)}
-                    className="absolute top-2 right-2 p-1 rounded-lg bg-rose-600/90 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+            {formData.galleryImages.length === 0 ? (
+              <div className="p-6 rounded-xl border border-dashed border-zinc-800 text-center text-zinc-500 text-xs">
+                No gallery screenshots added yet. Click "Choose from Media Library" to attach slides.
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {formData.galleryImages.map((imgUrl, i) => (
+                  <div
+                    key={i}
+                    className="relative group aspect-[16/10] rounded-xl overflow-hidden border border-zinc-800 bg-zinc-950"
                   >
-                    <Trash className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
+                    <img src={imgUrl} alt={`Gallery ${i}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveGalleryImage(i)}
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-rose-600/90 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-lg"
+                      title="Remove from gallery"
+                    >
+                      <Trash className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Gallery Media Picker Modal */}
+            <MediaPickerModal
+              isOpen={galleryPickerOpen}
+              onClose={() => setGalleryPickerOpen(false)}
+              onSelect={(asset) => {
+                const url = asset.fileUrl || asset.url;
+                if (url && !formData.galleryImages.includes(url)) {
+                  setFormData((prev) => ({
+                    ...prev,
+                    galleryImages: [...prev.galleryImages, url],
+                  }));
+                }
+              }}
+              title="Add to Project Gallery"
+              subtitle="Select an asset from your Media Library to add as a gallery slide."
+            />
           </div>
         </div>
 
