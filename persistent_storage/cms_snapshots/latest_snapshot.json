@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-28T21:04:25.700Z",
+  "timestamp": "2026-08-28T21:43:25.247Z",
   "version": "1.0.0",
   "data": {
     "settings": [
@@ -1033,6 +1033,281 @@
         "source": "LOCAL",
         "createdAt": "2026-08-26T18:18:48.079Z",
         "updatedAt": "2026-08-26T18:18:48.079Z"
+      },
+      {
+        "id": "b0850ca9-9fe7-4eab-ad02-8f1b460e4e69",
+        "fileName": "9062-laptop-mockup-v2-1787833949708-949730261.jpg",
+        "fileUrl": "/uploads/9062-laptop-mockup-v2-1787833949708-949730261.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 2342730,
+        "altText": "9062 laptop mockup v2 1787833949708 949730261",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.908Z",
+        "updatedAt": "2026-08-28T21:41:46.908Z"
+      },
+      {
+        "id": "6d555db9-1c87-411a-b5e5-2a60908f2d15",
+        "fileName": "logo-01-1787834985009-476146340.jpg",
+        "fileUrl": "/uploads/logo-01-1787834985009-476146340.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 1643178,
+        "altText": "logo 01 1787834985009 476146340",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.926Z",
+        "updatedAt": "2026-08-28T21:41:46.926Z"
+      },
+      {
+        "id": "77a51851-8a00-410a-a12d-092a223160d1",
+        "fileName": "logo-1787835810225-371368053.jpg",
+        "fileUrl": "/uploads/logo-1787835810225-371368053.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 2296220,
+        "altText": "logo 1787835810225 371368053",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.930Z",
+        "updatedAt": "2026-08-28T21:41:46.930Z"
+      },
+      {
+        "id": "7c87ae85-9580-4160-b38c-3cea86ccda54",
+        "fileName": "logo-new-01-01-1787835006263-396457564.jpg",
+        "fileUrl": "/uploads/logo-new-01-01-1787835006263-396457564.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 5917914,
+        "altText": "logo new 01 01 1787835006263 396457564",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.934Z",
+        "updatedAt": "2026-08-28T21:41:46.934Z"
+      },
+      {
+        "id": "d5a2457f-62df-4d06-9f8e-71754bf0c48b",
+        "fileName": "new-01-1787835020956-52905099.jpg",
+        "fileUrl": "/uploads/new-01-1787835020956-52905099.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 187338,
+        "altText": "new 01 1787835020956 52905099",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.941Z",
+        "updatedAt": "2026-08-28T21:41:46.941Z"
+      },
+      {
+        "id": "27dae6a6-65d4-497c-90f0-73f6af46d8b2",
+        "fileName": "profile-photo-1787833552908-753942741.jpg",
+        "fileUrl": "/uploads/profile-photo-1787833552908-753942741.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 1476214,
+        "altText": "profile photo 1787833552908 753942741",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.945Z",
+        "updatedAt": "2026-08-28T21:41:46.945Z"
+      },
+      {
+        "id": "b73e78d3-4553-4fa1-b4b3-bf1c47c89430",
+        "fileName": "profile-photo-1787833563360-323165922.jpg",
+        "fileUrl": "/uploads/profile-photo-1787833563360-323165922.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 1476214,
+        "altText": "profile photo 1787833563360 323165922",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.949Z",
+        "updatedAt": "2026-08-28T21:41:46.949Z"
+      },
+      {
+        "id": "cdc0dd24-45f8-48d6-bde6-98f9a0de2761",
+        "fileName": "profile-photo-1787833868298-878381542.jpg",
+        "fileUrl": "/uploads/profile-photo-1787833868298-878381542.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 1476214,
+        "altText": "profile photo 1787833868298 878381542",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.953Z",
+        "updatedAt": "2026-08-28T21:41:46.953Z"
+      },
+      {
+        "id": "d560dfbd-0a69-4371-b048-ac1534afc50b",
+        "fileName": "profile-photo-1787833931978-929342322.jpg",
+        "fileUrl": "/uploads/profile-photo-1787833931978-929342322.jpg",
+        "fileType": "image/jpeg",
+        "fileSize": 1476214,
+        "altText": "profile photo 1787833931978 929342322",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.956Z",
+        "updatedAt": "2026-08-28T21:41:46.956Z"
+      },
+      {
+        "id": "6f83bb92-847b-4680-9cf7-787252e65c6a",
+        "fileName": "qa-test-logo-1787870224709.png",
+        "fileUrl": "/uploads/qa-test-logo-1787870224709.png",
+        "fileType": "image/png",
+        "fileSize": 70,
+        "altText": "qa test logo 1787870224709",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.961Z",
+        "updatedAt": "2026-08-28T21:41:46.961Z"
+      },
+      {
+        "id": "65ba14c5-dad6-451f-9846-f9ce458042f8",
+        "fileName": "qa-test-logo-1787870245362.png",
+        "fileUrl": "/uploads/qa-test-logo-1787870245362.png",
+        "fileType": "image/png",
+        "fileSize": 70,
+        "altText": "qa test logo 1787870245362",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.964Z",
+        "updatedAt": "2026-08-28T21:41:46.964Z"
+      },
+      {
+        "id": "4487af8f-7266-4cec-a2fe-113f033784dc",
+        "fileName": "qa-test-logo-1787871176589.png",
+        "fileUrl": "/uploads/qa-test-logo-1787871176589.png",
+        "fileType": "image/png",
+        "fileSize": 70,
+        "altText": "qa test logo 1787871176589",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.967Z",
+        "updatedAt": "2026-08-28T21:41:46.967Z"
+      },
+      {
+        "id": "db542a92-d178-4619-ba1f-1af3d0039d03",
+        "fileName": "qa-test-logo-1787872815585.png",
+        "fileUrl": "/uploads/qa-test-logo-1787872815585.png",
+        "fileType": "image/png",
+        "fileSize": 70,
+        "altText": "qa test logo 1787872815585",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.971Z",
+        "updatedAt": "2026-08-28T21:41:46.971Z"
+      },
+      {
+        "id": "f6693392-a34d-4332-b21c-8967df170caf",
+        "fileName": "qa-test-logo-1787873247901.png",
+        "fileUrl": "/uploads/qa-test-logo-1787873247901.png",
+        "fileType": "image/png",
+        "fileSize": 70,
+        "altText": "qa test logo 1787873247901",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.974Z",
+        "updatedAt": "2026-08-28T21:41:46.974Z"
+      },
+      {
+        "id": "dae7f797-f41b-4257-928c-14f60ed44d5c",
+        "fileName": "qa-test-logo-1787873362727.png",
+        "fileUrl": "/uploads/qa-test-logo-1787873362727.png",
+        "fileType": "image/png",
+        "fileSize": 70,
+        "altText": "qa test logo 1787873362727",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.979Z",
+        "updatedAt": "2026-08-28T21:41:46.979Z"
+      },
+      {
+        "id": "bc8202f6-1a84-47d5-a969-249ffcfe078d",
+        "fileName": "test-brand-logo-1787761158930-104914554.png",
+        "fileUrl": "/uploads/test-brand-logo-1787761158930-104914554.png",
+        "fileType": "image/png",
+        "fileSize": 17,
+        "altText": "test brand logo 1787761158930 104914554",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:46.983Z",
+        "updatedAt": "2026-08-28T21:41:46.983Z"
+      },
+      {
+        "id": "fe16933b-74e2-4e08-870d-517ee4999cab",
+        "fileName": "photo-1556742049-0a67c5574f73",
+        "fileUrl": "https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1000&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "ORA Organic — Sales-Driven E-Commerce Product & Ads Campaign Gallery #1",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.013Z",
+        "updatedAt": "2026-08-28T21:41:47.013Z"
+      },
+      {
+        "id": "98995d86-d1f0-44f8-b9e6-576654fefdc8",
+        "fileName": "photo-1584308666744-24d5c474f2ae",
+        "fileUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1000&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "ORA Organic — Sales-Driven E-Commerce Product & Ads Campaign Gallery #2",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.015Z",
+        "updatedAt": "2026-08-28T21:41:47.015Z"
+      },
+      {
+        "id": "d826af12-2922-4dea-9475-6a04cadf2e39",
+        "fileName": "photo-1516321318423-f06f85e504b3",
+        "fileUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1000&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "e-Learn IT Institute — Brand Identity & Digital Promotional Suite Gallery #1",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.018Z",
+        "updatedAt": "2026-08-28T21:41:47.018Z"
+      },
+      {
+        "id": "422fb769-3c3f-4c94-8a51-ae340dfbd25c",
+        "fileName": "photo-1472851294608-062f824d29cc",
+        "fileUrl": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "Kenakata Shop — Gadget & Lifestyle E-Commerce Creative Suite Cover Image",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.021Z",
+        "updatedAt": "2026-08-28T21:41:47.021Z"
+      },
+      {
+        "id": "4221ffbd-fe16-41d6-8805-af6394bb48b5",
+        "fileName": "photo-1617814076367-b759c7d7e738",
+        "fileUrl": "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1200&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "Advanced Digital Automotive — AI Video & High-Impact Social Creatives Cover Image",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.025Z",
+        "updatedAt": "2026-08-28T21:41:47.025Z"
+      },
+      {
+        "id": "01964c75-ee92-42c3-9cd7-5384615f8215",
+        "fileName": "photo-1486406146926-c627a92ad1ab",
+        "fileUrl": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "Optiva Max — Multi-Platform Cover Branding & Marketing Kit Cover Image",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.028Z",
+        "updatedAt": "2026-08-28T21:41:47.028Z"
+      },
+      {
+        "id": "bb2ce585-7f4a-4023-aabd-0e0243caf947",
+        "fileName": "photo-1507003211169-0a1dd7228f2d",
+        "fileUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "Marketing Director Avatar",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.033Z",
+        "updatedAt": "2026-08-28T21:41:47.033Z"
+      },
+      {
+        "id": "26f5ab8d-32f0-4468-8100-db92d78af3cc",
+        "fileName": "photo-1494790108377-be9c29b29330",
+        "fileUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "Managing Director Avatar",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.036Z",
+        "updatedAt": "2026-08-28T21:41:47.036Z"
+      },
+      {
+        "id": "efcdbccd-05d4-4c3e-9637-acf9a8568904",
+        "fileName": "photo-1500648767791-00dcc994a43e",
+        "fileUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+        "fileType": "image/jpeg",
+        "fileSize": 1024,
+        "altText": "Operations Lead Avatar",
+        "source": "LOCAL",
+        "createdAt": "2026-08-28T21:41:47.040Z",
+        "updatedAt": "2026-08-28T21:41:47.040Z"
       }
     ],
     "users": [
@@ -1056,7 +1331,7 @@
     "testimonials": 3,
     "faqs": 5,
     "brands": 6,
-    "media": 12,
+    "media": 37,
     "users": 1
   }
 }

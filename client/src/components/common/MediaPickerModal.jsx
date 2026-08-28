@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import DataVault from '../../utils/dataVault';
 
 export const MediaPickerModal = ({
   isOpen,
@@ -24,7 +25,7 @@ export const MediaPickerModal = ({
   subtitle = 'Choose an image from your Centralized Media Library or upload a new one.',
   currentValue = '',
 }) => {
-  const [mediaItems, setMediaItems] = useState([]);
+  const [mediaItems, setMediaItems] = useState(() => DataVault.mergeMedia([]));
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -39,7 +40,8 @@ export const MediaPickerModal = ({
     try {
       const res = await api.get('/admin/media', { search }).catch(() => null);
       if (res && res.success && Array.isArray(res.data)) {
-        setMediaItems(res.data);
+        const merged = DataVault.mergeMedia(res.data);
+        setMediaItems(merged);
       }
     } catch (err) {
       console.error('Failed to load media:', err);
@@ -83,7 +85,8 @@ export const MediaPickerModal = ({
         const res = await api.upload('/admin/media/upload', data);
         if (res && res.success && res.data) {
           const newAsset = res.data;
-          setMediaItems((prev) => [newAsset, ...prev]);
+          DataVault.saveMedia(newAsset);
+          setMediaItems((prev) => [newAsset, ...(prev || []).filter((m) => m.id !== newAsset.id)]);
           setSelectedAsset(newAsset);
           showToast(`"${file.name}" uploaded to Media Library!`, 'success');
         }

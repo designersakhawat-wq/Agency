@@ -143,6 +143,62 @@ export const DataVault = {
     setRaw('sakhawat_cached_settings', merged);
     return merged;
   },
+
+  // Save media to permanent vault
+  saveMedia: (mediaItem) => {
+    if (!mediaItem || (!mediaItem.id && !mediaItem.fileUrl && !mediaItem.url)) return;
+    const current = getRaw(VAULT_KEYS.MEDIA, []);
+    const itemUrl = mediaItem.fileUrl || mediaItem.url;
+    const existsIndex = current.findIndex(
+      (m) => (mediaItem.id && m.id === mediaItem.id) || (itemUrl && (m.fileUrl === itemUrl || m.url === itemUrl))
+    );
+    let updated;
+    if (existsIndex >= 0) {
+      updated = [...current];
+      updated[existsIndex] = { ...updated[existsIndex], ...mediaItem, url: itemUrl, fileUrl: itemUrl };
+    } else {
+      updated = [{ ...mediaItem, url: itemUrl, fileUrl: itemUrl }, ...current];
+    }
+    setRaw(VAULT_KEYS.MEDIA, updated);
+    setRaw('sakhawat_media_library', updated);
+  },
+
+  // Delete media from vault
+  deleteMedia: (mediaId) => {
+    if (!mediaId) return;
+    const current = getRaw(VAULT_KEYS.MEDIA, []);
+    const updated = current.filter((m) => m.id !== mediaId);
+    setRaw(VAULT_KEYS.MEDIA, updated);
+    setRaw('sakhawat_media_library', updated);
+  },
+
+  // Merge server media with local vault media
+  mergeMedia: (serverMedia = []) => {
+    const vaultMedia = getRaw(VAULT_KEYS.MEDIA, []);
+    const urlMap = new Set();
+    const merged = [];
+
+    (serverMedia || []).forEach((sm) => {
+      if (!sm) return;
+      const url = sm.fileUrl || sm.url;
+      if (url && !urlMap.has(url)) {
+        urlMap.add(url);
+        merged.push({ ...sm, url: url, fileUrl: url });
+      }
+    });
+
+    vaultMedia.forEach((vm) => {
+      if (!vm) return;
+      const url = vm.fileUrl || vm.url;
+      if (url && !urlMap.has(url)) {
+        urlMap.add(url);
+        merged.unshift({ ...vm, url: url, fileUrl: url });
+      }
+    });
+
+    setRaw('sakhawat_media_library', merged);
+    return merged;
+  },
 };
 
 export default DataVault;

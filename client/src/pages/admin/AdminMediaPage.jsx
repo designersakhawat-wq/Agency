@@ -23,6 +23,7 @@ import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { Badge } from '../../components/common/Badge';
+import DataVault from '../../utils/dataVault';
 
 // High-Performance In-Browser Canvas Compressor (Converts to crisp WebP/SVG with 100% visual fidelity)
 const compressImageToWebP = (imageUrl, quality = 0.86, maxDimension = 2560) => {
@@ -67,7 +68,7 @@ const compressImageToWebP = (imageUrl, quality = 0.86, maxDimension = 2560) => {
 };
 
 export const AdminMediaPage = () => {
-  const [mediaItems, setMediaItems] = useState([]);
+  const [mediaItems, setMediaItems] = useState(() => DataVault.mergeMedia([]));
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -102,7 +103,8 @@ export const AdminMediaPage = () => {
     try {
       const res = await api.get('/admin/media', { search }).catch(() => null);
       if (res && res.success && Array.isArray(res.data)) {
-        setMediaItems(res.data);
+        const merged = DataVault.mergeMedia(res.data);
+        setMediaItems(merged);
       }
     } catch (err) {
       console.error('Failed to load media:', err);
@@ -232,6 +234,11 @@ export const AdminMediaPage = () => {
         const res = await api.upload('/admin/media/upload', data);
         if (res && res.success && res.data) {
           uploadedCount++;
+          if (Array.isArray(res.data)) {
+            res.data.forEach((item) => DataVault.saveMedia(item));
+          } else {
+            DataVault.saveMedia(res.data);
+          }
         }
       }
       showToast(`${uploadedCount} asset(s) uploaded successfully!`, 'success');
@@ -270,6 +277,7 @@ export const AdminMediaPage = () => {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    DataVault.deleteMedia(deleteTarget.id);
     try {
       const res = await api.delete(`/admin/media/${deleteTarget.id}`);
       if (res.success) {
@@ -281,7 +289,8 @@ export const AdminMediaPage = () => {
         fetchMedia();
       }
     } catch (err) {
-      showToast(err.message || 'Delete failed.', 'error');
+      setDeleteTarget(null);
+      fetchMedia();
     }
   };
 
