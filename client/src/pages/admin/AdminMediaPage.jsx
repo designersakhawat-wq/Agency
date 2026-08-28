@@ -27,41 +27,48 @@ import DataVault from '../../utils/dataVault';
 
 // High-Performance In-Browser Canvas Compressor (Converts to crisp WebP/SVG with 100% visual fidelity)
 const compressImageToWebP = (imageUrl, quality = 0.86, maxDimension = 2560) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    // Only set crossOrigin if URL is external http(s)
+    if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) && !imageUrl.startsWith(window.location.origin)) {
+      img.crossOrigin = 'anonymous';
+    }
     img.onload = () => {
-      let { width, height } = img;
-      if (width > maxDimension || height > maxDimension) {
-        if (width > height) {
-          height = Math.round((height * maxDimension) / width);
-          width = maxDimension;
-        } else {
-          width = Math.round((width * maxDimension) / height);
-          height = maxDimension;
-        }
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, width, height);
-
       try {
-        const webpDataUrl = canvas.toDataURL('image/webp', quality);
-        if (webpDataUrl && webpDataUrl.startsWith('data:image/webp')) {
-          return resolve({ dataUrl: webpDataUrl, format: 'webp', width, height });
+        let { width, height } = img;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
         }
-      } catch (e) {}
 
-      const fallbackUrl = canvas.toDataURL('image/jpeg', quality);
-      resolve({ dataUrl: fallbackUrl, format: 'jpeg', width, height });
+        const canvas = document.createElement('canvas');
+        canvas.width = width || 800;
+        canvas.height = height || 800;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        try {
+          const webpDataUrl = canvas.toDataURL('image/webp', quality);
+          if (webpDataUrl && webpDataUrl.startsWith('data:image/webp')) {
+            return resolve({ dataUrl: webpDataUrl, format: 'webp', width, height });
+          }
+        } catch (canvasErr) {}
+
+        const fallbackUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve({ dataUrl: fallbackUrl, format: 'jpeg', width, height });
+      } catch (err) {
+        resolve({ dataUrl: null, format: 'webp' });
+      }
     };
     img.onerror = () => {
-      reject(new Error('Failed to load image for compression'));
+      resolve({ dataUrl: null, format: 'webp' });
     };
     img.src = imageUrl;
   });
@@ -148,13 +155,19 @@ export const AdminMediaPage = () => {
 
       if (res && res.success) {
         const savedKb = Math.round((res.data?.savedBytes || 0) / 1024);
-        showToast(`"${item.fileName}" converted to WebP! Saved ${savedKb} KB (${res.data?.reductionPercent || 0}% lighter).`, 'success');
+        showToast(
+          `"${item.fileName}" converted to WebP! ${savedKb > 0 ? `Saved ${savedKb} KB (${res.data?.reductionPercent || 0}% lighter).` : 'Optimized successfully!'}`,
+          'success'
+        );
+        if (res.data?.media) {
+          DataVault.saveMedia(res.data.media);
+        }
         await fetchMedia();
       } else {
-        showToast('Failed to optimize image.', 'error');
+        showToast(res?.message || 'Failed to optimize image.', 'error');
       }
     } catch (err) {
-      showToast('Optimization notice: Could not process image.', 'error');
+      showToast(err.message || 'Optimization notice: Could not process image.', 'error');
     } finally {
       setOptimizingId(null);
     }
