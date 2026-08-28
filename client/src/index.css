@@ -47,6 +47,31 @@
     line-height: 1.68;
     letter-spacing: -0.006em;
   }
+
+  /* ========================================================================= */
+  /* LIGHT THEME SYSTEM OVERRIDES (APPLE-GRADE CLEAN LIGHT AESTHETICS)          */
+  /* ========================================================================= */
+  html.light {
+    color-scheme: light;
+  }
+
+  html.light body {
+    background-color: #f8fafc;
+    color: #1e293b;
+  }
+
+  html.light h1,
+  html.light h2,
+  html.light h3,
+  html.light h4,
+  html.light h5,
+  html.light h6 {
+    color: #0f172a;
+  }
+
+  html.light p {
+    color: #475569;
+  }
 }
 
 @layer utilities {
@@ -57,6 +82,14 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  html.light .glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.06);
+  }
+
   .glass-card-hover {
     @apply transition-all duration-300 hover:bg-zinc-900/80 hover:shadow-2xl;
   }
@@ -65,11 +98,25 @@
     box-shadow: 0 20px 35px -10px rgba(var(--brand-primary-rgb, 20, 184, 166), 0.25);
   }
 
+  html.light .glass-card-hover:hover {
+    background: #ffffff;
+    border-color: rgba(var(--brand-primary-rgb, 20, 184, 166), 0.5);
+    box-shadow: 0 20px 35px -10px rgba(var(--brand-primary-rgb, 20, 184, 166), 0.18);
+  }
+
   .glass-panel {
     background: rgba(13, 18, 24, 0.88);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(var(--brand-primary-rgb, 20, 184, 166), 0.25);
+  }
+
+  html.light .glass-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 14px 35px -10px rgba(0, 0, 0, 0.08);
   }
 
   .gradient-brand {
@@ -88,6 +135,12 @@
 
   .gradient-text-subtle {
     @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-zinc-200 to-zinc-400;
+  }
+
+  html.light .gradient-text-subtle {
+    background-image: linear-gradient(135deg, #0f172a, #334155, #64748b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .ambient-glow-teal {

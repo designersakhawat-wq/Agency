@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { BrandProvider } from './context/BrandContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Layouts
 import Navbar from './components/layout/Navbar';
@@ -126,12 +127,13 @@ function App() {
 
   return (
     <AuthProvider>
-      <ToastProvider>
-        <CurrencyProvider>
-          <BrandProvider>
-            <RouteScrollToTop />
-            <RouteTracker />
-            <Routes>
+      <ThemeProvider>
+        <ToastProvider>
+          <CurrencyProvider>
+            <BrandProvider>
+              <RouteScrollToTop />
+              <RouteTracker />
+              <Routes>
               {/* Public Routes */}
               <Route
                 path="/"
@@ -407,8 +409,9 @@ function App() {
           </BrandProvider>
         </CurrencyProvider>
       </ToastProvider>
-    </AuthProvider>
-  );
+    </ThemeProvider>
+  </AuthProvider>
+);
 }
 
 export default App;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '../../context/ThemeContext';
 
 // Minimal 4-Point Sparkle Star SVG
 const SparkleStar = ({ className = '', style = {}, size = 16, filled = true }) => (
@@ -28,38 +29,60 @@ const SparkleStar = ({ className = '', style = {}, size = 16, filled = true }) =
 );
 
 export const ModernBackgroundElements = () => {
+  const { isDark } = useTheme();
+
   return (
     <div
       aria-hidden="true"
       className="fixed inset-0 overflow-hidden pointer-events-none z-0 select-none"
     >
       {/* ========================================================================= */}
-      {/* 1. AMBIENT RADIAL LIGHTING GLOWS (MATCHING REFERENCE AESTHETIC)           */}
+      {/* 1. AMBIENT RADIAL LIGHTING GLOWS (ADAPTIVE FOR DARK & LIGHT MODES)        */}
       {/* ========================================================================= */}
       {/* Top Right Hero Glow */}
-      <div className="absolute -top-32 -right-32 w-[550px] h-[550px] rounded-full bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent blur-[120px] pointer-events-none" />
+      <div
+        className={`absolute -top-32 -right-32 w-[550px] h-[550px] rounded-full blur-[120px] pointer-events-none transition-all duration-500 ${
+          isDark
+            ? 'bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent'
+            : 'bg-gradient-to-br from-emerald-400/20 via-teal-300/15 to-transparent'
+        }`}
+      />
 
       {/* Mid Left Glow */}
-      <div className="absolute top-[35%] -left-40 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-teal-500/10 via-cyan-500/10 to-transparent blur-[130px] pointer-events-none" />
+      <div
+        className={`absolute top-[35%] -left-40 w-[500px] h-[500px] rounded-full blur-[130px] pointer-events-none transition-all duration-500 ${
+          isDark
+            ? 'bg-gradient-to-tr from-teal-500/10 via-cyan-500/10 to-transparent'
+            : 'bg-gradient-to-tr from-teal-400/15 via-cyan-300/15 to-transparent'
+        }`}
+      />
 
       {/* Bottom Right Pricing/CTA Glow */}
-      <div className="absolute bottom-20 -right-20 w-[520px] h-[520px] rounded-full bg-gradient-to-tl from-emerald-500/12 via-teal-500/8 to-transparent blur-[140px] pointer-events-none" />
+      <div
+        className={`absolute bottom-20 -right-20 w-[520px] h-[520px] rounded-full blur-[140px] pointer-events-none transition-all duration-500 ${
+          isDark
+            ? 'bg-gradient-to-tl from-emerald-500/12 via-teal-500/8 to-transparent'
+            : 'bg-gradient-to-tl from-emerald-400/20 via-teal-300/12 to-transparent'
+        }`}
+      />
 
       {/* ========================================================================= */}
       {/* 2. FLOWING ORGANIC GUIDE LINE (WAVY SVG SPLINE TRAIL)                    */}
       {/* ========================================================================= */}
       <svg
-        className="absolute inset-0 w-full h-full opacity-35"
+        className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${
+          isDark ? 'opacity-35' : 'opacity-25'
+        }`}
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="none"
         viewBox="0 0 1440 3200"
       >
         <defs>
           <linearGradient id="bgTrailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#10b981" stopOpacity="0.6" />
-            <stop offset="30%" stopColor="#14b8a6" stopOpacity="0.4" />
-            <stop offset="60%" stopColor="#06b6d4" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#10b981" stopOpacity="0.2" />
+            <stop offset="0%" stopColor="#10b981" stopOpacity={isDark ? '0.6' : '0.8'} />
+            <stop offset="30%" stopColor="#14b8a6" stopOpacity={isDark ? '0.4' : '0.6'} />
+            <stop offset="60%" stopColor="#06b6d4" stopOpacity={isDark ? '0.5' : '0.7'} />
+            <stop offset="100%" stopColor="#10b981" stopOpacity={isDark ? '0.2' : '0.4'} />
           </linearGradient>
         </defs>
 
@@ -89,7 +112,7 @@ export const ModernBackgroundElements = () => {
       <motion.div
         animate={{ y: [0, -8, 0], opacity: [0.6, 0.9, 0.6] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-28 right-[15%] text-emerald-400"
+        className={`absolute top-28 right-[15%] ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}
       >
         <SparkleStar size={18} filled={true} />
       </motion.div>
@@ -98,7 +121,7 @@ export const ModernBackgroundElements = () => {
       <motion.div
         animate={{ y: [0, 8, 0], opacity: [0.4, 0.7, 0.4] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute top-72 left-[8%] text-teal-400"
+        className={`absolute top-72 left-[8%] ${isDark ? 'text-teal-400' : 'text-teal-600'}`}
       >
         <SparkleStar size={14} filled={false} />
       </motion.div>
@@ -107,7 +130,7 @@ export const ModernBackgroundElements = () => {
       <motion.div
         animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.85, 0.5] }}
         transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-        className="absolute top-[32%] right-[8%] text-emerald-300"
+        className={`absolute top-[32%] right-[8%] ${isDark ? 'text-emerald-300' : 'text-emerald-600'}`}
       >
         <SparkleStar size={16} filled={true} />
       </motion.div>
@@ -116,7 +139,7 @@ export const ModernBackgroundElements = () => {
       <motion.div
         animate={{ y: [0, -10, 0], opacity: [0.35, 0.65, 0.35] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="absolute top-[52%] left-[12%] text-cyan-400"
+        className={`absolute top-[52%] left-[12%] ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`}
       >
         <SparkleStar size={20} filled={false} />
       </motion.div>
@@ -125,7 +148,7 @@ export const ModernBackgroundElements = () => {
       <motion.div
         animate={{ y: [0, 8, 0], opacity: [0.5, 0.8, 0.5] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-        className="absolute top-[72%] right-[18%] text-teal-300"
+        className={`absolute top-[72%] right-[18%] ${isDark ? 'text-teal-300' : 'text-teal-600'}`}
       >
         <SparkleStar size={15} filled={true} />
       </motion.div>
@@ -134,7 +157,7 @@ export const ModernBackgroundElements = () => {
       <motion.div
         animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 2.5 }}
-        className="absolute bottom-36 left-[18%] text-emerald-400"
+        className={`absolute bottom-36 left-[18%] ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}
       >
         <SparkleStar size={18} filled={true} />
       </motion.div>
