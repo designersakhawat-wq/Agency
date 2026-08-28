@@ -97,7 +97,7 @@ class MediaService {
   async registerAssetIfMissing({ fileName, fileUrl, fileType, fileSize, altText, source = 'LOCAL' }) {
     if (!fileUrl) return null;
     const cleanUrl = String(fileUrl).trim();
-    if (!cleanUrl || cleanUrl.startsWith('data:')) return null;
+    if (!cleanUrl || cleanUrl.startsWith('data:') || cleanUrl.includes('unsplash.com')) return null;
 
     try {
       const existing = await prisma.media.findFirst({

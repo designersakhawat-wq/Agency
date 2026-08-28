@@ -82,49 +82,43 @@ export const DataVault = {
     const vaultProjects = getRaw(VAULT_KEYS.PROJECTS, []);
     const deletedIds = new Set(getRaw(VAULT_KEYS.DELETED_IDS, []));
 
-    // Filter out any server projects that the user explicitly deleted
-    const filteredServer = (serverProjects || []).filter((sp) => sp && sp.id && !deletedIds.has(sp.id));
+    // If server returned valid projects, use them as authoritative base
+    if (Array.isArray(serverProjects) && serverProjects.length > 0) {
+      const filteredServer = serverProjects.filter((sp) => sp && sp.id && !deletedIds.has(sp.id));
+      const vaultMap = new Map();
+      vaultProjects.forEach((vp) => {
+        if (vp && vp.id) vaultMap.set(vp.id, vp);
+        if (vp && vp.slug) vaultMap.set(vp.slug, vp);
+      });
 
-    // Map existing server projects by ID and Slug
-    const serverMap = new Map();
-    filteredServer.forEach((sp) => {
-      if (sp.id) serverMap.set(sp.id, sp);
-      if (sp.slug) serverMap.set(sp.slug, sp);
-    });
+      const mergedList = filteredServer.map((sp) => {
+        const userEdit = vaultMap.get(sp.id) || (sp.slug ? vaultMap.get(sp.slug) : null);
+        return userEdit ? { ...sp, ...userEdit } : sp;
+      });
 
-    const mergedList = [...filteredServer];
-    const missingOnServer = [];
-
-    vaultProjects.forEach((vp) => {
-      if (!vp || !vp.id || deletedIds.has(vp.id)) return;
-
-      const serverMatch = serverMap.get(vp.id) || (vp.slug ? serverMap.get(vp.slug) : null);
-      if (serverMatch) {
-        // Vault holds latest user edits
-        const idx = mergedList.findIndex((p) => p.id === serverMatch.id || (vp.slug && p.slug === vp.slug));
-        if (idx >= 0) {
-          mergedList[idx] = { ...serverMatch, ...vp };
+      // Only retain newly user-created projects that were marked explicitly with _userCreated
+      vaultProjects.forEach((vp) => {
+        if (
+          vp &&
+          vp.id &&
+          vp._userCreated &&
+          !deletedIds.has(vp.id) &&
+          !filteredServer.some((sp) => sp.id === vp.id || (vp.slug && sp.slug === vp.slug))
+        ) {
+          mergedList.unshift(vp);
         }
-      } else {
-        // Project exists in user vault but missing on server (e.g. after container redeploy)
-        mergedList.unshift(vp);
-        missingOnServer.push(vp);
-      }
-    });
+      });
 
-    // Background auto-heal: re-sync missing vault projects to server
-    if (missingOnServer.length > 0) {
-      setTimeout(async () => {
-        for (const mp of missingOnServer) {
-          try {
-            await api.post('/projects/admin', mp).catch(() => {});
-          } catch (e) {}
-        }
-      }, 1000);
+      setRaw(VAULT_KEYS.PROJECTS, mergedList);
+      setRaw('sakhawat_cached_all_projects', mergedList);
+      return mergedList;
     }
 
-    setRaw('sakhawat_cached_all_projects', mergedList);
-    return mergedList;
+    // Fallback when server is offline or empty
+    const validVault = vaultProjects.filter(
+      (vp) => vp && vp.id && !deletedIds.has(vp.id) && !vp.id.startsWith('proj-logo-') && !vp.id.startsWith('proj-ads-')
+    );
+    return validVault;
   },
 
   // Save custom site settings to permanent vault

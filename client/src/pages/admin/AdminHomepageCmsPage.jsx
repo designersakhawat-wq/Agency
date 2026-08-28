@@ -102,7 +102,7 @@ export const AdminHomepageCmsPage = () => {
     final_cta_button_url: '/book-a-meeting',
   });
 
-  const [projects, setProjects] = useState(() => DataVault.mergeProjects([]));
+  const [projects, setProjects] = useState(() => DataVault.mergeProjects(DEFAULT_PROJECTS));
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [projectFilter, setProjectFilter] = useState('all'); // 'all' | 'featured' | 'hidden'
   const [projectCategory, setProjectCategory] = useState('All');
@@ -118,9 +118,11 @@ export const AdminHomepageCmsPage = () => {
     setProjectsLoading(true);
     try {
       const res = await api.get('/projects/admin/all');
-      if (res.success && Array.isArray(res.data)) {
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         const merged = DataVault.mergeProjects(res.data);
         setProjects(merged);
+      } else {
+        setProjects(DEFAULT_PROJECTS);
       }
     } catch (err) {
       console.error('Failed to fetch projects for homepage manager:', err);

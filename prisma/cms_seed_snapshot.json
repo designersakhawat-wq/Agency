@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-28T22:04:43.183Z",
+  "timestamp": "2026-08-28T22:16:03.009Z",
   "version": "1.0.0",
   "data": {
     "settings": [
@@ -1132,105 +1132,6 @@
         "source": "LOCAL",
         "createdAt": "2026-08-28T21:41:46.956Z",
         "updatedAt": "2026-08-28T21:41:46.956Z"
-      },
-      {
-        "id": "fe16933b-74e2-4e08-870d-517ee4999cab",
-        "fileName": "photo-1556742049-0a67c5574f73",
-        "fileUrl": "https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1000&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "ORA Organic — Sales-Driven E-Commerce Product & Ads Campaign Gallery #1",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.013Z",
-        "updatedAt": "2026-08-28T21:41:47.013Z"
-      },
-      {
-        "id": "98995d86-d1f0-44f8-b9e6-576654fefdc8",
-        "fileName": "photo-1584308666744-24d5c474f2ae",
-        "fileUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1000&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "ORA Organic — Sales-Driven E-Commerce Product & Ads Campaign Gallery #2",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.015Z",
-        "updatedAt": "2026-08-28T21:41:47.015Z"
-      },
-      {
-        "id": "d826af12-2922-4dea-9475-6a04cadf2e39",
-        "fileName": "photo-1516321318423-f06f85e504b3",
-        "fileUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1000&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "e-Learn IT Institute — Brand Identity & Digital Promotional Suite Gallery #1",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.018Z",
-        "updatedAt": "2026-08-28T21:41:47.018Z"
-      },
-      {
-        "id": "422fb769-3c3f-4c94-8a51-ae340dfbd25c",
-        "fileName": "photo-1472851294608-062f824d29cc",
-        "fileUrl": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "Kenakata Shop — Gadget & Lifestyle E-Commerce Creative Suite Cover Image",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.021Z",
-        "updatedAt": "2026-08-28T21:41:47.021Z"
-      },
-      {
-        "id": "4221ffbd-fe16-41d6-8805-af6394bb48b5",
-        "fileName": "photo-1617814076367-b759c7d7e738",
-        "fileUrl": "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1200&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "Advanced Digital Automotive — AI Video & High-Impact Social Creatives Cover Image",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.025Z",
-        "updatedAt": "2026-08-28T21:41:47.025Z"
-      },
-      {
-        "id": "01964c75-ee92-42c3-9cd7-5384615f8215",
-        "fileName": "photo-1486406146926-c627a92ad1ab",
-        "fileUrl": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "Optiva Max — Multi-Platform Cover Branding & Marketing Kit Cover Image",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.028Z",
-        "updatedAt": "2026-08-28T21:41:47.028Z"
-      },
-      {
-        "id": "bb2ce585-7f4a-4023-aabd-0e0243caf947",
-        "fileName": "photo-1507003211169-0a1dd7228f2d",
-        "fileUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "Marketing Director Avatar",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.033Z",
-        "updatedAt": "2026-08-28T21:41:47.033Z"
-      },
-      {
-        "id": "26f5ab8d-32f0-4468-8100-db92d78af3cc",
-        "fileName": "photo-1494790108377-be9c29b29330",
-        "fileUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "Managing Director Avatar",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.036Z",
-        "updatedAt": "2026-08-28T21:41:47.036Z"
-      },
-      {
-        "id": "efcdbccd-05d4-4c3e-9637-acf9a8568904",
-        "fileName": "photo-1500648767791-00dcc994a43e",
-        "fileUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-        "fileType": "image/jpeg",
-        "fileSize": 1024,
-        "altText": "Operations Lead Avatar",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:47.040Z",
-        "updatedAt": "2026-08-28T21:41:47.040Z"
       }
     ],
     "users": [
@@ -1254,7 +1155,7 @@
     "testimonials": 3,
     "faqs": 5,
     "brands": 6,
-    "media": 30,
+    "media": 21,
     "users": 1
   }
 }

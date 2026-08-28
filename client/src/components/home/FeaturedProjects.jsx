@@ -15,16 +15,16 @@ import Button from '../common/Button';
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
 import tracking from '../../services/trackingService';
 
-// Curated Category Fallback Images (Always reliable & vibrant)
+// Curated Category Fallback Images (Using user's real uploaded media assets)
 const CATEGORY_FALLBACKS = {
-  'Logo & Branding': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1000&auto=format&fit=crop&q=80',
-  'Brand Identity': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1000&auto=format&fit=crop&q=80',
-  'Ads Creative': 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1000&auto=format&fit=crop&q=80',
-  'Social Media Ads': 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1000&auto=format&fit=crop&q=80',
-  'E-commerce': 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1000&auto=format&fit=crop&q=80',
-  'UGC Video': 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1000&auto=format&fit=crop&q=80',
-  'Cover Branding': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1000&auto=format&fit=crop&q=80',
-  default: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=1000&auto=format&fit=crop&q=80',
+  'Logo & Branding': '/uploads/edtech-social-media-post-design--9--1787766737628-820411568.jpg',
+  'Brand Identity': '/uploads/edtech-social-media-post-design--9--1787766737628-820411568.jpg',
+  'Ads Creative': '/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg',
+  'Social Media Ads': '/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg',
+  'E-commerce': '/uploads/9062-laptop-mockup-v2-1787833949708-949730261.jpg',
+  'UGC Video': '/uploads/logo-new-01-01-1787835006263-396457564.jpg',
+  'Cover Branding': '/uploads/cover-photo-1787764748710-758629908.jpg',
+  default: '/uploads/amazon-listing-images-electric-shaver-hero--1--1787766545048-828073166.jpg',
 };
 
 // Rock-solid Safe Image (Never pitch black, instant fallback)
