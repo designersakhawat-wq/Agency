@@ -27,6 +27,7 @@ import Button from '../../components/common/Button';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import DataVault from '../../utils/dataVault';
+import { DEFAULT_PROJECTS } from '../../data/defaultData';
 
 export const AdminHomepageCmsPage = () => {
   const { success, error } = useToast();
