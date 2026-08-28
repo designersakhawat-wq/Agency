@@ -9,49 +9,42 @@ import {
   Eye,
   MessageCircle,
   X,
-  Play,
-  Pause,
+  ExternalLink,
 } from 'lucide-react';
 import Button from '../common/Button';
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
 import tracking from '../../services/trackingService';
 
-// Curated High-Res Category Fallback Images
+// Curated Category Fallback Images (Always reliable & vibrant)
 const CATEGORY_FALLBACKS = {
-  'Logo & Branding': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&auto=format&fit=crop&q=80',
-  'Brand Identity': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&auto=format&fit=crop&q=80',
-  'Ads Creative': 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1200&auto=format&fit=crop&q=80',
-  'Social Media Ads': 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1200&auto=format&fit=crop&q=80',
-  'E-commerce': 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&auto=format&fit=crop&q=80',
-  'UGC Video': 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1200&auto=format&fit=crop&q=80',
-  'Cover Branding': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80',
-  default: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&auto=format&fit=crop&q=80',
+  'Logo & Branding': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1000&auto=format&fit=crop&q=80',
+  'Brand Identity': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1000&auto=format&fit=crop&q=80',
+  'Ads Creative': 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1000&auto=format&fit=crop&q=80',
+  'Social Media Ads': 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1000&auto=format&fit=crop&q=80',
+  'E-commerce': 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1000&auto=format&fit=crop&q=80',
+  'UGC Video': 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1000&auto=format&fit=crop&q=80',
+  'Cover Branding': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1000&auto=format&fit=crop&q=80',
+  default: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=1000&auto=format&fit=crop&q=80',
 };
 
-// Safe Image Component
+// Rock-solid Safe Image (Never pitch black, instant fallback)
 const SafeImage = ({ src, alt, category }) => {
   const fallback = CATEGORY_FALLBACKS[category] || CATEGORY_FALLBACKS.default;
-  const [imgSrc, setImgSrc] = useState(src || fallback);
-  const [loaded, setLoaded] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(src || fallback);
 
   useEffect(() => {
-    setImgSrc(src || fallback);
+    setCurrentSrc(src || fallback);
   }, [src, fallback]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-zinc-950 select-none pointer-events-none">
-      {!loaded && (
-        <div className="absolute inset-0 bg-zinc-900 animate-pulse" />
-      )}
+    <div className="w-full h-full bg-zinc-900 overflow-hidden select-none pointer-events-none relative">
       <img
-        src={imgSrc}
-        alt={alt || 'Design Craft'}
-        onLoad={() => setLoaded(true)}
-        onError={() => setImgSrc(fallback)}
-        className={`w-full h-full object-cover transition-all duration-500 ${
-          loaded ? 'opacity-100' : 'opacity-0'
-        }`}
-        loading="lazy"
+        src={currentSrc}
+        alt={alt || 'Creative Work'}
+        onError={() => {
+          if (currentSrc !== fallback) setCurrentSrc(fallback);
+        }}
+        className="w-full h-full object-cover select-none"
         draggable="false"
       />
     </div>
@@ -61,10 +54,10 @@ const SafeImage = ({ src, alt, category }) => {
 export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
   const [quickModalProject, setQuickModalProject] = useState(null);
 
-  // Consolidated & normalized projects list
+  // Normalize project list
   const allProjects = useMemo(() => {
     const list = Array.isArray(projects) && projects.length > 0 ? projects : DEFAULT_PROJECTS;
     return list.map((p, idx) => ({
@@ -72,16 +65,16 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
       id: p.id || `proj-${idx}`,
       title: p.title || 'Creative Showcase',
       category: p.category || 'Brand Identity',
-      summary: p.summary || p.description || 'High-converting design craft engineered for brand elevation.',
+      summary: p.summary || p.description || 'High-converting visual craft designed to elevate brand authority.',
       coverImage: p.coverImage || CATEGORY_FALLBACKS[p.category] || CATEGORY_FALLBACKS.default,
-      client: p.client || 'Client Project',
-      year: p.year || '2025',
+      client: p.client || 'Client Brand',
+      year: p.year || '2024',
     }));
   }, [projects]);
 
   const categories = ['All', 'Logo & Branding', 'Ads Creative', 'Cover Branding', 'E-Commerce', 'UGC Video'];
 
-  // Filtered list based on active category tab
+  // Filtered by category
   const filteredProjects = useMemo(() => {
     if (activeCategory === 'All') return allProjects;
     const target = activeCategory.toLowerCase();
@@ -108,16 +101,16 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
 
   const totalItems = filteredProjects.length;
 
-  // Fast & Lively Auto-scroll Timer (2.4s interval)
+  // Fluid Autoplay timer (2.8s interval)
   useEffect(() => {
-    if (!isAutoPlaying || totalItems <= 1) return;
-    const interval = setInterval(() => {
+    if (isPaused || totalItems <= 1) return;
+    const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % totalItems);
-    }, 2400);
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, totalItems]);
+    }, 2800);
+    return () => clearInterval(timer);
+  }, [isPaused, totalItems]);
 
-  // Reset index when category tab changes
+  // Reset index when filter changes
   useEffect(() => {
     setCurrentIndex(0);
   }, [activeCategory]);
@@ -143,11 +136,11 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
   const handleWhatsApp = (project) => {
     tracking.trackWhatsAppClick(
       'Featured Visual Gallery',
-      `Similar Project: ${project.title}`,
-      `Client inquiry for ${project.title}`
+      `Project Inquiry: ${project.title}`,
+      `Client interested in ${project.title}`
     );
     const msg = encodeURIComponent(
-      `Hi Sakhawat! 👋\n\nI saw your featured work for *${project.title}* on your website and would like to discuss a similar design project for my brand. Are you available?`
+      `Hi Sakhawat! 👋\n\nI saw your featured work for *${project.title}* on your website and would like to discuss a similar project for my brand. Are you available?`
     );
     window.open(`https://wa.me/8801781955355?text=${msg}`, '_blank', 'noopener,noreferrer');
   };
@@ -156,8 +149,8 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
     <section
       id="portfolio-section"
       className="py-20 sm:py-28 relative overflow-hidden bg-[#060608]"
-      onMouseEnter={() => setIsAutoPlaying(false)}
-      onMouseLeave={() => setIsAutoPlaying(true)}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
     >
       {/* Ambient background glows */}
       <div className="ambient-glow-teal top-1/2 -left-40 opacity-20 pointer-events-none" />
@@ -165,7 +158,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-10">
         {/* ========================================================================= */}
-        {/* 1. HEADER (CENTERED, SLEEK & MODERN)                                      */}
+        {/* 1. HEADER                                                                 */}
         {/* ========================================================================= */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-bold tracking-[0.2em] uppercase">
@@ -192,7 +185,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer relative ${
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                   isActive
                     ? 'bg-teal-400 text-zinc-950 font-black shadow-lg shadow-teal-500/25 scale-105'
                     : 'text-zinc-400 hover:text-white bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800'
@@ -213,22 +206,22 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
         </div>
 
         {/* ========================================================================= */}
-        {/* 3. 3D COVERFLOW / FOCAL IMAGE CAROUSEL (FAST & SNAPPY SPRING EFFECT)      */}
+        {/* 3. FLUID 3D KINETIC COVERFLOW TRACK                                       */}
         {/* ========================================================================= */}
-        <div className="relative h-[440px] sm:h-[520px] md:h-[580px] lg:h-[620px] flex items-center justify-center overflow-x-clip overflow-y-visible my-2 py-4">
+        <div className="relative h-[440px] sm:h-[500px] md:h-[560px] lg:h-[600px] flex items-center justify-center overflow-x-clip overflow-y-visible my-2 py-4">
           <div className="relative w-full h-full flex items-center justify-center">
             {filteredProjects.map((project, idx) => {
               // Calculate relative offset from currentIndex
               let offset = (idx - currentIndex + totalItems) % totalItems;
               if (offset > totalItems / 2) offset -= totalItems;
 
-              // Only render visible cards within reach of 2
+              // Show active card and 2 adjacent cards on each side
               const isVisible = Math.abs(offset) <= 2;
               if (!isVisible) return null;
 
               const isCenter = offset === 0;
 
-              // Fast & dynamic 3D positioning
+              // Positioning and 3D depth parameters
               let xOffset = 0;
               let scale = 1;
               let zIndex = 20;
@@ -237,30 +230,30 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
 
               if (isCenter) {
                 xOffset = 0;
-                scale = 1.12;
+                scale = 1.14;
                 zIndex = 30;
                 opacity = 1;
                 rotateY = 0;
               } else if (offset === 1) {
-                xOffset = 260;
+                xOffset = 270;
                 scale = 0.88;
                 zIndex = 20;
                 opacity = 0.85;
                 rotateY = -8;
               } else if (offset === -1) {
-                xOffset = -260;
+                xOffset = -270;
                 scale = 0.88;
                 zIndex = 20;
                 opacity = 0.85;
                 rotateY = 8;
               } else if (offset === 2) {
-                xOffset = 450;
+                xOffset = 470;
                 scale = 0.72;
                 zIndex = 10;
                 opacity = 0.35;
                 rotateY = -15;
               } else if (offset === -2) {
-                xOffset = -450;
+                xOffset = -470;
                 scale = 0.72;
                 zIndex = 10;
                 opacity = 0.35;
@@ -281,52 +274,52 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
                   }}
                   transition={{
                     type: 'spring',
-                    stiffness: 320,
-                    damping: 28,
+                    stiffness: 300,
+                    damping: 26,
                   }}
                   style={{
                     transformStyle: 'preserve-3d',
                   }}
                 >
                   <div
-                    className={`relative w-[240px] sm:w-[280px] md:w-[330px] lg:w-[370px] aspect-[4/5] rounded-[2rem] overflow-hidden bg-zinc-950 border transition-all duration-300 shadow-2xl ${
+                    className={`relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px] aspect-[4/5] rounded-[2rem] overflow-hidden bg-zinc-950 border transition-all duration-300 shadow-2xl ${
                       isCenter
-                        ? 'border-teal-400/80 shadow-2xl shadow-teal-950 ring-2 ring-teal-400/30'
-                        : 'border-zinc-800/80 shadow-black/90 hover:border-zinc-700'
+                        ? 'border-teal-400 shadow-2xl shadow-teal-950/80 ring-2 ring-teal-400/30'
+                        : 'border-zinc-800 shadow-black hover:border-zinc-700'
                     }`}
                   >
-                    {/* Pure High-Res Visual Image */}
+                    {/* Visual Image */}
                     <SafeImage
                       src={project.coverImage}
                       alt={project.title}
                       category={project.category}
                     />
 
-                    {/* Clean Minimal Overlay for Active Card */}
+                    {/* Smooth Gradient Overlay */}
                     <div
                       className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-5 sm:p-6 ${
                         isCenter
-                          ? 'bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-100'
+                          ? 'bg-gradient-to-t from-black/90 via-black/15 to-transparent opacity-100'
                           : 'bg-black/40 opacity-0 hover:opacity-100'
                       }`}
                     >
-                      {/* Top Right Quick Action */}
+                      {/* Top Badges */}
                       <div className="flex items-center justify-between">
-                        <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/90 text-[11px] font-semibold">
+                        <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white text-[11px] font-semibold">
                           {project.category}
                         </span>
 
-                        <span className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-110">
+                        <span className="w-8 h-8 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
                           <Eye className="w-3.5 h-3.5 text-teal-400" />
                         </span>
                       </div>
 
-                      {/* Bottom Info (Ultra-Clean, Minimal, No Bulky Boxes) */}
+                      {/* Bottom Info */}
                       <div className="space-y-1">
-                        <span className="text-[11px] text-teal-300/90 font-medium block">
+                        <span className="text-[11px] text-teal-300 font-medium block">
                           {project.client} • {project.year}
                         </span>
-                        <h3 className="text-base sm:text-lg font-bold font-display text-white tracking-tight line-clamp-1 drop-shadow-md">
+                        <h3 className="text-base sm:text-lg font-bold font-display text-white tracking-tight line-clamp-1 drop-shadow-lg">
                           {project.title}
                         </h3>
                       </div>
@@ -339,7 +332,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
         </div>
 
         {/* ========================================================================= */}
-        {/* 4. CLEAN MINIMALIST CIRCULAR NAVIGATION (MATCHING REFERENCE EXACTLY)      */}
+        {/* 4. CLEAN CIRCULAR NAVIGATION ARROWS                                       */}
         {/* ========================================================================= */}
         <div className="flex items-center justify-center gap-3 pt-2">
           <button
