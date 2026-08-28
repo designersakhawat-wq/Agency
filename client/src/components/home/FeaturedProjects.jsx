@@ -354,84 +354,43 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
       </div>
 
       {/* ========================================================================= */}
-      {/* 5. INTERACTIVE CASE STUDY QUICK MODAL                                     */}
+      {/* 5. ULTRA-CLEAN 1:1 PURE IMAGE LIGHTBOX MODAL                             */}
       {/* ========================================================================= */}
       <AnimatePresence>
         {quickModalProject && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setQuickModalProject(null)}
-              className="fixed inset-0 bg-black/85 backdrop-blur-md"
+              className="fixed inset-0 bg-black/90 backdrop-blur-md cursor-pointer"
             />
 
+            {/* Pure 1:1 Image Container */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-2xl rounded-3xl glass-card border border-zinc-800 bg-zinc-950 p-6 sm:p-8 shadow-2xl z-10 space-y-6 overflow-hidden max-h-[88vh] overflow-y-auto"
+              exit={{ opacity: 0, scale: 0.9, y: 15 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 320 }}
+              className="relative w-full max-w-[90vw] sm:max-w-[540px] md:max-w-[620px] aspect-square rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-800 shadow-2xl z-10"
             >
-              {/* Close Button */}
+              {/* Clean Close Button */}
               <button
                 onClick={() => setQuickModalProject(null)}
-                className="absolute top-5 right-5 p-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                aria-label="Close Preview"
+                className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-white hover:bg-white hover:text-black flex items-center justify-center transition-all cursor-pointer shadow-lg hover:scale-105"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
 
-              {/* Modal Header */}
-              <div className="space-y-1.5 pr-8">
-                <span className="text-xs font-bold text-teal-400 uppercase tracking-wider block">
-                  {quickModalProject.category}
-                </span>
-                <h3 className="text-2xl sm:text-3xl font-display font-black text-white">
-                  {quickModalProject.title}
-                </h3>
-                <span className="text-xs text-zinc-500 block font-mono">
-                  Client: {quickModalProject.client} • Year: {quickModalProject.year}
-                </span>
-              </div>
-
-              {/* Image Preview */}
-              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-xl">
-                <SafeImage
-                  src={quickModalProject.coverImage}
-                  alt={quickModalProject.title}
-                  category={quickModalProject.category}
-                />
-              </div>
-
-              {/* Summary */}
-              <p className="text-sm text-zinc-300 leading-relaxed">
-                {quickModalProject.summary}
-              </p>
-
-              {/* Action Buttons */}
-              <div className="pt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <button
-                  onClick={() => {
-                    handleWhatsApp(quickModalProject);
-                    setQuickModalProject(null);
-                  }}
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-emerald-950/40"
-                >
-                  <MessageCircle className="w-4 h-4 fill-current" />
-                  <span>Inquire on WhatsApp</span>
-                </button>
-
-                <Link
-                  to={`/portfolio/${quickModalProject.slug}`}
-                  onClick={() => setQuickModalProject(null)}
-                  className="w-full sm:w-auto"
-                >
-                  <Button variant="primary" size="md" icon={ArrowUpRight} iconPosition="right" className="w-full justify-center">
-                    Read Case Study
-                  </Button>
-                </Link>
-              </div>
+              {/* Pure 1:1 Image */}
+              <SafeImage
+                src={quickModalProject.coverImage}
+                alt={quickModalProject.title}
+                category={quickModalProject.category}
+              />
             </motion.div>
           </div>
         )}
