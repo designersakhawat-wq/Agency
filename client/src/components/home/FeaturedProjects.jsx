@@ -16,7 +16,7 @@ import Button from '../common/Button';
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
 import tracking from '../../services/trackingService';
 
-// Curated Category Fallback Images
+// Curated High-Res Category Fallback Images
 const CATEGORY_FALLBACKS = {
   'Logo & Branding': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&auto=format&fit=crop&q=80',
   'Brand Identity': 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&auto=format&fit=crop&q=80',
@@ -28,7 +28,7 @@ const CATEGORY_FALLBACKS = {
   default: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&auto=format&fit=crop&q=80',
 };
 
-// Safe Image Component (Zero broken images, elegant shimmer)
+// Safe Image Component
 const SafeImage = ({ src, alt, category }) => {
   const fallback = CATEGORY_FALLBACKS[category] || CATEGORY_FALLBACKS.default;
   const [imgSrc, setImgSrc] = useState(src || fallback);
@@ -48,7 +48,7 @@ const SafeImage = ({ src, alt, category }) => {
         alt={alt || 'Design Craft'}
         onLoad={() => setLoaded(true)}
         onError={() => setImgSrc(fallback)}
-        className={`w-full h-full object-cover transition-all duration-700 ${
+        className={`w-full h-full object-cover transition-all duration-500 ${
           loaded ? 'opacity-100' : 'opacity-0'
         }`}
         loading="lazy"
@@ -108,12 +108,12 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
 
   const totalItems = filteredProjects.length;
 
-  // Auto-scroll Timer (transitions smoothly every 3.5s)
+  // Fast & Lively Auto-scroll Timer (2.4s interval)
   useEffect(() => {
     if (!isAutoPlaying || totalItems <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % totalItems);
-    }, 3500);
+    }, 2400);
     return () => clearInterval(interval);
   }, [isAutoPlaying, totalItems]);
 
@@ -159,28 +159,31 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
     >
-      {/* Background Radial Glow */}
+      {/* Ambient background glows */}
       <div className="ambient-glow-teal top-1/2 -left-40 opacity-20 pointer-events-none" />
       <div className="ambient-glow-cyan top-1/2 -right-40 opacity-15 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-10">
         {/* ========================================================================= */}
-        {/* 1. HEADER MATCHING REFERENCE (CENTERED, CLEAN & MINIMAL)                   */}
+        {/* 1. HEADER (CENTERED, SLEEK & MODERN)                                      */}
         {/* ========================================================================= */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-[11px] font-bold tracking-[0.25em] text-teal-400 uppercase">
-            SELECTED WORKS
-          </span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-bold tracking-[0.2em] uppercase">
+            <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+            <span>SELECTED WORKS</span>
+          </div>
+
           <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight">
             Featured Visual Gallery
           </h2>
+
           <p className="text-xs sm:text-sm text-zinc-400">
             A curated showcase of high-converting visual creatives, brand identities, and performance marketing designs.
           </p>
         </div>
 
         {/* ========================================================================= */}
-        {/* 2. PILL FILTER TABS (MATCHING REFERENCE EXACTLY)                          */}
+        {/* 2. PILL FILTER TABS                                                       */}
         {/* ========================================================================= */}
         <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap">
           {categories.map((cat) => {
@@ -189,7 +192,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-300 cursor-pointer ${
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer relative ${
                   isActive
                     ? 'bg-teal-400 text-zinc-950 font-black shadow-lg shadow-teal-500/25 scale-105'
                     : 'text-zinc-400 hover:text-white bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800'
@@ -210,22 +213,22 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
         </div>
 
         {/* ========================================================================= */}
-        {/* 3. 3D COVERFLOW / FOCAL IMAGE CAROUSEL (MATCHING REFERENCE)               */}
+        {/* 3. 3D COVERFLOW / FOCAL IMAGE CAROUSEL (FAST & SNAPPY SPRING EFFECT)      */}
         {/* ========================================================================= */}
-        <div className="relative h-[380px] sm:h-[460px] md:h-[520px] lg:h-[560px] flex items-center justify-center overflow-hidden my-4">
+        <div className="relative h-[380px] sm:h-[460px] md:h-[520px] lg:h-[560px] flex items-center justify-center overflow-hidden my-2">
           <div className="relative w-full h-full flex items-center justify-center">
             {filteredProjects.map((project, idx) => {
-              // Calculate relative distance from current active index
+              // Calculate relative offset from currentIndex
               let offset = (idx - currentIndex + totalItems) % totalItems;
               if (offset > totalItems / 2) offset -= totalItems;
 
-              // Show active item and 2 adjacent items on left and right
+              // Only render visible cards within reach of 2
               const isVisible = Math.abs(offset) <= 2;
               if (!isVisible) return null;
 
               const isCenter = offset === 0;
 
-              // Compute transforms for 3D depth and overlap
+              // Fast & dynamic 3D positioning
               let xOffset = 0;
               let scale = 1;
               let zIndex = 20;
@@ -234,34 +237,34 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
 
               if (isCenter) {
                 xOffset = 0;
-                scale = 1.12;
+                scale = 1.15;
                 zIndex = 30;
                 opacity = 1;
                 rotateY = 0;
               } else if (offset === 1) {
-                xOffset = 260; // Shift right
+                xOffset = 280;
                 scale = 0.88;
                 zIndex = 20;
                 opacity = 0.85;
-                rotateY = -6;
+                rotateY = -8;
               } else if (offset === -1) {
-                xOffset = -260; // Shift left
+                xOffset = -280;
                 scale = 0.88;
                 zIndex = 20;
                 opacity = 0.85;
-                rotateY = 6;
+                rotateY = 8;
               } else if (offset === 2) {
-                xOffset = 460;
+                xOffset = 480;
                 scale = 0.72;
                 zIndex = 10;
-                opacity = 0.4;
-                rotateY = -12;
+                opacity = 0.35;
+                rotateY = -15;
               } else if (offset === -2) {
-                xOffset = -460;
+                xOffset = -480;
                 scale = 0.72;
                 zIndex = 10;
-                opacity = 0.4;
-                rotateY = 12;
+                opacity = 0.35;
+                rotateY = 15;
               }
 
               return (
@@ -278,18 +281,18 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
                   }}
                   transition={{
                     type: 'spring',
-                    stiffness: 260,
-                    damping: 26,
+                    stiffness: 320,
+                    damping: 28,
                   }}
                   style={{
                     transformStyle: 'preserve-3d',
                   }}
                 >
                   <div
-                    className={`relative w-[260px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-950 border transition-all duration-500 shadow-2xl ${
+                    className={`relative w-[260px] sm:w-[320px] md:w-[380px] lg:w-[420px] aspect-[4/5] rounded-[2rem] overflow-hidden bg-zinc-950 border transition-all duration-300 shadow-2xl ${
                       isCenter
-                        ? 'border-teal-500/60 shadow-2xl shadow-teal-950/80 ring-2 ring-teal-500/20'
-                        : 'border-zinc-800/80 shadow-black/80 hover:border-zinc-700'
+                        ? 'border-teal-400/80 shadow-2xl shadow-teal-950 ring-2 ring-teal-400/30'
+                        : 'border-zinc-800/80 shadow-black/90 hover:border-zinc-700'
                     }`}
                   >
                     {/* Pure High-Res Visual Image */}
@@ -299,31 +302,35 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
                       category={project.category}
                     />
 
-                    {/* Subtle bottom gradient on active card with title */}
-                    {isCenter && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-between p-5 sm:p-6">
-                        {/* Category Tag Top Left */}
-                        <div className="flex items-center justify-between">
-                          <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-teal-300 text-xs font-bold shadow-md">
-                            {project.category}
-                          </span>
+                    {/* Clean Dark Overlay for Active Card */}
+                    <div
+                      className={`absolute inset-0 transition-opacity duration-300 flex flex-col justify-between p-5 sm:p-6 ${
+                        isCenter
+                          ? 'bg-gradient-to-t from-black/95 via-black/30 to-black/10 opacity-100'
+                          : 'bg-black/30 opacity-60 hover:opacity-100'
+                      }`}
+                    >
+                      {/* Top Badges */}
+                      <div className="flex items-center justify-between">
+                        <span className="px-3 py-1 rounded-full bg-zinc-950/80 backdrop-blur-md border border-white/20 text-teal-300 text-[11px] font-bold shadow-md">
+                          {project.category}
+                        </span>
 
-                          <span className="w-8 h-8 rounded-full bg-zinc-900/90 border border-white/20 text-white flex items-center justify-center shadow-lg">
-                            <Eye className="w-3.5 h-3.5 text-teal-400" />
-                          </span>
-                        </div>
-
-                        {/* Title & Client at Bottom */}
-                        <div className="space-y-1">
-                          <span className="text-[11px] text-zinc-400 font-mono block">
-                            {project.client} • {project.year}
-                          </span>
-                          <h3 className="text-base sm:text-lg font-bold font-display text-white line-clamp-1">
-                            {project.title}
-                          </h3>
-                        </div>
+                        <span className="w-8 h-8 rounded-full bg-zinc-950/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg">
+                          <Eye className="w-3.5 h-3.5 text-teal-400" />
+                        </span>
                       </div>
-                    )}
+
+                      {/* Bottom Info Bar */}
+                      <div className="space-y-1 bg-zinc-950/75 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 shadow-lg">
+                        <span className="text-[10px] text-zinc-400 font-mono block">
+                          {project.client} • {project.year}
+                        </span>
+                        <h3 className="text-sm sm:text-base font-bold font-display text-white line-clamp-1">
+                          {project.title}
+                        </h3>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -332,25 +339,25 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
         </div>
 
         {/* ========================================================================= */}
-        {/* 4. CIRCULAR NAVIGATION ARROWS BELOW (MATCHING REFERENCE EXACTLY)           */}
+        {/* 4. CIRCULAR NAVIGATION CONTROLS                                           */}
         {/* ========================================================================= */}
-        <div className="flex flex-col items-center justify-center gap-4 pt-2">
+        <div className="flex flex-col items-center justify-center gap-3 pt-1">
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrev}
               aria-label="Previous Project"
-              className="w-12 h-12 rounded-full bg-zinc-900 hover:bg-teal-500 hover:text-black border border-zinc-700 text-white flex items-center justify-center transition-all duration-300 cursor-pointer shadow-lg hover:scale-105"
+              className="w-11 h-11 rounded-full bg-zinc-900 hover:bg-teal-400 hover:text-zinc-950 border border-zinc-700 text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg hover:scale-105"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
 
-            {/* Slide Index Dot Indicator */}
+            {/* Slide Dots */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800">
               {filteredProjects.map((_, dotIdx) => (
                 <button
                   key={dotIdx}
                   onClick={() => setCurrentIndex(dotIdx)}
-                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  className={`h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
                     dotIdx === currentIndex ? 'w-5 bg-teal-400' : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
                   }`}
                   aria-label={`Go to slide ${dotIdx + 1}`}
@@ -361,7 +368,7 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
             <button
               onClick={handleNext}
               aria-label="Next Project"
-              className="w-12 h-12 rounded-full bg-zinc-900 hover:bg-teal-500 hover:text-black border border-zinc-700 text-white flex items-center justify-center transition-all duration-300 cursor-pointer shadow-lg hover:scale-105"
+              className="w-11 h-11 rounded-full bg-zinc-900 hover:bg-teal-400 hover:text-zinc-950 border border-zinc-700 text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-lg hover:scale-105"
             >
               <ArrowRight className="w-4 h-4" />
             </button>
