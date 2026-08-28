@@ -51,7 +51,7 @@ const SafeImage = ({ src, alt, category }) => {
   );
 };
 
-export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
+export const FeaturedProjects = ({ projects = [] }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -309,9 +309,17 @@ export const FeaturedProjects = ({ projects = [], onSelectProject }) => {
                           {project.category}
                         </span>
 
-                        <span className="w-8 h-8 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setQuickModalProject(project);
+                          }}
+                          aria-label="View 1:1 Image Preview"
+                          className="w-8 h-8 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer"
+                        >
                           <Eye className="w-3.5 h-3.5 text-teal-400" />
-                        </span>
+                        </button>
                       </div>
 
                       {/* Bottom Info */}

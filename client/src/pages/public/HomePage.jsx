@@ -44,7 +44,6 @@ const HomePage = () => {
   const [brands, setBrands] = useState(() => getLocalJson('sakhawat_cached_brands', DEFAULT_BRANDS));
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedServiceForBooking, setSelectedServiceForBooking] = useState('');
-  const [previewProject, setPreviewProject] = useState(null);
   useEffect(() => {
     // Fetch consolidated homepage data in 1 single HTTP request
     const fetchData = async () => {
@@ -145,10 +144,7 @@ const HomePage = () => {
       <CreativeGatewayHub />
 
       {/* Featured Projects */}
-      <FeaturedProjects
-        projects={projects}
-        onSelectProject={(proj) => setPreviewProject(proj)}
-      />
+      <FeaturedProjects projects={projects} />
 
       {/* Interactive Project Cost & ROI Estimator */}
       <InteractiveProjectEstimator onOpenBooking={handleOpenBooking} />
@@ -183,77 +179,6 @@ const HomePage = () => {
         onClose={() => setIsBookingOpen(false)}
         defaultService={selectedServiceForBooking}
       />
-
-      {/* Quick Project Preview Modal */}
-      {previewProject && (
-        <Modal
-          isOpen={Boolean(previewProject)}
-          onClose={() => setPreviewProject(null)}
-          title={previewProject.title}
-          subtitle={`${previewProject.category} • ${previewProject.year || '2025'}`}
-          maxWidth="max-w-3xl"
-        >
-          <div className="space-y-6">
-            <div className="rounded-xl overflow-hidden aspect-[16/9] bg-zinc-900">
-              <img
-                src={previewProject.coverImage}
-                alt={previewProject.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <div>
-              <h4 className="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-1">
-                Project Overview
-              </h4>
-              <p className="text-sm text-zinc-400 leading-relaxed">{previewProject.summary}</p>
-            </div>
-
-            {previewProject.challenges && (
-              <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 space-y-2">
-                <span className="font-bold text-white block">Key Challenge & Solution:</span>
-                <p>{previewProject.solutions || previewProject.challenges}</p>
-              </div>
-            )}
-
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-zinc-800">
-              <div className="flex items-center gap-3">
-                {previewProject.figmaUrl && (
-                  <a
-                    href={previewProject.figmaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors"
-                  >
-                    <Figma className="w-4 h-4" />
-                    <span>Figma File</span>
-                  </a>
-                )}
-                {previewProject.liveUrl && (
-                  <a
-                    href={previewProject.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Live Preview</span>
-                  </a>
-                )}
-              </div>
-
-              <Link
-                to={`/portfolio/${previewProject.slug}`}
-                onClick={() => setPreviewProject(null)}
-              >
-                <Button variant="primary" size="sm" icon={ArrowUpRight} iconPosition="right">
-                  Read Full Case Study
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </Modal>
-      )}
     </div>
   );
 };
