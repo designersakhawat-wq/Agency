@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   Sparkles,
   ArrowRight,
-  Sliders,
 } from 'lucide-react';
 import Button from '../common/Button';
 import { useCurrency } from '../../context/CurrencyContext';
@@ -278,10 +277,10 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
         </div>
 
         {/* ========================================================================= */}
-        {/* 2. UNIFIED 2-COLUMN STUDIO ESTIMATOR                                      */}
+        {/* 2. BALANCED 2-COLUMN STUDIO ESTIMATOR                                      */}
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT 7 COLS: CONFIGURATOR */}
+          {/* LEFT 7 COLS: SERVICE & QUANTITY SELECTION */}
           <div className="lg:col-span-7 space-y-6">
             {/* STEP 1: SERVICE TILES */}
             <div className="p-6 sm:p-7 rounded-3xl glass-card border border-zinc-800/90 shadow-xl space-y-4 bg-zinc-950/70">
@@ -292,7 +291,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                   </span>
                   Select Design Service
                 </span>
-                <span className="text-[11px] text-zinc-500 font-mono">Step 1 of 3</span>
+                <span className="text-[11px] text-zinc-500 font-mono">Step 1 of 2</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -343,7 +342,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                   </span>
                   Select Deliverables Volume
                 </span>
-                <span className="text-[11px] text-zinc-500 font-mono">Step 2 of 3</span>
+                <span className="text-[11px] text-zinc-500 font-mono">Step 2 of 2</span>
               </div>
 
               {/* Large Interactive Stepper Counter */}
@@ -419,100 +418,13 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                 </div>
               </div>
             </div>
-
-            {/* STEP 3: SPEED & ADDONS */}
-            <div className="p-6 sm:p-7 rounded-3xl glass-card border border-zinc-800/90 shadow-xl space-y-4 bg-zinc-950/70">
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
-                <span className="text-xs font-bold uppercase tracking-wider text-teal-400 flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-teal-400 text-zinc-950 flex items-center justify-center text-xs font-black">
-                    3
-                  </span>
-                  Delivery Speed & Enhancements
-                </span>
-                <span className="text-[11px] text-zinc-500 font-mono">Step 3 of 3</span>
-              </div>
-
-              {/* Speed Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  onClick={() => setTurnaround('standard')}
-                  className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer ${
-                    turnaround === 'standard'
-                      ? 'bg-teal-500/15 border-teal-400 text-white ring-1 ring-teal-400/40'
-                      : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4 text-teal-400" />
-                      <span>Standard (3–5 Days)</span>
-                    </span>
-                    {turnaround === 'standard' && <Check className="w-4 h-4 text-teal-400" />}
-                  </div>
-                  <p className="text-[11px] text-zinc-400">Regular schedule • Normal fee</p>
-                </button>
-
-                <button
-                  onClick={() => setTurnaround('rush')}
-                  className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer ${
-                    turnaround === 'rush'
-                      ? 'bg-amber-500/15 border-amber-400 text-white ring-1 ring-amber-400/40'
-                      : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-xs font-bold text-amber-300 mb-1">
-                    <span className="flex items-center gap-1.5">
-                      <Zap className="w-4 h-4 text-amber-400" />
-                      <span>Express Rush (24–48h)</span>
-                    </span>
-                    {turnaround === 'rush' && <Check className="w-4 h-4 text-amber-400" />}
-                  </div>
-                  <p className="text-[11px] text-zinc-400">+35% priority delivery</p>
-                </button>
-              </div>
-
-              {/* Addons List */}
-              <div className="space-y-2 pt-1">
-                <span className="text-[11px] font-semibold text-zinc-400 block">
-                  Optional Enhancements:
-                </span>
-                {addons.map((addon) => {
-                  const isChecked = selectedAddons.includes(addon.id);
-                  return (
-                    <button
-                      key={addon.id}
-                      onClick={() => toggleAddon(addon.id)}
-                      className={`w-full p-3 rounded-2xl flex items-center justify-between text-left border transition-colors cursor-pointer ${
-                        isChecked
-                          ? 'bg-zinc-800/90 border-teal-500/50 text-white'
-                          : 'bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:bg-zinc-800/40'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 text-xs">
-                        <div
-                          className={`w-4 h-4 rounded-md border flex items-center justify-center ${
-                            isChecked
-                              ? 'bg-teal-400 border-teal-300 text-zinc-950'
-                              : 'border-zinc-700 bg-zinc-800'
-                          }`}
-                        >
-                          {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
-                        </div>
-                        <span>{addon.name}</span>
-                      </div>
-                      <span className="text-xs font-bold text-teal-400 font-mono">+{formatAmount(addon.price)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
-          {/* RIGHT 5 COLS: RECEIPT SUMMARY & DIRECT WHATSAPP ACTION */}
+          {/* RIGHT 5 COLS: RECEIPT SUMMARY + SPEED/ADDONS + DIRECT WHATSAPP ACTION */}
           <div className="lg:col-span-5 sticky top-28 space-y-4">
-            <div className="rounded-3xl glass-panel p-6 sm:p-8 border-2 border-teal-500/40 bg-zinc-950/95 shadow-2xl shadow-teal-950/50 space-y-6 relative">
+            <div className="rounded-3xl glass-panel p-6 sm:p-7 border-2 border-teal-500/40 bg-zinc-950/95 shadow-2xl shadow-teal-950/50 space-y-5 relative">
               {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <div className="flex items-center justify-between pb-2.5 border-b border-zinc-800">
                 <span className="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   Instant Live Estimate
@@ -540,7 +452,7 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
               </div>
 
               {/* Itemized Breakdown Receipt */}
-              <div className="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-2 text-xs">
+              <div className="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-1.5 text-xs">
                 <div className="flex items-center justify-between text-zinc-300">
                   <span>{currentService.name} ({quantity}x)</span>
                   <span className="font-mono font-bold text-white">{formatAmount(baseServiceCost)}</span>
@@ -556,41 +468,121 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
                   </div>
                 )}
                 {discountClaimed && (
-                  <div className="flex items-center justify-between text-emerald-400 font-bold pt-1.5 border-t border-zinc-800">
+                  <div className="flex items-center justify-between text-emerald-400 font-bold pt-1 border-t border-zinc-800">
                     <span>Welcome Discount (15%)</span>
                     <span>-{formatAmount(discountAmount)}</span>
                   </div>
                 )}
               </div>
 
+              {/* ========================================================================= */}
+              {/* 🎯 DELIVERY SPEED & ENHANCEMENTS (MOVED RIGHT ABOVE WHATSAPP CTA)          */}
+              {/* ========================================================================= */}
+              <div className="space-y-3 pt-1 border-t border-zinc-800/80">
+                <span className="text-[11px] font-bold text-zinc-300 uppercase tracking-wider block">
+                  Delivery Speed & Enhancements:
+                </span>
+
+                {/* Speed Switcher */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setTurnaround('standard')}
+                    className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                      turnaround === 'standard'
+                        ? 'bg-teal-500/15 border-teal-400 text-white ring-1 ring-teal-400/40'
+                        : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-xs font-bold text-white mb-0.5">
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-teal-400" />
+                        <span>Standard</span>
+                      </span>
+                      {turnaround === 'standard' && <Check className="w-3 h-3 text-teal-400" />}
+                    </div>
+                    <p className="text-[10px] text-zinc-400">3–5 Days • Regular</p>
+                  </button>
+
+                  <button
+                    onClick={() => setTurnaround('rush')}
+                    className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                      turnaround === 'rush'
+                        ? 'bg-amber-500/15 border-amber-400 text-white ring-1 ring-amber-400/40'
+                        : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-xs font-bold text-amber-300 mb-0.5">
+                      <span className="flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Express Rush</span>
+                      </span>
+                      {turnaround === 'rush' && <Check className="w-3 h-3 text-amber-400" />}
+                    </div>
+                    <p className="text-[10px] text-zinc-400">24–48h • +35%</p>
+                  </button>
+                </div>
+
+                {/* Addons List */}
+                <div className="space-y-1.5">
+                  {addons.map((addon) => {
+                    const isChecked = selectedAddons.includes(addon.id);
+                    return (
+                      <button
+                        key={addon.id}
+                        onClick={() => toggleAddon(addon.id)}
+                        className={`w-full p-2.5 rounded-xl flex items-center justify-between text-left border transition-colors cursor-pointer ${
+                          isChecked
+                            ? 'bg-zinc-800/90 border-teal-500/50 text-white'
+                            : 'bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:bg-zinc-800/40'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 text-xs">
+                          <div
+                            className={`w-4 h-4 rounded-md border flex items-center justify-center ${
+                              isChecked
+                                ? 'bg-teal-400 border-teal-300 text-zinc-950'
+                                : 'border-zinc-700 bg-zinc-800'
+                            }`}
+                          >
+                            {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                          </div>
+                          <span className="text-[11px] font-medium">{addon.name}</span>
+                        </div>
+                        <span className="text-xs font-bold text-teal-400 font-mono">+{formatAmount(addon.price)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Discount Voucher */}
               {!discountClaimed ? (
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-amber-500/15 border border-amber-500/30 flex items-center justify-between gap-3">
+                <div className="p-3 rounded-xl bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-amber-500/15 border border-amber-500/30 flex items-center justify-between gap-2">
                   <div>
                     <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                      <Gift className="w-4 h-4 text-amber-400" />
+                      <Gift className="w-3.5 h-3.5 text-amber-400" />
                       Special 15% First-Order Voucher
                     </p>
-                    <p className="text-[11px] text-zinc-400">
+                    <p className="text-[10px] text-zinc-400">
                       Save {formatAmount(Math.round(subtotal * 0.15))} instantly
                     </p>
                   </div>
                   <button
                     onClick={handleClaimDiscount}
-                    className="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-black text-xs shadow-md hover:scale-105 transition-all cursor-pointer shrink-0"
+                    className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-black text-xs shadow-md hover:scale-105 transition-all cursor-pointer shrink-0"
                   >
                     Claim 15%
                   </button>
                 </div>
               ) : (
-                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center gap-2 text-xs text-emerald-300 font-bold">
+                <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center gap-2 text-xs text-emerald-300 font-bold">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>15% Discount Voucher Applied!</span>
                 </div>
               )}
 
               {/* High-Impact WhatsApp Button */}
-              <div className="space-y-3 pt-1">
+              <div className="space-y-2.5 pt-1">
                 <button
                   onClick={handleOpenQuoteModal}
                   className="w-full py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-sm sm:text-base uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-xl shadow-emerald-950/50 hover:scale-[1.02] transition-all cursor-pointer"
