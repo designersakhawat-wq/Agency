@@ -254,8 +254,23 @@ const initDatabaseSchema = async (prisma) => {
     await addColumnIfMissing('Testimonial', 'status', 'TEXT NOT NULL DEFAULT \'APPROVED\'');
     await addColumnIfMissing('ContactInquiry', 'projectType', 'TEXT');
     await addColumnIfMissing('ContactInquiry', 'deadline', 'TEXT');
+    await addColumnIfMissing('ContactInquiry', 'utmSource', 'TEXT');
+    await addColumnIfMissing('ContactInquiry', 'utmMedium', 'TEXT');
+    await addColumnIfMissing('ContactInquiry', 'utmCampaign', 'TEXT');
+    await addColumnIfMissing('ContactInquiry', 'utmContent', 'TEXT');
+    await addColumnIfMissing('ContactInquiry', 'utmTerm', 'TEXT');
+    await addColumnIfMissing('ContactInquiry', 'landingPage', 'TEXT');
+    await addColumnIfMissing('ContactInquiry', 'referrer', 'TEXT');
+
     await addColumnIfMissing('Booking', 'budget', 'TEXT');
     await addColumnIfMissing('Booking', 'projectDetails', 'TEXT');
+    await addColumnIfMissing('Booking', 'utmSource', 'TEXT');
+    await addColumnIfMissing('Booking', 'utmMedium', 'TEXT');
+    await addColumnIfMissing('Booking', 'utmCampaign', 'TEXT');
+    await addColumnIfMissing('Booking', 'utmContent', 'TEXT');
+    await addColumnIfMissing('Booking', 'utmTerm', 'TEXT');
+    await addColumnIfMissing('Booking', 'landingPage', 'TEXT');
+    await addColumnIfMissing('Booking', 'referrer', 'TEXT');
 
     console.log('✅ SQLite database schema verified and tables created if missing.');
 

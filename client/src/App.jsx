@@ -17,6 +17,7 @@ import RouteScrollToTop from './components/common/RouteScrollToTop';
 import LiveSocialProofToast from './components/common/LiveSocialProofToast';
 import InteractiveChatWidget from './components/common/InteractiveChatWidget';
 import ExitIntentModal from './components/common/ExitIntentModal';
+import RouteTracker from './components/common/RouteTracker';
 
 // Function to dynamically import with auto-reload on version mismatch
 const lazyWithRetry = (componentImport) =>
@@ -69,6 +70,7 @@ const AdminAssistantPage = lazy(() => import('./pages/admin/AdminAssistantPage')
 const AdminEstimatorPage = lazy(() => import('./pages/admin/AdminEstimatorPage'));
 const AdminInvoicesPage = lazy(() => import('./pages/admin/AdminInvoicesPage'));
 const AdminAboutCmsPage = lazy(() => import('./pages/admin/AdminAboutCmsPage'));
+const AdminTrackingPage = lazy(() => import('./pages/admin/AdminTrackingPage'));
 const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage'));
 
 // Protected Admin Route Guard - 100% Non-Blocking
@@ -126,6 +128,7 @@ function App() {
         <CurrencyProvider>
           <BrandProvider>
             <RouteScrollToTop />
+            <RouteTracker />
             <Routes>
               {/* Public Routes */}
               <Route
@@ -362,6 +365,14 @@ function App() {
                   element={
                     <Suspense fallback={<AdminFallback />}>
                       <AdminInvoicesPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="tracking"
+                  element={
+                    <Suspense fallback={<AdminFallback />}>
+                      <AdminTrackingPage />
                     </Suspense>
                   }
                 />

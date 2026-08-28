@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import Button from './Button';
 import { useCurrency } from '../../context/CurrencyContext';
+import tracking from '../../services/trackingService';
 
 export const PackageActionModal = ({
   isOpen,
@@ -24,6 +25,19 @@ export const PackageActionModal = ({
 }) => {
   const navigate = useNavigate();
   const { formatAmount } = useCurrency();
+
+  // Track ViewContent when package modal opens
+  React.useEffect(() => {
+    if (isOpen && pkg) {
+      tracking.trackViewContent(
+        `${serviceName} - ${pkg.name}`,
+        'Package Offering',
+        pkg.price || 0,
+        'USD',
+        pkg.id
+      );
+    }
+  }, [isOpen, pkg, serviceName]);
 
   if (!isOpen || !pkg) return null;
 
@@ -38,6 +52,15 @@ export const PackageActionModal = ({
   );
 
   const whatsappUrl = `https://wa.me/${finalPhone}?text=${waText}`;
+
+  const handleWhatsAppClick = () => {
+    tracking.trackWhatsAppClick(
+      'Pricing Package Modal',
+      `Order Package: ${pkg.name}`,
+      `${serviceName} - ${pkg.name} (${formattedPrice})`
+    );
+    onClose();
+  };
 
   const handleBookMeeting = () => {
     onClose();
@@ -131,7 +154,7 @@ export const PackageActionModal = ({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={onClose}
+              onClick={handleWhatsAppClick}
               className="group block p-4 sm:p-5 rounded-2xl bg-emerald-950/30 border-2 border-emerald-500/40 hover:border-emerald-400 hover:bg-emerald-900/40 transition-all duration-300 shadow-lg shadow-emerald-950/30 relative overflow-hidden"
             >
               <div className="flex items-center justify-between gap-3">

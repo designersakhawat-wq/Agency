@@ -29,6 +29,7 @@ import {
   Zap,
   Globe,
   Palette,
+  Activity,
 } from 'lucide-react';
 
 export const AdminLayout = () => {
@@ -131,6 +132,7 @@ export const AdminLayout = () => {
       items: [
         { name: 'AI Assistant Training', path: '/admin/assistant', icon: Bot },
         { name: 'Project Estimator CMS', path: '/admin/estimator', icon: Calculator },
+        { name: 'Meta Pixel & Tracking', path: '/admin/tracking', icon: Activity },
         { name: 'Global Site Settings', path: '/admin/settings', icon: Settings },
       ],
     },

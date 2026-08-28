@@ -23,6 +23,7 @@ import {
 import Button from '../common/Button';
 import { useCurrency } from '../../context/CurrencyContext';
 import { api } from '../../services/api';
+import tracking from '../../services/trackingService';
 
 const DEFAULT_CONFIG = {
   badge: 'Instant Project Scope & Budget Calculator',
@@ -202,6 +203,8 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
       origin: { y: 0.5 },
       colors: ['#14b8a6', '#06b6d4', '#10b981'],
     });
+    // Dispatch Meta Custom Event: EstimateQuote
+    tracking.trackEstimateQuote(currentService.name, finalTotal, 'USD');
     setQuoteModalOpen(true);
   };
 
@@ -213,6 +216,13 @@ export const InteractiveProjectEstimator = ({ onOpenBooking }) => {
     const selectedAddonObjs = selectedAddons
       .map((id) => addonsList.find((a) => a.id === id))
       .filter(Boolean);
+
+    // Dispatch Meta Custom & Contact Event: WhatsAppClick
+    tracking.trackWhatsAppClick(
+      'Estimator Quote Modal',
+      'Instant Quote Booking',
+      `${currentService.name} (${quantity} units) - ${formatAmount(finalTotal)}`
+    );
 
     let msg = `🎯 *NEW PROJECT ESTIMATE QUOTE* 🎯\n`;
     msg += `━━━━━━━━━━━━━━━━━━━━━\n`;

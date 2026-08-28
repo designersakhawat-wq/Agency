@@ -21,6 +21,7 @@ import { Badge } from '../../components/common/Badge';
 import Button from '../../components/common/Button';
 
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
+import tracking from '../../services/trackingService';
 
 const ProjectDetailPage = () => {
   const { slug } = useParams();
@@ -39,6 +40,9 @@ const ProjectDetailPage = () => {
           setProject(res.data.project);
           setActiveImage(res.data.project.coverImage);
           setRelated(res.data.relatedProjects || []);
+          tracking.trackViewContent(res.data.project.title, 'Portfolio Case Study', null, 'USD', res.data.project.id);
+        } else if (defaultProject) {
+          tracking.trackViewContent(defaultProject.title, 'Portfolio Case Study', null, 'USD', defaultProject.id);
         }
       } catch (err) {
         console.error('Error fetching project detail:', err);

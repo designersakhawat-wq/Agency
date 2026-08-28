@@ -193,6 +193,7 @@ export const AdminInquiriesPage = () => {
               <thead className="bg-zinc-950/80 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold">
                 <tr>
                   <th className="p-4">Client / Company</th>
+                  <th className="p-4">Attribution / Source</th>
                   <th className="p-4">Subject & Message</th>
                   <th className="p-4">Service & Budget</th>
                   <th className="p-4">Lead Status</th>
@@ -217,6 +218,18 @@ export const AdminInquiriesPage = () => {
                         {inq.email}
                       </a>
                       {inq.company && <span className="text-[10px] text-zinc-400 block">{inq.company}</span>}
+                    </td>
+
+                    <td className="p-4">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-300 text-[11px] font-bold">
+                        <Tag className="w-3 h-3 text-teal-400" />
+                        <span>{inq.utmSource || 'Direct / Organic'}</span>
+                      </span>
+                      {inq.utmCampaign && inq.utmCampaign !== 'direct' && inq.utmCampaign !== 'organic_visit' && (
+                        <span className="text-[10px] text-zinc-400 block mt-1 font-mono truncate max-w-[140px]" title={inq.utmCampaign}>
+                          📢 {inq.utmCampaign}
+                        </span>
+                      )}
                     </td>
 
                     <td className="p-4 max-w-xs">
@@ -336,7 +349,47 @@ export const AdminInquiriesPage = () => {
                   <span className="text-zinc-500 block text-[10px] uppercase">Received</span>
                   <span className="font-semibold text-white">{new Date(selectedInquiry.createdAt).toLocaleDateString()}</span>
                 </div>
+                <div>
+                  <span className="text-zinc-500 block text-[10px] uppercase">Lead Attribution</span>
+                  <span className="font-bold text-teal-400">{selectedInquiry.utmSource || 'Direct'}</span>
+                </div>
               </div>
+
+              {/* Extended Campaign & Ad Details */}
+              {(selectedInquiry.utmSource || selectedInquiry.utmCampaign || selectedInquiry.landingPage) && (
+                <div className="p-3.5 rounded-xl bg-zinc-900/90 border border-teal-500/20 space-y-1.5 text-xs">
+                  <span className="text-[10px] font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Tag className="w-3 h-3" />
+                    <span>Meta Ads / Campaign Attribution Breakdown</span>
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] text-zinc-300">
+                    <div>
+                      <span className="text-zinc-500 block">Traffic Source:</span>
+                      <span className="font-semibold text-white">{selectedInquiry.utmSource || 'Direct / Organic'}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500 block">Campaign Name:</span>
+                      <span className="font-semibold text-white">{selectedInquiry.utmCampaign || '—'}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500 block">Medium / Placement:</span>
+                      <span className="font-semibold text-white">{selectedInquiry.utmMedium || '—'}</span>
+                    </div>
+                    {selectedInquiry.utmContent && (
+                      <div>
+                        <span className="text-zinc-500 block">Ad Creative / Content:</span>
+                        <span className="font-semibold text-white">{selectedInquiry.utmContent}</span>
+                      </div>
+                    )}
+                    {selectedInquiry.landingPage && (
+                      <div className="col-span-2">
+                        <span className="text-zinc-500 block">Landing Page URL:</span>
+                        <span className="font-mono text-zinc-400 break-all">{selectedInquiry.landingPage}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Message Body */}

@@ -20,6 +20,13 @@ const createBooking = async (req, res, next) => {
       projectDetails,
       budget,
       meetingType,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmContent,
+      utmTerm,
+      landingPage,
+      referrer,
     } = req.body;
 
     if (!name || !email || !date || !timeSlot) {
@@ -78,6 +85,13 @@ const createBooking = async (req, res, next) => {
           timeSlot: cleanSlot,
           notes: fullNotes,
           status: 'PENDING',
+          utmSource: utmSource ? String(utmSource).trim() : null,
+          utmMedium: utmMedium ? String(utmMedium).trim() : null,
+          utmCampaign: utmCampaign ? String(utmCampaign).trim() : null,
+          utmContent: utmContent ? String(utmContent).trim() : null,
+          utmTerm: utmTerm ? String(utmTerm).trim() : null,
+          landingPage: landingPage ? String(landingPage).trim() : null,
+          referrer: referrer ? String(referrer).trim() : null,
         },
       });
     } catch (createErr) {

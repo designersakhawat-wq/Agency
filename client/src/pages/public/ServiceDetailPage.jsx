@@ -36,6 +36,7 @@ import FaqAccordion from '../../components/home/FaqAccordion';
 import { PackageActionModal } from '../../components/common/PackageActionModal';
 import { DEFAULT_SERVICES, DEFAULT_FAQS, DEFAULT_PROJECTS, DEFAULT_SETTINGS } from '../../data/defaultData';
 import { safeSetItem } from '../../utils/safeStorage';
+import tracking from '../../services/trackingService';
 
 const iconMap = {
   Palette: Palette,
@@ -173,6 +174,9 @@ const ServiceDetailPage = () => {
             packages: freshPackages.length > 0 ? freshPackages : prev.packages,
             faqs: srvRes.data.faqs || prev.faqs,
           }));
+          if (freshService) {
+            tracking.trackViewContent(freshService.title, 'Service Offering', null, 'USD', freshService.id);
+          }
         }
 
         if (projRes && projRes.success && Array.isArray(projRes.data)) {

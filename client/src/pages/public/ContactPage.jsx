@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
+import tracking from '../../services/trackingService';
+import { getAttributionData } from '../../utils/utmTracker';
 
 const ContactPage = () => {
   const { success, error } = useToast();
@@ -41,9 +43,21 @@ const ContactPage = () => {
 
     setLoading(true);
     try {
-      const res = await api.post('/inquiries', formData);
+      const attribution = getAttributionData();
+      const payload = {
+        ...formData,
+        ...attribution,
+      };
+
+      const res = await api.post('/inquiries', payload);
       if (res.success) {
         setSubmitted(true);
+        // Dispatch Meta Pixel Lead Conversion Event
+        tracking.trackLead('Contact Page Inquiry Form', 0, 'USD', {
+          service: formData.service,
+          budget: formData.budget,
+          project_type: formData.projectType,
+        });
         success('Your inquiry has been delivered directly to Sakhawat!');
       } else {
         error(res.message || 'Failed to submit inquiry.');
@@ -84,6 +98,7 @@ const ContactPage = () => {
               <div className="space-y-4 text-xs">
                 <a
                   href="mailto:designersakhawat@gmail.com"
+                  onClick={() => tracking.trackEmailClick('designersakhawat@gmail.com', 'Contact Page')}
                   className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center gap-3.5 hover:border-teal-500/40 transition-colors group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20 shrink-0 group-hover:scale-110 transition-transform">
@@ -99,6 +114,7 @@ const ContactPage = () => {
 
                 <a
                   href="tel:01781955355"
+                  onClick={() => tracking.trackCallClick('01781955355', 'Contact Page')}
                   className="p-4 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center gap-3.5 hover:border-teal-500/40 transition-colors group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center border border-teal-500/20 shrink-0 group-hover:scale-110 transition-transform">

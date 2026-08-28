@@ -5,6 +5,8 @@ import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { Calendar, Clock, CheckCircle2, User, Mail, MessageSquare, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import tracking from '../../services/trackingService';
+import { getAttributionData } from '../../utils/utmTracker';
 
 const timeSlots = [
   '09:30 AM',
@@ -65,9 +67,17 @@ const BookingModal = ({ isOpen, onClose, defaultService = '' }) => {
 
     setLoading(true);
     try {
-      const res = await api.post('/bookings', formData);
+      const attribution = getAttributionData();
+      const payload = {
+        ...formData,
+        ...attribution,
+      };
+
+      const res = await api.post('/bookings', payload);
       if (res.success) {
         setBookedSuccess(true);
+        // Dispatch Meta Pixel Schedule / Booking Conversion Event
+        tracking.trackSchedule(formData.serviceName, `${formData.date} ${formData.timeSlot}`, 0, 'USD');
         success('Discovery call booked successfully! Check your email for details.');
         // Trigger celebratory confetti
         confetti({

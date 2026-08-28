@@ -19,6 +19,8 @@ import {
 import Button from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { useCurrency } from '../../context/CurrencyContext';
+import tracking from '../../services/trackingService';
+import { getAttributionData } from '../../utils/utmTracker';
 
 const timeSlots = [
   '09:00 AM',
@@ -83,13 +85,21 @@ const BookingPage = () => {
 
     setLoading(true);
     try {
-      const res = await api.post('/bookings', formData);
+      const attribution = getAttributionData();
+      const payload = {
+        ...formData,
+        ...attribution,
+      };
+
+      const res = await api.post('/bookings', payload);
       if (res.success) {
         setBookingSuccess(true);
+        // Dispatch Meta Pixel Schedule / Booking Conversion Event
+        tracking.trackSchedule(formData.serviceName, `${formData.date} ${formData.timeSlot}`, 0, 'USD');
         success('Discovery consultation reserved successfully!');
         confetti({
-          particleCount: 100,
-          spread: 70,
+          particleCount: 120,
+          spread: 80,
           origin: { y: 0.6 },
           colors: ['#14b8a6', '#0d9488', '#2dd4bf', '#ffffff'],
         });

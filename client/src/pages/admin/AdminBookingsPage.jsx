@@ -13,6 +13,7 @@ import {
   Search,
   ExternalLink,
   Edit2,
+  Tag,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
@@ -168,6 +169,7 @@ const AdminBookingsPage = () => {
               <thead className="bg-zinc-900/80 border-b border-zinc-800 text-zinc-400 uppercase tracking-wider font-semibold">
                 <tr>
                   <th className="p-4">Client</th>
+                  <th className="p-4">Attribution / Source</th>
                   <th className="p-4">Topic / Service</th>
                   <th className="p-4">Appointment Date & Time</th>
                   <th className="p-4">Status</th>
@@ -180,9 +182,21 @@ const AdminBookingsPage = () => {
                   <tr key={b.id} className="hover:bg-zinc-850/50 transition-colors">
                     <td className="p-4">
                       <span className="font-bold text-white block">{b.name}</span>
-                      <a href={`mailto:${b.email}`} className="text-[11px] text-indigo-400 hover:underline">
+                      <a href={`mailto:${b.email}`} className="text-[11px] text-teal-400 hover:underline">
                         {b.email}
                       </a>
+                    </td>
+
+                    <td className="p-4">
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-300 text-[11px] font-bold">
+                        <Tag className="w-3 h-3 text-teal-400" />
+                        <span>{b.utmSource || 'Direct / Organic'}</span>
+                      </span>
+                      {b.utmCampaign && b.utmCampaign !== 'direct' && (
+                        <span className="text-[10px] text-zinc-400 block mt-1 font-mono truncate max-w-[130px]" title={b.utmCampaign}>
+                          📢 {b.utmCampaign}
+                        </span>
+                      )}
                     </td>
 
                     <td className="p-4">
@@ -277,6 +291,38 @@ const AdminBookingsPage = () => {
                 <div className="pt-2 border-t border-zinc-800">
                   <span className="text-zinc-500 block mb-1">Client Notes:</span>
                   <p className="text-zinc-300 leading-relaxed">{selectedBooking.notes}</p>
+                </div>
+              )}
+
+              {/* Attribution Details */}
+              {(selectedBooking.utmSource || selectedBooking.utmCampaign || selectedBooking.landingPage) && (
+                <div className="p-3 rounded-lg bg-zinc-950 border border-teal-500/20 space-y-1 text-xs">
+                  <span className="text-[10px] font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Tag className="w-3 h-3" />
+                    <span>Meta Ads / Campaign Attribution</span>
+                  </span>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-300 pt-1">
+                    <div>
+                      <span className="text-zinc-500 block">Source:</span>
+                      <span className="font-semibold text-white">{selectedBooking.utmSource || 'Direct / Organic'}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-500 block">Campaign:</span>
+                      <span className="font-semibold text-white">{selectedBooking.utmCampaign || '—'}</span>
+                    </div>
+                    {selectedBooking.utmContent && (
+                      <div>
+                        <span className="text-zinc-500 block">Ad Content:</span>
+                        <span className="font-semibold text-white">{selectedBooking.utmContent}</span>
+                      </div>
+                    )}
+                    {selectedBooking.landingPage && (
+                      <div>
+                        <span className="text-zinc-500 block">Landing Page:</span>
+                        <span className="font-mono text-zinc-400 truncate">{selectedBooking.landingPage}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

@@ -145,6 +145,13 @@ model ContactInquiry {
   message     String
   status      String   @default("NEW") // NEW | CONTACTED | IN_DISCUSSION | CONVERTED | CLOSED | SPAM
   notes       String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+  landingPage String?
+  referrer    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -163,6 +170,13 @@ model Booking {
   meetingLink    String?
   notes          String?
   status         String   @default("PENDING") // PENDING | CONFIRMED | RESCHEDULED | COMPLETED | CANCELLED
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  utmContent     String?
+  utmTerm        String?
+  landingPage    String?
+  referrer       String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
