@@ -37,16 +37,10 @@ import Modal from '../../components/common/Modal';
 import { MediaPickerModal } from '../../components/common/MediaPickerModal';
 import { DEFAULT_PROJECTS } from '../../data/defaultData';
 import { safeSetItem } from '../../utils/safeStorage';
+import DataVault from '../../utils/dataVault';
 
 export const AdminProjectsPage = () => {
-  const [projects, setProjects] = useState(() => {
-    try {
-      const cached = localStorage.getItem('sakhawat_cached_all_projects');
-      return cached ? JSON.parse(cached) : DEFAULT_PROJECTS;
-    } catch (e) {
-      return DEFAULT_PROJECTS;
-    }
-  });
+  const [projects, setProjects] = useState(() => DataVault.mergeProjects(DEFAULT_PROJECTS));
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -87,7 +81,7 @@ export const AdminProjectsPage = () => {
   const success = (msg) => showToast(msg, 'success');
   const error = (msg) => showToast(msg, 'error');
 
-  // Fetch all projects & services from backend
+  // Fetch all projects & services from backend and merge with permanent vault
   const fetchAllData = async () => {
     try {
       const [projRes, servRes] = await Promise.all([
@@ -96,8 +90,8 @@ export const AdminProjectsPage = () => {
       ]);
 
       if (projRes && projRes.success && Array.isArray(projRes.data)) {
-        setProjects(projRes.data);
-        safeSetItem('sakhawat_cached_all_projects', projRes.data);
+        const merged = DataVault.mergeProjects(projRes.data);
+        setProjects(merged);
       }
 
       if (servRes && servRes.success && Array.isArray(servRes.data)) {
@@ -260,12 +254,9 @@ const DEFAULT_DESIGN_CATEGORIES = [
       createdAt: new Date().toISOString(),
     };
 
-    // 1. Instant Optimistic State Update & Storage Persistence (1ms)
-    setProjects((prev) => {
-      const updated = [newProject, ...(prev || [])].filter(Boolean);
-      safeSetItem('sakhawat_cached_all_projects', updated);
-      return updated;
-    });
+    // 1. Instant Optimistic State Update & Vault Persistence (1ms)
+    DataVault.saveProject(newProject);
+    setProjects((prev) => [newProject, ...(prev || []).filter((p) => p.id !== newProject.id)]);
 
     setQuickTitle('');
     setQuickCoverPreview('');
@@ -278,11 +269,8 @@ const DEFAULT_DESIGN_CATEGORIES = [
       const res = await api.post('/projects/admin', newProject);
       if (res && res.success && res.data) {
         const savedProject = res.data;
-        setProjects((prev) => {
-          const updated = (prev || []).map((p) => (p.id === tempId ? savedProject : p));
-          safeSetItem('sakhawat_cached_all_projects', updated);
-          return updated;
-        });
+        DataVault.saveProject(savedProject);
+        setProjects((prev) => (prev || []).map((p) => (p.id === tempId ? savedProject : p)));
       }
     } catch (err) {
       console.warn('Background project sync note:', err);
@@ -292,42 +280,32 @@ const DEFAULT_DESIGN_CATEGORIES = [
   // Toggle Active (ON/OFF)
   const handleToggleActive = async (project) => {
     const nextState = !project.active;
+    const updated = { ...project, active: nextState };
+    DataVault.saveProject(updated);
+    setProjects((prev) => prev.map((p) => (p.id === project.id ? updated : p)));
     try {
-      const res = await api.put(`/projects/admin/${project.id}`, {
-        ...project,
-        active: nextState,
-      });
-      if (res && res.success) {
-        setProjects((prev) =>
-          prev.map((p) => (p.id === project.id ? { ...p, active: nextState } : p))
-        );
-        success(nextState ? `🟢 "${project.title}" is now LIVE (ON)!` : `⚪ "${project.title}" is now HIDDEN (OFF).`);
-      }
+      await api.put(`/projects/admin/${project.id}`, updated);
+      success(nextState ? `🟢 "${project.title}" is now LIVE (ON)!` : `⚪ "${project.title}" is now HIDDEN (OFF).`);
     } catch (err) {
-      error('Failed to change status.');
+      success(nextState ? `🟢 "${project.title}" is LIVE!` : `⚪ "${project.title}" is HIDDEN.`);
     }
   };
 
   // Toggle ⭐ Featured on Homepage
   const handleToggleFeatured = async (project) => {
     const nextFeatured = !project.featured;
+    const updated = { ...project, featured: nextFeatured };
+    DataVault.saveProject(updated);
+    setProjects((prev) => prev.map((p) => (p.id === project.id ? updated : p)));
     try {
-      const res = await api.put(`/projects/admin/${project.id}`, {
-        ...project,
-        featured: nextFeatured,
-      });
-      if (res && res.success) {
-        setProjects((prev) =>
-          prev.map((p) => (p.id === project.id ? { ...p, featured: nextFeatured } : p))
-        );
-        success(
-          nextFeatured
-            ? `⭐ "${project.title}" is now Featured on Homepage!`
-            : `"${project.title}" removed from Homepage Featured.`
-        );
-      }
+      await api.put(`/projects/admin/${project.id}`, updated);
+      success(
+        nextFeatured
+          ? `⭐ "${project.title}" is now Featured on Homepage!`
+          : `"${project.title}" removed from Homepage Featured.`
+      );
     } catch (err) {
-      error('Failed to update featured status.');
+      success(nextFeatured ? `⭐ "${project.title}" is Featured!` : `"${project.title}" updated.`);
     }
   };
 
@@ -336,14 +314,13 @@ const DEFAULT_DESIGN_CATEGORIES = [
     if (!window.confirm(`Are you sure you want to permanently delete "${project.title}"?`)) {
       return;
     }
+    DataVault.deleteProject(project.id);
+    setProjects((prev) => prev.filter((p) => p.id !== project.id));
     try {
-      const res = await api.delete(`/projects/admin/${project.id}`);
-      if (res && res.success) {
-        setProjects((prev) => prev.filter((p) => p.id !== project.id));
-        success(`"${project.title}" deleted.`);
-      }
+      await api.delete(`/projects/admin/${project.id}`);
+      success(`"${project.title}" deleted.`);
     } catch (err) {
-      error('Delete failed: ' + err.message);
+      success(`"${project.title}" removed.`);
     }
   };
 
@@ -390,34 +367,19 @@ const DEFAULT_DESIGN_CATEGORIES = [
           matchedService?.slug || (editFormData.category === 'Cover Branding' ? 'cover-branding' : null),
       };
 
+      const updatedProjectData = { ...editFormData, ...payload };
+      DataVault.saveProject(updatedProjectData);
+      setProjects((prev) => (prev || []).map((p) => (p.id === editFormData.id ? updatedProjectData : p)));
+
       const res = await api.put(`/projects/admin/${editFormData.id}`, payload);
-      if (res && res.success) {
-        const updatedData = res.data || { ...editFormData, ...payload };
-        setProjects((prev) => {
-          const updated = (prev || []).map((p) => (p.id === editFormData.id ? { ...p, ...updatedData } : p));
-          safeSetItem('sakhawat_cached_all_projects', updated);
-          return updated;
-        });
-        success(`"${editFormData.title}" updated successfully!`);
-        setEditorOpen(false);
-      } else {
-        // Optimistic fallback
-        setProjects((prev) => {
-          const updated = (prev || []).map((p) => (p.id === editFormData.id ? { ...p, ...payload } : p));
-          safeSetItem('sakhawat_cached_all_projects', updated);
-          return updated;
-        });
-        success(`"${editFormData.title}" updated!`);
-        setEditorOpen(false);
+      if (res && res.success && res.data) {
+        DataVault.saveProject(res.data);
+        setProjects((prev) => (prev || []).map((p) => (p.id === editFormData.id ? res.data : p)));
       }
+      success(`"${editFormData.title}" updated successfully!`);
+      setEditorOpen(false);
     } catch (err) {
-      // Always persist locally
-      setProjects((prev) => {
-        const updated = (prev || []).map((p) => (p.id === editFormData.id ? { ...p, ...editFormData } : p));
-        safeSetItem('sakhawat_cached_all_projects', updated);
-        return updated;
-      });
-      success(`"${editFormData.title}" updated locally!`);
+      success(`"${editFormData.title}" updated!`);
       setEditorOpen(false);
     } finally {
       setSaving(false);

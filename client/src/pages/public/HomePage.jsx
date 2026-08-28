@@ -29,14 +29,15 @@ import {
   DEFAULT_BRANDS,
 } from '../../data/defaultData';
 import { safeSetItem, safeGetItem } from '../../utils/safeStorage';
+import DataVault from '../../utils/dataVault';
 
 const getLocalJson = (key, fallback) => {
   return safeGetItem(key, fallback);
 };
 
 const HomePage = () => {
-  const [settings, setSettings] = useState(() => getLocalJson('sakhawat_cached_settings', DEFAULT_SETTINGS));
-  const [projects, setProjects] = useState(() => getLocalJson('sakhawat_cached_featured_projects', DEFAULT_PROJECTS));
+  const [settings, setSettings] = useState(() => DataVault.mergeSettings(getLocalJson('sakhawat_cached_settings', DEFAULT_SETTINGS)));
+  const [projects, setProjects] = useState(() => DataVault.mergeProjects(getLocalJson('sakhawat_cached_featured_projects', DEFAULT_PROJECTS)));
   const [services, setServices] = useState(() => getLocalJson('sakhawat_cached_services', DEFAULT_SERVICES));
   const [packages, setPackages] = useState(() => getLocalJson('sakhawat_cached_packages', DEFAULT_PACKAGES));
   const [testimonials, setTestimonials] = useState(() => getLocalJson('sakhawat_cached_testimonials', DEFAULT_TESTIMONIALS));
@@ -52,12 +53,12 @@ const HomePage = () => {
         if (res && res.success && res.data) {
           const d = res.data;
           if (d.settings && Object.keys(d.settings).length > 0) {
-            setSettings(d.settings);
-            safeSetItem('sakhawat_cached_settings', d.settings);
+            const mergedSettings = DataVault.mergeSettings(d.settings);
+            setSettings(mergedSettings);
           }
           if (Array.isArray(d.projects) && d.projects.length > 0) {
-            setProjects(d.projects);
-            safeSetItem('sakhawat_cached_featured_projects', d.projects);
+            const mergedProjects = DataVault.mergeProjects(d.projects);
+            setProjects(mergedProjects);
           }
           if (Array.isArray(d.services) && d.services.length > 0) {
             setServices(d.services);
@@ -95,11 +96,12 @@ const HomePage = () => {
           ]);
 
         if (settingsRes.success && settingsRes.data) {
-          setSettings(settingsRes.data);
-          safeSetItem('sakhawat_cached_settings', settingsRes.data);
+          const mergedSettings = DataVault.mergeSettings(settingsRes.data);
+          setSettings(mergedSettings);
         }
         if (projectsRes.success && Array.isArray(projectsRes.data)) {
-          setProjects(projectsRes.data);
+          const mergedProjects = DataVault.mergeProjects(projectsRes.data);
+          setProjects(mergedProjects);
         }
         if (servicesRes.success && Array.isArray(servicesRes.data)) {
           setServices(servicesRes.data);

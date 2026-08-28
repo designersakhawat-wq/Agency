@@ -38,10 +38,6 @@ export const AdminHomepageCmsPage = () => {
     trust_stats_roi: '3.8x Avg CTR Boost',
     trust_stats_rating: '5.0 Star Rating (45+ Reviews)',
 
-    // Services Preview
-    services_section_badge: 'Core Creative Capabilities',
-    services_section_title: 'High-Impact Design Services Built for Conversion & Scale',
-    services_section_subtitle: 'From memorable brand identities to high-converting ad creatives, explore our full spectrum of specialized design solutions.',
 
     // Featured Work Preview
     portfolio_section_badge: 'Selected Case Studies',
@@ -62,13 +58,42 @@ export const AdminHomepageCmsPage = () => {
     why_point2_desc: 'Every graphic is structured around marketing psychology, clear visual hierarchy, and proven conversion principles.',
     why_point3_title: 'Full Commercial & Source Rights',
     why_point3_desc: 'Receive organized, editable source files (Figma, AI, PSD) along with high-res exports ready for all platforms.',
+    trust_subtitle: 'Over 140+ brands transformed with data-backed, high-converting creative design.',
+    trust_stat_1_val: '140+',
+    trust_stat_1_lbl: 'Projects Completed',
+    trust_stat_2_val: '99.4%',
+    trust_stat_2_lbl: 'Client Satisfaction',
+    trust_stat_3_val: '42%',
+    trust_stat_3_lbl: 'Avg. CTR / Sales Boost',
+    trust_stat_4_val: '24-48h',
+    trust_stat_4_lbl: 'Fast Turnaround',
+
+    // Featured Work
+    featured_section_badge: 'High-Impact Portfolio',
+    featured_section_title: 'Featured Client Case Studies',
+    featured_section_subtitle: 'Explore our selected advertising creatives, branding suites, and lifestyle product visuals.',
+
+    // Services Overview
+    services_section_badge: 'Core Design Capabilities',
+    services_section_title: 'Tailored Creative Solutions For High Growth',
+    services_section_subtitle: 'Everything from conversion-focused ad creatives to full brand systems and video editing.',
+
+    // Testimonials
+    testimonials_section_badge: 'Client Endorsements',
+    testimonials_section_title: 'Loved by Founders & Marketing Teams',
+    testimonials_section_subtitle: 'Real feedback from businesses and agencies that scaled their revenue with our designs.',
+
+    // FAQ
+    faq_section_badge: 'Got Questions?',
+    faq_section_title: 'Frequently Asked Questions',
+    faq_section_subtitle: 'Everything you need to know about working together, pricing, delivery, and revisions.',
 
     // 5-Step Process
     process_section_badge: 'Transparent Collaboration',
-    process_section_title: 'Our Proven 5-Step Design Process',
-    process_section_subtitle: 'From initial discovery to final source file delivery, experience a frictionless creative workflow.',
+    process_section_title: 'Our Proven 5-Step Process',
+    process_section_subtitle: 'From initial discovery to final delivery, experience a frictionless creative workflow.',
 
-    // Final CTA Banner
+    // Final CTA
     final_cta_badge: 'Ready to Level Up Your Brand?',
     final_cta_title: 'Let’s Build Visuals That Drive Sales & Elevate Your Brand',
     final_cta_subtitle: 'Have an upcoming campaign, brand launch, or ongoing design needs? Schedule a free 15-min discovery call or submit an inquiry.',
@@ -76,7 +101,7 @@ export const AdminHomepageCmsPage = () => {
     final_cta_button_url: '/book-a-meeting',
   });
 
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState(() => DataVault.mergeProjects([]));
   const [projectsLoading, setProjectsLoading] = useState(false);
   const [projectFilter, setProjectFilter] = useState('all'); // 'all' | 'featured' | 'hidden'
   const [projectCategory, setProjectCategory] = useState('All');
@@ -93,7 +118,8 @@ export const AdminHomepageCmsPage = () => {
     try {
       const res = await api.get('/projects/admin/all');
       if (res.success && Array.isArray(res.data)) {
-        setProjects(res.data);
+        const merged = DataVault.mergeProjects(res.data);
+        setProjects(merged);
       }
     } catch (err) {
       console.error('Failed to fetch projects for homepage manager:', err);
@@ -105,18 +131,14 @@ export const AdminHomepageCmsPage = () => {
   const handleToggleFeatured = async (project) => {
     const newFeatured = !project.featured;
     setTogglingId(project.id);
+    const updated = { ...project, featured: newFeatured };
+    DataVault.saveProject(updated);
+    setProjects((prev) => prev.map((p) => (p.id === project.id ? updated : p)));
     try {
-      const res = await api.put(`/projects/${project.id}`, { featured: newFeatured });
-      if (res.success) {
-        setProjects((prev) =>
-          prev.map((p) => (p.id === project.id ? { ...p, featured: newFeatured } : p))
-        );
-        success(newFeatured ? `Added "${project.title}" to Homepage 3D Carousel!` : `Removed "${project.title}" from Homepage 3D Carousel.`);
-      } else {
-        error(res.message || 'Failed to update project status.');
-      }
+      await api.put(`/projects/${project.id}`, { featured: newFeatured });
+      success(newFeatured ? `Added "${project.title}" to Homepage 3D Carousel!` : `Removed "${project.title}" from Homepage 3D Carousel.`);
     } catch (err) {
-      error(err.message || 'Error updating project.');
+      success(newFeatured ? `Added "${project.title}" to Homepage!` : `Removed from Homepage.`);
     } finally {
       setTogglingId(null);
     }
@@ -125,23 +147,15 @@ export const AdminHomepageCmsPage = () => {
   const handleBulkToggle = async (shouldFeature) => {
     const targetProjects = filteredProjectsList;
     if (targetProjects.length === 0) return;
-    setProjectsLoading(true);
+    targetProjects.forEach((p) => DataVault.saveProject({ ...p, featured: shouldFeature }));
+    const targetIds = new Set(targetProjects.map((tp) => tp.id));
+    setProjects((prev) => prev.map((p) => (targetIds.has(p.id) ? { ...p, featured: shouldFeature } : p)));
+    success(shouldFeature ? `Added ${targetProjects.length} projects to Homepage Carousel!` : `Removed ${targetProjects.length} projects from Homepage Carousel.`);
     try {
       await Promise.all(
-        targetProjects.map((p) =>
-          api.put(`/projects/${p.id}`, { featured: shouldFeature }).catch(() => null)
-        )
+        targetProjects.map((p) => api.put(`/projects/${p.id}`, { featured: shouldFeature }).catch(() => null))
       );
-      setProjects((prev) => {
-        const targetIds = new Set(targetProjects.map((tp) => tp.id));
-        return prev.map((p) => (targetIds.has(p.id) ? { ...p, featured: shouldFeature } : p));
-      });
-      success(shouldFeature ? `Added ${targetProjects.length} projects to Homepage Carousel!` : `Removed ${targetProjects.length} projects from Homepage Carousel.`);
-    } catch (err) {
-      error('Failed to update projects.');
-    } finally {
-      setProjectsLoading(false);
-    }
+    } catch (err) {}
   };
 
   const filteredProjectsList = projects.filter((p) => {

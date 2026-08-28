@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
+import DataVault from '../../utils/dataVault';
 import {
   Sparkles,
   Search,
@@ -295,21 +296,14 @@ const ServicePortfolioSlider = ({ service, projects, onOpenLightbox }) => {
 };
 
 export const PortfolioPage = () => {
-  const [projects, setProjects] = useState(() => {
-    try {
-      const cached = localStorage.getItem('sakhawat_cached_all_projects');
-      return cached ? JSON.parse(cached) : DEFAULT_PROJECTS;
-    } catch (e) {
-      return DEFAULT_PROJECTS;
-    }
-  });
+  const [projects, setProjects] = useState(() => DataVault.mergeProjects(DEFAULT_PROJECTS));
   const [services, setServices] = useState(DEFAULT_SERVICES);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [lightboxProject, setLightboxProject] = useState(null);
   const [videoAspect, setVideoAspect] = useState('vertical');
 
-  // Fetch projects and services from backend
+  // Fetch projects and services from backend and merge with permanent vault
   const fetchData = async () => {
     try {
       const [projRes, servRes] = await Promise.all([
@@ -318,8 +312,8 @@ export const PortfolioPage = () => {
       ]);
 
       if (projRes && projRes.success && Array.isArray(projRes.data)) {
-        setProjects(projRes.data);
-        safeSetItem('sakhawat_cached_all_projects', projRes.data);
+        const merged = DataVault.mergeProjects(projRes.data);
+        setProjects(merged);
       }
 
       if (servRes && servRes.success && Array.isArray(servRes.data) && servRes.data.length > 0) {
