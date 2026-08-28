@@ -6,13 +6,6 @@ const BrandContext = createContext(null);
 
 export const THEME_PRESETS = [
   {
-    id: 'neon_lime',
-    name: '🍋 Neon Lime & Electric Cyan (Designer Sakhawat Logo Match)',
-    primary: '#ccff00',
-    secondary: '#00f5d4',
-    bgGlow: 'rgba(204, 255, 0, 0.25)',
-  },
-  {
     id: 'cyber_teal',
     name: '🌊 Cyber Teal & Cyan (Default)',
     primary: '#14b8a6',
@@ -20,11 +13,11 @@ export const THEME_PRESETS = [
     bgGlow: 'rgba(20, 184, 166, 0.25)',
   },
   {
-    id: 'royal_purple',
-    name: '💜 Royal Violet & Fuchsia',
-    primary: '#8b5cf6',
-    secondary: '#d946ef',
-    bgGlow: 'rgba(139, 92, 246, 0.25)',
+    id: 'emerald_matrix',
+    name: '🍃 Emerald Matrix Green',
+    primary: '#10b981',
+    secondary: '#059669',
+    bgGlow: 'rgba(16, 185, 129, 0.25)',
   },
   {
     id: 'electric_blue',
@@ -34,6 +27,13 @@ export const THEME_PRESETS = [
     bgGlow: 'rgba(59, 130, 246, 0.25)',
   },
   {
+    id: 'royal_purple',
+    name: '💜 Royal Violet & Fuchsia',
+    primary: '#8b5cf6',
+    secondary: '#d946ef',
+    bgGlow: 'rgba(139, 92, 246, 0.25)',
+  },
+  {
     id: 'sunset_gold',
     name: '🌅 Sunset Amber & Coral Crimson',
     primary: '#f59e0b',
@@ -41,11 +41,11 @@ export const THEME_PRESETS = [
     bgGlow: 'rgba(245, 158, 11, 0.25)',
   },
   {
-    id: 'emerald_matrix',
-    name: '🍃 Emerald Matrix Green',
-    primary: '#10b981',
-    secondary: '#059669',
-    bgGlow: 'rgba(16, 185, 129, 0.25)',
+    id: 'neon_lime',
+    name: '🍋 Neon Lime & Electric Cyan',
+    primary: '#ccff00',
+    secondary: '#00f5d4',
+    bgGlow: 'rgba(204, 255, 0, 0.25)',
   },
 ];
 
@@ -243,8 +243,11 @@ const getInitialBrandState = () => {
     const raw = localStorage.getItem('sakhawat_cached_brand') || localStorage.getItem('sakhawat_cached_settings');
     if (raw) {
       const d = JSON.parse(raw);
-      const pColor = d.brand_primary_color || d.accent_color || '#14b8a6';
-      const sColor = d.brand_secondary_color || '#06b6d4';
+      // Migrate legacy lime preset to modern Cyber Teal
+      const isLegacyLime = d.theme_preset === 'neon_lime' || d.brand_primary_color === '#ccff00';
+      const pColor = isLegacyLime ? '#14b8a6' : (d.brand_primary_color || d.accent_color || '#14b8a6');
+      const sColor = isLegacyLime ? '#06b6d4' : (d.brand_secondary_color || '#06b6d4');
+      const preset = isLegacyLime ? 'cyber_teal' : (d.theme_preset || 'cyber_teal');
       const bTextMode = d.brand_button_text_mode || 'auto';
       applyGlobalThemeCSS(pColor, sColor, bTextMode);
       return {
@@ -252,7 +255,7 @@ const getInitialBrandState = () => {
         siteFavicon: d.site_favicon || '',
         primaryColor: pColor,
         secondaryColor: sColor,
-        themePreset: d.theme_preset || 'cyber_teal',
+        themePreset: preset,
         buttonTextMode: bTextMode,
       };
     }

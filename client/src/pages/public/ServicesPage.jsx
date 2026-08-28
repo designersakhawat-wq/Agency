@@ -334,7 +334,7 @@ const ServicesPage = () => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -12, scale: 0.98 }}
                 transition={{ duration: 0.35, ease: 'easeOut' }}
-                className="p-5 sm:p-6 rounded-2xl bg-teal-50/90 dark:bg-gradient-to-r dark:from-teal-950/40 dark:via-zinc-900 dark:to-zinc-950 border border-teal-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xl"
+                className="p-5 sm:p-6 rounded-2xl bg-teal-500/10 dark:bg-zinc-900 border border-teal-500/30 dark:border-teal-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xl"
               >
                 <div className="space-y-1.5 max-w-xl">
                   <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-teal-500/20 text-teal-700 dark:text-teal-300 text-xs font-bold font-mono">
@@ -359,7 +359,7 @@ const ServicesPage = () => {
                         price: 99,
                       })
                     }
-                    className="px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-300 hover:text-teal-600 dark:hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
+                    className="px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 hover:text-teal-600 dark:hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer whitespace-nowrap"
                   >
                     Instant Order
                   </button>
