@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-28T21:43:25.247Z",
+  "timestamp": "2026-08-28T22:04:43.183Z",
   "version": "1.0.0",
   "data": {
     "settings": [
@@ -1134,83 +1134,6 @@
         "updatedAt": "2026-08-28T21:41:46.956Z"
       },
       {
-        "id": "6f83bb92-847b-4680-9cf7-787252e65c6a",
-        "fileName": "qa-test-logo-1787870224709.png",
-        "fileUrl": "/uploads/qa-test-logo-1787870224709.png",
-        "fileType": "image/png",
-        "fileSize": 70,
-        "altText": "qa test logo 1787870224709",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:46.961Z",
-        "updatedAt": "2026-08-28T21:41:46.961Z"
-      },
-      {
-        "id": "65ba14c5-dad6-451f-9846-f9ce458042f8",
-        "fileName": "qa-test-logo-1787870245362.png",
-        "fileUrl": "/uploads/qa-test-logo-1787870245362.png",
-        "fileType": "image/png",
-        "fileSize": 70,
-        "altText": "qa test logo 1787870245362",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:46.964Z",
-        "updatedAt": "2026-08-28T21:41:46.964Z"
-      },
-      {
-        "id": "4487af8f-7266-4cec-a2fe-113f033784dc",
-        "fileName": "qa-test-logo-1787871176589.png",
-        "fileUrl": "/uploads/qa-test-logo-1787871176589.png",
-        "fileType": "image/png",
-        "fileSize": 70,
-        "altText": "qa test logo 1787871176589",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:46.967Z",
-        "updatedAt": "2026-08-28T21:41:46.967Z"
-      },
-      {
-        "id": "db542a92-d178-4619-ba1f-1af3d0039d03",
-        "fileName": "qa-test-logo-1787872815585.png",
-        "fileUrl": "/uploads/qa-test-logo-1787872815585.png",
-        "fileType": "image/png",
-        "fileSize": 70,
-        "altText": "qa test logo 1787872815585",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:46.971Z",
-        "updatedAt": "2026-08-28T21:41:46.971Z"
-      },
-      {
-        "id": "f6693392-a34d-4332-b21c-8967df170caf",
-        "fileName": "qa-test-logo-1787873247901.png",
-        "fileUrl": "/uploads/qa-test-logo-1787873247901.png",
-        "fileType": "image/png",
-        "fileSize": 70,
-        "altText": "qa test logo 1787873247901",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:46.974Z",
-        "updatedAt": "2026-08-28T21:41:46.974Z"
-      },
-      {
-        "id": "dae7f797-f41b-4257-928c-14f60ed44d5c",
-        "fileName": "qa-test-logo-1787873362727.png",
-        "fileUrl": "/uploads/qa-test-logo-1787873362727.png",
-        "fileType": "image/png",
-        "fileSize": 70,
-        "altText": "qa test logo 1787873362727",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:46.979Z",
-        "updatedAt": "2026-08-28T21:41:46.979Z"
-      },
-      {
-        "id": "bc8202f6-1a84-47d5-a969-249ffcfe078d",
-        "fileName": "test-brand-logo-1787761158930-104914554.png",
-        "fileUrl": "/uploads/test-brand-logo-1787761158930-104914554.png",
-        "fileType": "image/png",
-        "fileSize": 17,
-        "altText": "test brand logo 1787761158930 104914554",
-        "source": "LOCAL",
-        "createdAt": "2026-08-28T21:41:46.983Z",
-        "updatedAt": "2026-08-28T21:41:46.983Z"
-      },
-      {
         "id": "fe16933b-74e2-4e08-870d-517ee4999cab",
         "fileName": "photo-1556742049-0a67c5574f73",
         "fileUrl": "https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=1000&auto=format&fit=crop&q=80",
@@ -1331,7 +1254,7 @@
     "testimonials": 3,
     "faqs": 5,
     "brands": 6,
-    "media": 37,
+    "media": 30,
     "users": 1
   }
 }

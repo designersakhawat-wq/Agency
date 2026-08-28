@@ -476,15 +476,26 @@ class MediaService {
     // 6. Delete physical file from Local Storage or Cloudinary
     if (media.source === 'LOCAL' && fileUrl.startsWith('/uploads/')) {
       const { UPLOADS_DIR } = require('../config/persistentStorage');
-      const localFilePath = path.join(UPLOADS_DIR, path.basename(fileUrl));
-      if (fs.existsSync(localFilePath)) {
-        try {
-          fs.unlinkSync(localFilePath);
-          console.log(`🗑️ Deleted local physical file: ${localFilePath}`);
-        } catch (err) {
-          console.warn('Failed to delete local file:', err.message);
+      const filenameToDelete = path.basename(fileUrl.split('?')[0]);
+      const candidateUploadDirs = [
+        UPLOADS_DIR,
+        path.resolve(__dirname, '../../uploads'),
+        path.resolve(__dirname, '../../client/public/uploads'),
+        path.resolve(__dirname, '../../dist/uploads'),
+        path.resolve(__dirname, '../../public/uploads'),
+        path.resolve(__dirname, '../../client/dist/uploads'),
+      ];
+      candidateUploadDirs.forEach((dir) => {
+        const localFilePath = path.join(dir, filenameToDelete);
+        if (fs.existsSync(localFilePath)) {
+          try {
+            fs.unlinkSync(localFilePath);
+            console.log(`🗑️ Deleted local physical file: ${localFilePath}`);
+          } catch (err) {
+            console.warn('Failed to delete local file:', err.message);
+          }
         }
-      }
+      });
     } else if (media.source === 'CLOUDINARY' && isCloudinaryConfigured) {
       try {
         const publicId = path.basename(media.fileUrl, path.extname(media.fileUrl));
@@ -540,6 +551,34 @@ class MediaService {
       } else {
         newFileSize = media.fileSize || 1024;
       }
+    }
+
+    // Safely delete the old unconverted physical file to prevent duplicate clutter
+    if (oldFilename && oldFilename !== newFileName) {
+      const candidateUploadDirs = [
+        UPLOADS_DIR,
+        path.resolve(__dirname, '../../uploads'),
+        path.resolve(__dirname, '../../client/public/uploads'),
+        path.resolve(__dirname, '../../dist/uploads'),
+        path.resolve(__dirname, '../../public/uploads'),
+      ];
+      candidateUploadDirs.forEach((dir) => {
+        const oldPath = path.join(dir, oldFilename);
+        if (fs.existsSync(oldPath)) {
+          try {
+            fs.unlinkSync(oldPath);
+            console.log(`🗑️ Removed old unoptimized image: ${oldPath}`);
+          } catch (e) {}
+        }
+      });
+
+      // Remove any duplicate old media rows pointing to old URL
+      await prisma.media.deleteMany({
+        where: {
+          fileUrl: oldUrl,
+          id: { not: id },
+        },
+      }).catch(() => {});
     }
 
     // Update Media Database Record
