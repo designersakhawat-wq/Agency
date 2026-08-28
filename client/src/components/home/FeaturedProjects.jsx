@@ -54,7 +54,6 @@ const SafeImage = ({ src, alt, category }) => {
 export const FeaturedProjects = ({ projects = [] }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const [quickModalProject, setQuickModalProject] = useState(null);
 
   // Normalize project list - prioritize explicitly featured projects
@@ -105,14 +104,15 @@ export const FeaturedProjects = ({ projects = [] }) => {
 
   const totalItems = filteredProjects.length;
 
-  // Fluid Autoplay timer (2.8s interval)
+  // Continuous Non-Stop Smooth Autoplay timer (2.2s interval)
+  // Only pauses while viewing the 1:1 image modal, resumes immediately on close
   useEffect(() => {
-    if (isPaused || totalItems <= 1) return;
+    if (quickModalProject || totalItems <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % totalItems);
-    }, 2800);
+    }, 2200);
     return () => clearInterval(timer);
-  }, [isPaused, totalItems]);
+  }, [quickModalProject, totalItems]);
 
   // Reset index when filter changes
   useEffect(() => {
@@ -128,13 +128,9 @@ export const FeaturedProjects = ({ projects = [] }) => {
   };
 
   const handleCardClick = (index, project) => {
-    if (index === currentIndex) {
-      setQuickModalProject(project);
-      tracking.trackViewContent(project.title, 'Featured Gallery Focal Look', null, 'USD', project.id);
-      if (onSelectProject) onSelectProject(project);
-    } else {
-      setCurrentIndex(index);
-    }
+    setCurrentIndex(index);
+    setQuickModalProject(project);
+    tracking.trackViewContent(project.title, 'Featured Gallery Focal Look', null, 'USD', project.id);
   };
 
   const handleWhatsApp = (project) => {
@@ -153,8 +149,6 @@ export const FeaturedProjects = ({ projects = [] }) => {
     <section
       id="portfolio-section"
       className="py-20 sm:py-28 relative overflow-hidden transition-colors duration-300"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
     >
       {/* Ambient background glows */}
       <div className="ambient-glow-teal top-1/2 -left-40 opacity-20 pointer-events-none" />
@@ -278,8 +272,9 @@ export const FeaturedProjects = ({ projects = [] }) => {
                   }}
                   transition={{
                     type: 'spring',
-                    stiffness: 300,
-                    damping: 26,
+                    stiffness: 240,
+                    damping: 24,
+                    mass: 0.8,
                   }}
                   style={{
                     transformStyle: 'preserve-3d',
