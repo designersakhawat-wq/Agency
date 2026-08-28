@@ -18,6 +18,7 @@ import LiveSocialProofToast from './components/common/LiveSocialProofToast';
 import InteractiveChatWidget from './components/common/InteractiveChatWidget';
 import ExitIntentModal from './components/common/ExitIntentModal';
 import RouteTracker from './components/common/RouteTracker';
+import ModernBackgroundElements from './components/common/ModernBackgroundElements';
 
 // Function to dynamically import with auto-reload on version mismatch
 const lazyWithRetry = (componentImport) =>
@@ -98,6 +99,7 @@ const PublicPageFallback = () => (
 const PublicLayoutWrapper = ({ children, onOpenBooking }) => {
   return (
     <div className="flex flex-col min-h-screen relative selection:bg-teal-500 selection:text-white">
+      <ModernBackgroundElements />
       <CursorSpotlight />
       <Navbar onOpenBooking={onOpenBooking} />
       <main className="flex-1">
