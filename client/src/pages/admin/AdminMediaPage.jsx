@@ -88,6 +88,15 @@ export const AdminMediaPage = () => {
   const [filterType, setFilterType] = useState('ALL');
   const [isDragging, setIsDragging] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
+  const [showCloudinaryGuide, setShowCloudinaryGuide] = useState(false);
+  const [storageStatus, setStorageStatus] = useState({ engine: 'LOCAL', isPermanentCloud: false });
+  const [cloudinaryForm, setCloudinaryForm] = useState({
+    cloudName: '',
+    apiKey: '',
+    apiSecret: '',
+  });
+  const [connectingCloudinary, setConnectingCloudinary] = useState(false);
+  const [migratingCloudinary, setMigratingCloudinary] = useState(false);
   const fileInputRef = useRef(null);
   const { showToast } = useToast();
 
@@ -104,6 +113,56 @@ export const AdminMediaPage = () => {
     savedBytesTotal: 0,
     completed: false,
   });
+
+  const fetchStorageStatus = async () => {
+    try {
+      const res = await api.get('/admin/media/storage-status');
+      if (res && res.success && res.data) {
+        setStorageStatus(res.data);
+      }
+    } catch (e) {}
+  };
+
+  const handleConnectCloudinary = async (e) => {
+    e.preventDefault();
+    if (!cloudinaryForm.cloudName || !cloudinaryForm.apiKey || !cloudinaryForm.apiSecret) {
+      showToast('Please enter Cloud Name, API Key, and API Secret.', 'error');
+      return;
+    }
+
+    setConnectingCloudinary(true);
+    try {
+      const res = await api.post('/admin/media/test-cloudinary', cloudinaryForm);
+      if (res && res.success) {
+        showToast('Cloudinary connected and saved permanently!', 'success');
+        await fetchStorageStatus();
+      } else {
+        showToast(res?.message || 'Cloudinary connection failed.', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Connection error.', 'error');
+    } finally {
+      setConnectingCloudinary(false);
+    }
+  };
+
+  const handleMigrateAllToCloudinary = async () => {
+    setMigratingCloudinary(true);
+    try {
+      const res = await api.post('/admin/media/migrate-cloudinary', {});
+      if (res && res.success) {
+        showToast(res.message || 'All images migrated to Cloudinary!', 'success');
+        await fetchMedia();
+        await fetchStorageStatus();
+      } else {
+        showToast(res?.message || 'Migration failed.', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Migration error.', 'error');
+    } finally {
+      setMigratingCloudinary(false);
+    }
+  };
 
   const fetchMedia = async () => {
     setLoading(true);
@@ -122,6 +181,7 @@ export const AdminMediaPage = () => {
 
   useEffect(() => {
     fetchMedia();
+    fetchStorageStatus();
   }, []);
 
   const handleAutoScan = async () => {
@@ -337,12 +397,28 @@ export const AdminMediaPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
         <div>
-          <h1 className="text-2xl font-bold font-display text-white flex items-center gap-2.5">
-            <span>Centralized Media Library</span>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-2xl font-bold font-display text-white">Centralized Media Library</h1>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 font-mono">
               Single Source of Truth
             </span>
-          </h1>
+            {storageStatus.isPermanentCloud ? (
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-medium flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                ☁️ Cloudinary Permanent Cloud Active
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowCloudinaryGuide(!showCloudinaryGuide)}
+                className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
+                title="Click for Render / Cloud Hosting persistence guide"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                📁 Local Disk Active {showCloudinaryGuide ? '▲' : '▼ (Render/Cloud Info)'}
+              </button>
+            )}
+          </div>
           <p className="text-xs text-zinc-400 mt-0.5">
             All images on your website are managed from here. Uploading, compressing, or deleting an asset updates all connected pages.
           </p>
@@ -393,6 +469,106 @@ export const AdminMediaPage = () => {
           </Button>
         </div>
       </div>
+
+      {/* Cloudinary Permanent Storage Guide & Setup for Render / Live Hosting */}
+      {showCloudinaryGuide && (
+        <div className="p-5 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-950/30 via-zinc-900/90 to-zinc-950/90 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">☁️</span>
+              <h3 className="text-sm font-bold text-amber-200">
+                Cloudinary Permanent Storage Setup (Zero-Data Loss on Render.com)
+              </h3>
+            </div>
+            <button
+              onClick={() => setShowCloudinaryGuide(false)}
+              className="text-xs text-zinc-400 hover:text-white px-2 py-1"
+            >
+              ✕ Close
+            </button>
+          </div>
+          <p className="text-xs text-zinc-300 leading-relaxed">
+            On cloud hosts like <strong>Render.com</strong> (free tier), local disk files reset when the server sleeps. You can connect your free Cloudinary account (25GB) right here to make every image upload permanent:
+          </p>
+
+          {/* Interactive Cloudinary Connection Form */}
+          <form onSubmit={handleConnectCloudinary} className="p-4 rounded-xl bg-zinc-950/90 border border-zinc-800 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+                  Cloud Name
+                </label>
+                <input
+                  type="text"
+                  value={cloudinaryForm.cloudName}
+                  onChange={(e) => setCloudinaryForm({ ...cloudinaryForm, cloudName: e.target.value })}
+                  placeholder="e.g. dxyz123ab"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-white text-xs font-mono focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+                  API Key
+                </label>
+                <input
+                  type="text"
+                  value={cloudinaryForm.apiKey}
+                  onChange={(e) => setCloudinaryForm({ ...cloudinaryForm, apiKey: e.target.value })}
+                  placeholder="e.g. 123456789012345"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-white text-xs font-mono focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+                  API Secret
+                </label>
+                <input
+                  type="password"
+                  value={cloudinaryForm.apiSecret}
+                  onChange={(e) => setCloudinaryForm({ ...cloudinaryForm, apiSecret: e.target.value })}
+                  placeholder="••••••••••••••••••••••••"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-white text-xs font-mono focus:outline-none focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  isLoading={connectingCloudinary}
+                  className="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold"
+                >
+                  Save & Connect Cloudinary
+                </Button>
+                <a
+                  href="https://cloudinary.com/users/register_free"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-amber-300 underline font-semibold ml-2 hover:text-white"
+                >
+                  Get Free Cloudinary API Keys →
+                </a>
+              </div>
+
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                isLoading={migratingCloudinary}
+                onClick={handleMigrateAllToCloudinary}
+                className="bg-zinc-800 hover:bg-zinc-700 text-teal-300 border-teal-500/30 font-bold"
+              >
+                Migrate All {mediaItems.length} Local Images to Cloudinary
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Size Guide Accordion */}
       {showGuidelines && (

@@ -3,9 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 import { DEFAULT_FAQS } from '../../data/defaultData';
 
-export const FaqAccordion = ({ faqs = [] }) => {
+export const FaqAccordion = ({ faqs = [], settings = {} }) => {
   const [openId, setOpenId] = useState(null);
   const displayFaqs = Array.isArray(faqs) && faqs.length > 0 ? faqs : DEFAULT_FAQS;
+
+  const badge = settings.faq_section_badge || 'Common Inquiries';
+  const title = settings.faq_section_title || 'Frequently Asked Questions';
+  const subtitle =
+    settings.faq_section_subtitle ||
+    'Everything you need to know about working together, timelines, revisions, and deliverables.';
 
   const toggle = (id) => {
     setOpenId(openId === id ? null : id);
@@ -23,13 +29,13 @@ export const FaqAccordion = ({ faqs = [] }) => {
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-semibold uppercase tracking-wider mb-3">
             <HelpCircle className="w-3.5 h-3.5" />
-            <span>Common Inquiries</span>
+            <span>{badge}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight">
-            Frequently Asked Questions
+            {title}
           </h2>
           <p className="text-sm text-zinc-400 mt-2">
-            Everything you need to know about working together, timelines, revisions, and deliverables.
+            {subtitle}
           </p>
         </motion.div>
 

@@ -24,8 +24,11 @@ const uploadMedia = async (req, res, next) => {
 
     const { altText } = req.body;
 
+    const backupService = require('../services/backupService');
+
     if (req.file) {
       const media = await mediaService.processUpload(req.file, altText);
+      backupService.triggerDebouncedSnapshot(prisma, 500);
       return successResponse(res, formatMedia(media), 'File uploaded successfully to Media Library.', 201);
     }
 
@@ -35,6 +38,7 @@ const uploadMedia = async (req, res, next) => {
         const item = await mediaService.processUpload(file, altText);
         results.push(formatMedia(item));
       }
+      backupService.triggerDebouncedSnapshot(prisma, 500);
       return successResponse(res, results, 'Files uploaded successfully to Media Library.', 201);
     }
   } catch (err) {
@@ -194,6 +198,91 @@ const optimizeMedia = async (req, res, next) => {
   }
 };
 
+/**
+ * Admin: Get storage status (Cloudinary vs Local disk)
+ * GET /api/admin/media/storage-status
+ */
+const getStorageStatus = async (req, res, next) => {
+  try {
+    const { isConfigured, cloudName } = await mediaService.getCloudinaryClient();
+    const totalMedia = await prisma.media.count();
+    const cloudinaryCount = await prisma.media.count({ where: { source: 'CLOUDINARY' } });
+    const localCount = await prisma.media.count({ where: { source: 'LOCAL' } });
+
+    return successResponse(res, {
+      engine: isConfigured ? 'CLOUDINARY' : 'LOCAL',
+      isPermanentCloud: isConfigured,
+      cloudName: cloudName || null,
+      counts: {
+        total: totalMedia,
+        cloudinary: cloudinaryCount,
+        local: localCount,
+      },
+    }, 'Storage status retrieved.');
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Admin: Test Cloudinary Connection
+ * POST /api/admin/media/test-cloudinary
+ */
+const testCloudinary = async (req, res, next) => {
+  try {
+    const { cloudName, apiKey, apiSecret } = req.body;
+    const c = require('cloudinary').v2;
+    c.config({
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
+      secure: true,
+    });
+
+    const ping = await c.api.ping();
+    if (ping?.status === 'ok') {
+      // Save credentials to SiteSetting
+      await prisma.siteSetting.upsert({
+        where: { key: 'cloudinary_cloud_name' },
+        update: { value: cloudName },
+        create: { key: 'cloudinary_cloud_name', value: cloudName },
+      });
+      await prisma.siteSetting.upsert({
+        where: { key: 'cloudinary_api_key' },
+        update: { value: apiKey },
+        create: { key: 'cloudinary_api_key', value: apiKey },
+      });
+      await prisma.siteSetting.upsert({
+        where: { key: 'cloudinary_api_secret' },
+        update: { value: apiSecret },
+        create: { key: 'cloudinary_api_secret', value: apiSecret },
+      });
+
+      return successResponse(res, { connected: true }, 'Cloudinary connected and saved successfully!');
+    }
+    return errorResponse(res, 'Could not authenticate with Cloudinary. Please check your credentials.', 400);
+  } catch (err) {
+    return errorResponse(res, `Cloudinary connection failed: ${err.message}`, 400);
+  }
+};
+
+/**
+ * Admin: Migrate all local disk images to Cloudinary
+ * POST /api/admin/media/migrate-cloudinary
+ */
+const migrateCloudinary = async (req, res, next) => {
+  try {
+    const result = await mediaService.migrateLocalImagesToCloudinary();
+    return successResponse(
+      res,
+      result,
+      `Migration complete! ${result.migrated} out of ${result.total} images uploaded to Cloudinary CDN.`
+    );
+  } catch (err) {
+    return errorResponse(res, err.message || 'Migration failed.', 500);
+  }
+};
+
 module.exports = {
   uploadMedia,
   scanExistingMedia,
@@ -202,4 +291,7 @@ module.exports = {
   updateMedia,
   deleteMedia,
   optimizeMedia,
+  getStorageStatus,
+  testCloudinary,
+  migrateCloudinary,
 };

@@ -6,7 +6,7 @@ import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import confetti from 'canvas-confetti';
 
-const ContactSection = () => {
+export const ContactSection = ({ settings = {} }) => {
   const { success, error } = useToast();
   const [formData, setFormData] = useState({
     name: '',
@@ -19,6 +19,15 @@ const ContactSection = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  const finalBadge = settings.final_cta_badge || "Let's Build Something Great";
+  const finalTitle =
+    settings.final_cta_title || 'Have an Idea or Need a Design Lead?';
+  const finalSubtitle =
+    settings.final_cta_subtitle ||
+    "Whether you're launching a new venture, revamping an established brand, or creating high-converting marketing assets — I'm here to bring your vision to life.";
+  const contactEmail = settings.contact_email || settings.email || 'designersakhawat@gmail.com';
+  const contactLocation = settings.contact_location || settings.location || 'Rajshahi, Bangladesh • Worldwide Remote';
 
   const budgetRanges = [
     '< $2,500',
@@ -49,7 +58,7 @@ const ContactSection = () => {
       const res = await api.post('/inquiries', formData);
       if (res.success) {
         setSubmitted(true);
-        success('Inquiry received! Notification sent to designersakhawat@gmail.com.');
+        success(`Inquiry received! Notification sent to ${contactEmail}.`);
         confetti({
           particleCount: 60,
           spread: 60,
@@ -75,20 +84,20 @@ const ContactSection = () => {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-semibold uppercase tracking-wider mb-3">
                 <Sparkles className="w-3.5 h-3.5" />
-                Let's Build Something Great
+                {finalBadge}
               </div>
               <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight leading-tight">
-                Have an Idea or Need a Design Lead?
+                {finalTitle}
               </h2>
               <p className="text-sm sm:text-base text-zinc-400 mt-4 leading-relaxed">
-                Whether you're launching a new venture, revamping an established SaaS platform, or building a scalable design system — I'm here to bring your vision to life.
+                {finalSubtitle}
               </p>
             </div>
 
             {/* Direct Contact Cards */}
             <div className="space-y-4">
               <a
-                href="mailto:designersakhawat@gmail.com"
+                href={`mailto:${contactEmail}`}
                 className="flex items-center gap-4 p-4 rounded-2xl glass-card border border-zinc-800 hover:border-indigo-500/40 transition-colors group"
               >
                 <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-105 group-hover:bg-indigo-500 group-hover:text-white transition-all">
@@ -97,7 +106,7 @@ const ContactSection = () => {
                 <div className="flex-1 min-w-0">
                   <span className="text-xs text-zinc-400 block">Direct Email</span>
                   <span className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors truncate block">
-                    designersakhawat@gmail.com
+                    {contactEmail}
                   </span>
                 </div>
                 <ArrowUpRight className="w-4 h-4 text-zinc-500 group-hover:text-indigo-400 transition-colors" />
@@ -110,7 +119,7 @@ const ContactSection = () => {
                 <div>
                   <span className="text-xs text-zinc-400 block">Location & Availability</span>
                   <span className="text-sm font-bold text-white block">
-                    Dhaka, Bangladesh • Worldwide Remote
+                    {contactLocation}
                   </span>
                 </div>
               </div>

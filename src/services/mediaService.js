@@ -40,6 +40,45 @@ const getMimeType = (filePathOrUrl) => {
 
 class MediaService {
   /**
+   * Get dynamic Cloudinary client (checking process.env and SiteSetting database)
+   */
+  async getCloudinaryClient() {
+    let cloudName = env.CLOUDINARY_CLOUD_NAME;
+    let apiKey = env.CLOUDINARY_API_KEY;
+    let apiSecret = env.CLOUDINARY_API_SECRET;
+    let folder = env.CLOUDINARY_FOLDER || 'portfolio';
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      try {
+        const [nameSetting, keySetting, secretSetting, folderSetting] = await Promise.all([
+          prisma.siteSetting.findUnique({ where: { key: 'cloudinary_cloud_name' } }).catch(() => null),
+          prisma.siteSetting.findUnique({ where: { key: 'cloudinary_api_key' } }).catch(() => null),
+          prisma.siteSetting.findUnique({ where: { key: 'cloudinary_api_secret' } }).catch(() => null),
+          prisma.siteSetting.findUnique({ where: { key: 'cloudinary_folder' } }).catch(() => null),
+        ]);
+        if (nameSetting?.value && keySetting?.value && secretSetting?.value) {
+          cloudName = nameSetting.value.trim();
+          apiKey = keySetting.value.trim();
+          apiSecret = secretSetting.value.trim();
+          if (folderSetting?.value) folder = folderSetting.value.trim();
+        }
+      } catch (e) {}
+    }
+
+    if (cloudName && apiKey && apiSecret) {
+      cloudinary.config({
+        cloud_name: cloudName,
+        api_key: apiKey,
+        api_secret: apiSecret,
+        secure: true,
+      });
+      return { isConfigured: true, cloudinary, cloudName, folder };
+    }
+
+    return { isConfigured: false, cloudinary: null, cloudName: null, folder: null };
+  }
+
+  /**
    * Process and save an uploaded file (either to Cloudinary or Local Server)
    */
   async processUpload(file, altText = '') {
@@ -47,15 +86,17 @@ class MediaService {
       throw new Error('No file provided');
     }
 
-    if (isCloudinaryConfigured) {
+    const { isConfigured, cloudinary: cClient, folder } = await this.getCloudinaryClient();
+
+    if (isConfigured && cClient) {
       try {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: env.CLOUDINARY_FOLDER || 'portfolio',
+        const result = await cClient.uploader.upload(file.path, {
+          folder: folder || 'portfolio',
           resource_type: 'auto',
         });
 
         if (fs.existsSync(file.path)) {
-          fs.unlinkSync(file.path);
+          try { fs.unlinkSync(file.path); } catch (e) {}
         }
 
         const media = await prisma.media.create({
@@ -71,7 +112,7 @@ class MediaService {
 
         return media;
       } catch (err) {
-        console.error('Cloudinary upload error:', err.message);
+        console.error('Cloudinary upload warning:', err.message);
       }
     }
 
@@ -89,6 +130,70 @@ class MediaService {
     });
 
     return media;
+  }
+
+  /**
+   * Migrate all local images to Cloudinary permanent CDN
+   */
+  async migrateLocalImagesToCloudinary() {
+    const { isConfigured, cloudinary: cClient, folder } = await this.getCloudinaryClient();
+    if (!isConfigured || !cClient) {
+      throw new Error('Cloudinary is not configured. Please enter your Cloud Name, API Key, and API Secret first.');
+    }
+
+    const { UPLOADS_DIR } = require('../config/persistentStorage');
+    const localMedia = await prisma.media.findMany({
+      where: {
+        OR: [
+          { source: 'LOCAL' },
+          { fileUrl: { startsWith: '/uploads' } },
+        ],
+      },
+    });
+
+    let migratedCount = 0;
+    for (const item of localMedia) {
+      try {
+        const fileName = path.basename(item.fileUrl.split('?')[0]);
+        const filePath = path.join(UPLOADS_DIR, fileName);
+        if (fs.existsSync(filePath)) {
+          const uploadRes = await cClient.uploader.upload(filePath, {
+            folder: folder || 'portfolio',
+            resource_type: 'auto',
+          });
+          if (uploadRes?.secure_url) {
+            const oldUrl = item.fileUrl;
+            const newUrl = uploadRes.secure_url;
+
+            await prisma.media.update({
+              where: { id: item.id },
+              data: { fileUrl: newUrl, source: 'CLOUDINARY' },
+            });
+
+            await prisma.project.updateMany({
+              where: { coverImage: oldUrl },
+              data: { coverImage: newUrl },
+            });
+
+            await prisma.siteSetting.updateMany({
+              where: { value: oldUrl },
+              data: { value: newUrl },
+            });
+
+            await prisma.clientBrand.updateMany({
+              where: { logoUrl: oldUrl },
+              data: { logoUrl: newUrl },
+            });
+
+            migratedCount++;
+          }
+        }
+      } catch (err) {
+        console.warn(`Migration failed for ${item.fileName}:`, err.message);
+      }
+    }
+
+    return { total: localMedia.length, migrated: migratedCount };
   }
 
   /**

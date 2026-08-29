@@ -54,31 +54,31 @@ const AnimatedCounter = ({ value, suffix = '' }) => {
 export const StatsSection = ({ settings = {} }) => {
   const stats = [
     {
-      label: 'Years of Experience',
-      value: settings.hero_years_exp || '3+',
+      label: settings.trust_stat_1_lbl || 'Years of Experience',
+      value: settings.trust_stat_1_val || settings.hero_years_exp || '3+',
       desc: 'Crafting brand & marketing assets for global businesses',
       icon: Award,
       color: 'teal',
     },
     {
-      label: 'Creatives Delivered',
-      value: settings.hero_projects_count || '150+',
-      desc: 'High-converting ad designs, branding & video edits',
-      icon: Briefcase,
-      color: 'cyan',
-    },
-    {
-      label: 'Client Satisfaction',
-      value: settings.hero_client_satisfaction || '99.4%',
+      label: settings.trust_stat_2_lbl || 'Client Satisfaction',
+      value: settings.trust_stat_2_val || settings.hero_client_satisfaction || '99.4%',
       desc: 'Based on 50+ verified 5-star client ratings',
       icon: Star,
       color: 'amber',
     },
     {
-      label: 'Global Clients',
-      value: '18+',
-      desc: 'Collaborating across USA, Dubai, UK & Bangladesh',
-      icon: Users,
+      label: settings.trust_stat_3_lbl || 'Avg. CTR / Sales Boost',
+      value: settings.trust_stat_3_val || '42%',
+      desc: 'Proven direct-response creative framing and conversion optimization',
+      icon: TrendingUp,
+      color: 'cyan',
+    },
+    {
+      label: settings.trust_stat_4_lbl || 'Fast Turnaround',
+      value: settings.trust_stat_4_val || '24-48h',
+      desc: 'Rapid delivery windows for urgent ad campaigns & launches',
+      icon: Briefcase,
       color: 'teal',
     },
   ];

@@ -6,9 +6,16 @@ import Button from '../common/Button';
 
 import { DEFAULT_PACKAGES } from '../../data/defaultData';
 
-export const PricingTiers = ({ packages = [], onSelectPackage }) => {
+export const PricingTiers = ({ packages = [], onSelectPackage, settings = {} }) => {
   const { formatAmount } = useCurrency();
   const displayPackages = Array.isArray(packages) && packages.length > 0 ? packages : DEFAULT_PACKAGES;
+
+  const badge = settings.pricing_section_badge || 'Pricing Packages';
+  const title = settings.pricing_section_title || 'Transparent Creative Investment';
+  const subtitle =
+    settings.pricing_section_subtitle ||
+    'Predictable flat-rate packages with defined deliverables, revisions, and dedicated communication.';
+
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background ambient glow */}
@@ -25,13 +32,13 @@ export const PricingTiers = ({ packages = [], onSelectPackage }) => {
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-3">
             <Zap className="w-3.5 h-3.5" />
-            <span>Pricing Packages</span>
+            <span>{badge}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight">
-            Transparent Creative Investment
+            {title}
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 mt-3">
-            Predictable flat-rate packages with defined deliverables, revisions, and dedicated communication.
+            {subtitle}
           </p>
         </motion.div>
 

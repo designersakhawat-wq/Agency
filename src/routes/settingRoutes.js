@@ -12,4 +12,8 @@ router.get('/all', requireAuth, requireRole(['ADMIN']), settingController.getAll
 router.post('/admin/bulk', requireAuth, requireRole(['ADMIN']), settingController.updateSettingsBulk);
 router.post('/bulk', requireAuth, requireRole(['ADMIN']), settingController.updateSettingsBulk);
 
+// Backup Export & Restore
+router.get('/admin/backup/export', requireAuth, requireRole(['ADMIN']), settingController.exportBackup);
+router.post('/admin/backup/restore', requireAuth, requireRole(['ADMIN']), settingController.restoreBackup);
+
 module.exports = router;

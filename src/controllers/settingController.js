@@ -127,6 +127,10 @@ const updateSettingsBulk = async (req, res, next) => {
       })
     );
 
+    // Trigger immediate persistent disk snapshot
+    const backupService = require('../services/backupService');
+    backupService.triggerDebouncedSnapshot(prisma, 300);
+
     return successResponse(res, null, 'Settings saved successfully.');
   } catch (err) {
     console.error('Settings bulk update error:', err);
@@ -134,8 +138,90 @@ const updateSettingsBulk = async (req, res, next) => {
   }
 };
 
+/**
+ * GET /api/settings/admin/backup/export
+ * Download entire CMS data snapshot as JSON
+ */
+const exportBackup = async (req, res, next) => {
+  try {
+    const backupService = require('../services/backupService');
+    const snapshot = await backupService.captureSnapshot(prisma);
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=cms_backup_${Date.now()}.json`);
+    return res.status(200).send(JSON.stringify(snapshot, null, 2));
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * POST /api/settings/admin/backup/restore
+ * Restore entire CMS data snapshot from uploaded JSON
+ */
+const restoreBackup = async (req, res, next) => {
+  try {
+    const { snapshotData } = req.body;
+    if (!snapshotData || !snapshotData.data) {
+      return errorResponse(res, 'Invalid snapshot payload. Must include data property.', 400);
+    }
+
+    const d = snapshotData.data;
+
+    if (Array.isArray(d.settings)) {
+      for (const s of d.settings) {
+        await prisma.siteSetting.upsert({
+          where: { key: s.key },
+          update: { value: s.value },
+          create: { key: s.key, value: s.value },
+        }).catch(() => {});
+      }
+    }
+
+    if (Array.isArray(d.projects)) {
+      for (const p of d.projects) {
+        const { id, createdAt, updatedAt, service, ...data } = p;
+        await prisma.project.upsert({
+          where: { slug: p.slug },
+          update: data,
+          create: { ...data, slug: p.slug },
+        }).catch(() => {});
+      }
+    }
+
+    if (Array.isArray(d.testimonials)) {
+      for (const t of d.testimonials) {
+        const { id, createdAt, updatedAt, ...data } = t;
+        await prisma.testimonial.create({ data }).catch(() => {});
+      }
+    }
+
+    if (Array.isArray(d.faqs)) {
+      for (const f of d.faqs) {
+        const { id, createdAt, updatedAt, ...data } = f;
+        await prisma.faq.create({ data }).catch(() => {});
+      }
+    }
+
+    if (Array.isArray(d.brands)) {
+      for (const b of d.brands) {
+        const { id, createdAt, updatedAt, ...data } = b;
+        await prisma.clientBrand.create({ data }).catch(() => {});
+      }
+    }
+
+    const backupService = require('../services/backupService');
+    backupService.triggerDebouncedSnapshot(prisma, 100);
+
+    return successResponse(res, null, 'CMS Snapshot restored successfully.');
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getPublicSettings,
   getAllSettingsAdmin,
   updateSettingsBulk,
+  exportBackup,
+  restoreBackup,
 };

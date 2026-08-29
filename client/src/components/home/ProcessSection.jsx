@@ -2,7 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Search, Compass, Layout, Rocket, Sparkles, CheckCircle } from 'lucide-react';
 
-export const ProcessSection = () => {
+export const ProcessSection = ({ settings = {} }) => {
+  const badge = settings.process_section_badge || 'Workflow & Collaboration';
+  const title = settings.process_section_title || 'Seamless 4-Step Design Process';
+  const subtitle =
+    settings.process_section_subtitle ||
+    'Fast turnarounds, clear communication, and guaranteed quality at every milestone.';
+
   const steps = [
     {
       num: '01',
@@ -46,13 +52,13 @@ export const ProcessSection = () => {
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-semibold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Workflow & Collaboration</span>
+            <span>{badge}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight">
-            Seamless 4-Step Design Process
+            {title}
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 mt-3">
-            Fast turnarounds, clear communication, and guaranteed quality at every milestone.
+            {subtitle}
           </p>
         </motion.div>
 

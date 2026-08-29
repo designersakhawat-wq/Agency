@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-28T23:01:57.387Z",
+  "timestamp": "2026-08-29T11:28:53.817Z",
   "version": "1.0.0",
   "data": {
     "settings": [
@@ -408,6 +408,27 @@
         "value": "/uploads/profile-photo-1787833931978-929342322.jpg",
         "createdAt": "2026-08-28T22:25:36.632Z",
         "updatedAt": "2026-08-28T22:25:36.632Z"
+      },
+      {
+        "id": "a1bbba92-1d40-42bb-b091-b7530c52f93b",
+        "key": "process_section_title",
+        "value": "Seamless 4-Step Design Process",
+        "createdAt": "2026-08-29T11:28:52.270Z",
+        "updatedAt": "2026-08-29T11:28:52.270Z"
+      },
+      {
+        "id": "a7cb2107-d44b-4a0d-8707-93a8f876e1b2",
+        "key": "trust_stat_4_val",
+        "value": "24-48h",
+        "createdAt": "2026-08-29T11:28:52.270Z",
+        "updatedAt": "2026-08-29T11:28:52.270Z"
+      },
+      {
+        "id": "3edc3ff1-4b19-431b-b870-ee2dad9e5da5",
+        "key": "why_point1_title",
+        "value": "Fast 24-48h Delivery Window (Guaranteed)",
+        "createdAt": "2026-08-29T11:28:52.270Z",
+        "updatedAt": "2026-08-29T11:28:52.270Z"
       }
     ],
     "projects": [
@@ -1139,6 +1160,17 @@
         "source": "LOCAL",
         "createdAt": "2026-08-28T21:41:46.956Z",
         "updatedAt": "2026-08-28T21:41:46.956Z"
+      },
+      {
+        "id": "9741466e-35b0-44ef-b622-052d858e9562",
+        "fileName": "qa-test-logo-1788002801182.png",
+        "fileUrl": "/uploads/qa-test-logo-1788002801182.png",
+        "fileType": "image/png",
+        "fileSize": 70,
+        "altText": "qa test logo 1788002801182",
+        "source": "LOCAL",
+        "createdAt": "2026-08-29T11:28:10.313Z",
+        "updatedAt": "2026-08-29T11:28:10.313Z"
       }
     ],
     "users": [
@@ -1155,14 +1187,14 @@
     ]
   },
   "counts": {
-    "settings": 58,
+    "settings": 61,
     "projects": 5,
     "services": 4,
     "packages": 6,
     "testimonials": 3,
     "faqs": 5,
     "brands": 6,
-    "media": 21,
+    "media": 22,
     "users": 1
   }
 }

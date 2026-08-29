@@ -24,6 +24,11 @@ import {
   Wand2,
   Type,
   Gift,
+  Download,
+  UploadCloud,
+  Database,
+  FileJson,
+  CheckCircle2,
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
@@ -41,6 +46,9 @@ export const AdminSettingsPage = () => {
   const [savingProfile, setSavingProfile] = useState(false);
   const [confirmSettingsOpen, setConfirmSettingsOpen] = useState(false);
   const [confirmProfileOpen, setConfirmProfileOpen] = useState(false);
+  const [exportingBackup, setExportingBackup] = useState(false);
+  const [restoringBackup, setRestoringBackup] = useState(false);
+  const backupFileInputRef = useRef(null);
 
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
@@ -385,12 +393,59 @@ export const AdminSettingsPage = () => {
     }));
   };
 
-  // Preview formatted price
-  const samplePrice = 199;
-  const previewFormatted =
-    settings.currency_code === 'BDT' && settings.currency_mode === 'AUTO_CONVERT'
-      ? `${settings.currency_symbol} ${Number(samplePrice * Number(settings.usd_to_bdt_rate || 120)).toLocaleString()}`
-      : `${settings.currency_symbol} ${samplePrice.toLocaleString()}`;
+  // 1-Click Export Full CMS JSON Snapshot
+  const handleExportBackup = async () => {
+    setExportingBackup(true);
+    try {
+      const res = await api.get('/settings/admin/backup/export');
+      const blob = new Blob([JSON.stringify(res, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sakhawat_cms_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('CMS JSON Snapshot exported successfully! Save this file safely.', 'success');
+    } catch (err) {
+      showToast('Failed to export backup.', 'error');
+    } finally {
+      setExportingBackup(false);
+    }
+  };
+
+  // 1-Click Restore Full CMS JSON Snapshot
+  const handleRestoreBackupFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setRestoringBackup(true);
+
+    try {
+      const text = await file.text();
+      const snapshotData = JSON.parse(text);
+
+      if (!snapshotData || (!snapshotData.data && !snapshotData.settings)) {
+        showToast('Invalid backup file format.', 'error');
+        setRestoringBackup(false);
+        return;
+      }
+
+      const res = await api.post('/settings/admin/backup/restore', {
+        snapshotData: snapshotData.data ? snapshotData : { data: snapshotData },
+      });
+
+      if (res.success) {
+        showToast('100% of CMS data and settings restored successfully!', 'success');
+        setTimeout(() => window.location.reload(), 1200);
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to restore snapshot.', 'error');
+    } finally {
+      setRestoringBackup(false);
+      if (backupFileInputRef.current) backupFileInputRef.current.value = '';
+    }
+  };
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -1470,6 +1525,81 @@ export const AdminSettingsPage = () => {
           </Button>
         </div>
       </form>
+
+      {/* CLOUD DATA VAULT & 1-CLICK BACKUP / RESTORE */}
+      <div className="p-6 sm:p-8 rounded-2xl glass-card border border-teal-500/40 bg-gradient-to-r from-teal-950/20 via-zinc-900/90 to-zinc-950/90 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center font-bold">
+              <Database className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                Permanent Data Vault & 1-Click CMS Backup
+              </h3>
+              <p className="text-xs text-zinc-400">
+                Safeguard all site settings, projects, services, and media references. Export or restore anywhere.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              icon={Download}
+              isLoading={exportingBackup}
+              onClick={handleExportBackup}
+              className="bg-zinc-800 hover:bg-zinc-700 text-white font-bold"
+            >
+              Export Full Backup (.JSON)
+            </Button>
+
+            <input
+              type="file"
+              ref={backupFileInputRef}
+              onChange={handleRestoreBackupFile}
+              accept=".json"
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              icon={UploadCloud}
+              isLoading={restoringBackup}
+              onClick={() => backupFileInputRef.current?.click()}
+              className="bg-teal-500 hover:bg-teal-400 text-zinc-950 font-black shadow-lg shadow-teal-950/40"
+            >
+              Restore Backup (.JSON)
+            </Button>
+          </div>
+        </div>
+
+        {/* Live Cloud Persistence Info for Render / Cloud Hosting */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-2">
+            <div className="flex items-center gap-2 text-teal-400 font-bold text-xs">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Multi-Tier Local & Disk Snapshot</span>
+            </div>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Every save automatically creates an immutable disk snapshot (<code className="text-teal-300">latest_snapshot.json</code>) to recover 100% of data if the database is ever empty.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-2">
+            <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
+              <Sparkles className="w-4 h-4" />
+              <span>Render.com Cloud Persistence</span>
+            </div>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              For permanent zero-reset media storage on Render.com free tier, add <code className="text-amber-300">CLOUDINARY_CLOUD_NAME</code>, <code className="text-amber-300">CLOUDINARY_API_KEY</code>, and <code className="text-amber-300">CLOUDINARY_API_SECRET</code> to your Render Environment.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Admin Profile & Password Security Form */}
       <form onSubmit={handleUpdateProfile} className="p-6 sm:p-8 rounded-2xl glass-card border border-zinc-800 space-y-6">

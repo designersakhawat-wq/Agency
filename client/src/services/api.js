@@ -16,34 +16,34 @@ const getAuthToken = () => {
 
 // In-flight request de-duplication cache
 const inFlightRequests = new Map();
-// Client-side memory cache (60 seconds TTL for public GET requests)
+// Client-side memory cache (2 seconds TTL for public GET requests to guarantee fresh edits)
 const requestCache = new Map();
-const PUBLIC_CACHE_TTL_MS = 60 * 1000;
+const PUBLIC_CACHE_TTL_MS = 2 * 1000;
 
 // Default initial settings
 const DEFAULT_SETTINGS = {
-  site_title: 'Md Sakhawat Hossain — Creative Graphic Designer & Visual Strategist',
+  site_title: 'Md Sakhawat Hossain — Creative Graphic Designer',
   designer_name: 'Md Sakhawat Hossain',
   hero_designer_name: 'Md Sakhawat Hossain',
   designer_title: 'Creative Graphic Designer',
-  hero_title: 'Creative Graphic Designer Helping Brands',
+  hero_title: 'Creative Graphic Designer Helping Brands Stand Out, Sell Better, and Look Professional.',
   hero_title_highlight: 'Stand Out & Sell Better.',
   hero_badge: 'Available for Remote Creative Contracts',
   hero_bio: 'Helping ambitious eCommerce founders, global agencies, and high-growth brands craft scroll-stopping social creatives, high-CTR performance ads, and premium visual identities.',
-  brand_primary_color: '#ccff00',
-  brand_secondary_color: '#00f5d4',
-  brand_accent_color: '#ff2a5f',
-  theme_preset: 'neon_lime',
-  currency_code: 'USD',
-  currency_symbol: '$',
+  brand_primary_color: '#c9f31b',
+  brand_secondary_color: '#e0fe71',
+  brand_accent_color: '#14b8a6',
+  theme_preset: 'custom',
+  currency_code: 'BDT',
+  currency_symbol: '৳',
   usd_to_bdt_rate: '120',
   email: 'designersakhawat@gmail.com',
   phone: '01781955355',
-  location: 'Ishurdi, Pabna, Rajshahi, Bangladesh',
+  location: 'Rajshahi, Bangladesh',
   hero_image: '/uploads/chatgpt-image-aug-2--2026--10-56-34-pm-1787768328056-874988426.png',
   about_image: '/uploads/profile-photo-1787833931978-929342322.jpg',
-  site_logo: '',
-  site_favicon: '',
+  site_logo: '/uploads/logo-png-01-01-1787763443240-155837371.png',
+  site_favicon: '/uploads/main-logo-file-04-1787763904733-796883327.png',
 };
 
 // Helper: Get local settings with self-repairing image fallbacks
@@ -377,9 +377,9 @@ const request = async (endpoint, options = {}) => {
       headers['Content-Type'] = 'application/json';
     }
 
-    // Smart 3.5-second timeout for server response before ultra-fast resilient local fallback
+    // Resilient 15-second timeout for server response before fallback
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     let response;
     try {

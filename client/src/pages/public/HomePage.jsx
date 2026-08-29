@@ -13,6 +13,7 @@ import BookingModal from '../../components/home/BookingModal';
 import InteractiveProjectEstimator from '../../components/home/InteractiveProjectEstimator';
 import BeforeAfterSlider from '../../components/home/BeforeAfterSlider';
 import CreativeGatewayHub from '../../components/home/CreativeGatewayHub';
+import WhyChooseSection from '../../components/home/WhyChooseSection';
 import InterconnectedExploreHub from '../../components/home/InterconnectedExploreHub';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
@@ -143,10 +144,13 @@ const HomePage = () => {
       <StatsSection settings={settings} />
 
       {/* Multi-Page Creative Gateway Hub (Connecting to Services & Portfolio) */}
-      <CreativeGatewayHub />
+      <CreativeGatewayHub settings={settings} />
 
       {/* Featured Projects */}
-      <FeaturedProjects projects={projects} />
+      <FeaturedProjects projects={projects} settings={settings} />
+
+      {/* Why Choose Me / Core Value Proposition */}
+      <WhyChooseSection settings={settings} />
 
       {/* Interactive Project Cost & ROI Estimator */}
       <InteractiveProjectEstimator onOpenBooking={handleOpenBooking} />
@@ -155,25 +159,26 @@ const HomePage = () => {
       <BeforeAfterSlider onOpenBooking={handleOpenBooking} />
 
       {/* Process Workflow */}
-      <ProcessSection />
+      <ProcessSection settings={settings} />
 
       {/* Pricing Packages */}
       <PricingTiers
         packages={packages}
+        settings={settings}
         onSelectPackage={(pkg) => handleOpenBooking(pkg.name)}
       />
 
       {/* Testimonials */}
-      <TestimonialsSlider testimonials={testimonials} />
+      <TestimonialsSlider testimonials={testimonials} settings={settings} />
 
       {/* FAQs */}
-      <FaqAccordion faqs={faqs} />
+      <FaqAccordion faqs={faqs} settings={settings} />
 
       {/* Interconnected Discovery Roadmap Hub */}
       <InterconnectedExploreHub />
 
       {/* Contact & Inquiries */}
-      <ContactSection />
+      <ContactSection settings={settings} />
 
       {/* Interactive Booking Modal */}
       <BookingModal

@@ -11,6 +11,9 @@ router.post('/scan', requireAuth, requireRole(['ADMIN']), mediaController.scanEx
 router.post('/admin/scan', requireAuth, requireRole(['ADMIN']), mediaController.scanExistingMedia);
 router.get('/all', requireAuth, requireRole(['ADMIN']), mediaController.getAllMediaAdmin);
 router.get('/', requireAuth, requireRole(['ADMIN']), mediaController.getAllMediaAdmin);
+router.get('/storage-status', requireAuth, requireRole(['ADMIN']), mediaController.getStorageStatus);
+router.post('/test-cloudinary', requireAuth, requireRole(['ADMIN']), mediaController.testCloudinary);
+router.post('/migrate-cloudinary', requireAuth, requireRole(['ADMIN']), mediaController.migrateCloudinary);
 router.post('/:id/optimize', requireAuth, requireRole(['ADMIN']), mediaController.optimizeMedia);
 router.post('/optimize', requireAuth, requireRole(['ADMIN']), mediaController.optimizeMedia);
 router.put('/:id', requireAuth, requireRole(['ADMIN']), mediaController.updateMedia);

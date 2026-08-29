@@ -51,10 +51,23 @@ const SafeImage = ({ src, alt, category }) => {
   );
 };
 
-export const FeaturedProjects = ({ projects = [] }) => {
+export const FeaturedProjects = ({ projects = [], settings = {} }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quickModalProject, setQuickModalProject] = useState(null);
+
+  const sectionBadge =
+    settings.portfolio_section_badge ||
+    settings.featured_section_badge ||
+    'SELECTED WORKS';
+  const sectionTitle =
+    settings.portfolio_section_title ||
+    settings.featured_section_title ||
+    'Featured Visual Gallery';
+  const sectionSubtitle =
+    settings.portfolio_section_subtitle ||
+    settings.featured_section_subtitle ||
+    'A curated showcase of high-converting visual creatives, brand identities, and performance marketing designs.';
 
   // Normalize project list - prioritize explicitly featured projects
   const allProjects = useMemo(() => {
@@ -161,15 +174,15 @@ export const FeaturedProjects = ({ projects = [] }) => {
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-bold tracking-[0.2em] uppercase">
             <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-            <span>SELECTED WORKS</span>
+            <span>{sectionBadge}</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight">
-            Featured Visual Gallery
+            {sectionTitle}
           </h2>
 
           <p className="text-xs sm:text-sm text-zinc-400">
-            A curated showcase of high-converting visual creatives, brand identities, and performance marketing designs.
+            {sectionSubtitle}
           </p>
         </div>
 

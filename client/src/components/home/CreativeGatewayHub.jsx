@@ -74,7 +74,13 @@ const DOMAIN_DATA = [
   },
 ];
 
-export const CreativeGatewayHub = () => {
+export const CreativeGatewayHub = ({ settings = {} }) => {
+  const badge = settings.services_section_badge || 'Multi-Page Exploration Gateway';
+  const title = settings.services_section_title || 'Explore By Creative Domain';
+  const subtitle =
+    settings.services_section_subtitle ||
+    'Every creative discipline has dedicated case studies, live portfolio galleries, and detailed pricing packages. Pick your domain to explore:';
+
   return (
     <section className="py-20 relative overflow-hidden transition-colors duration-300 border-y border-slate-200 dark:border-white/[0.04]">
       {/* Background ambient lighting */}
@@ -87,13 +93,13 @@ export const CreativeGatewayHub = () => {
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-bold uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Multi-Page Exploration Gateway</span>
+              <span>{badge}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-white tracking-tight">
-              Explore By Creative Domain
+              {title}
             </h2>
             <p className="text-sm text-zinc-400 max-w-xl leading-relaxed">
-              Every creative discipline has dedicated case studies, live portfolio galleries, and detailed pricing packages. Pick your domain to explore:
+              {subtitle}
             </p>
           </div>
 

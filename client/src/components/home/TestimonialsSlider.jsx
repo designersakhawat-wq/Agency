@@ -3,9 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight, Quote, Sparkles } from 'lucide-react';
 import { DEFAULT_TESTIMONIALS } from '../../data/defaultData';
 
-export const TestimonialsSlider = ({ testimonials = [] }) => {
+export const TestimonialsSlider = ({ testimonials = [], settings = {} }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [direction, setDirection] = useState(1);
+
+  const badge = settings.testimonials_section_badge || 'Client Praise & Testimonials';
+  const title = settings.testimonials_section_title || 'Trusted by Brands & Founders';
+  const subtitle =
+    settings.testimonials_section_subtitle ||
+    'Real feedback from businesses and agencies that scaled their revenue with our designs.';
 
   const displayTestimonials =
     Array.isArray(testimonials) && testimonials.length > 0 ? testimonials : DEFAULT_TESTIMONIALS;
@@ -54,11 +60,14 @@ export const TestimonialsSlider = ({ testimonials = [] }) => {
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Client Praise & Testimonials</span>
+            <span>{badge}</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-display font-black text-white tracking-tight">
-            Trusted by Brands & Founders
+            {title}
           </h2>
+          <p className="text-sm sm:text-base text-zinc-400 mt-3">
+            {subtitle}
+          </p>
         </motion.div>
 
         {/* Testimonial Card */}
