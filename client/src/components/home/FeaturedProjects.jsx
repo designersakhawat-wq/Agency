@@ -55,6 +55,36 @@ export const FeaturedProjects = ({ projects = [], settings = {} }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quickModalProject, setQuickModalProject] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile, { passive: true });
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const diff = touchStartX.current - touchEndX.current;
+    if (diff > 40) {
+      handleNext();
+    } else if (diff < -40) {
+      handlePrev();
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
 
   const sectionBadge =
     settings.portfolio_section_badge ||
@@ -217,9 +247,14 @@ export const FeaturedProjects = ({ projects = [], settings = {} }) => {
         </div>
 
         {/* ========================================================================= */}
-        {/* 3. FLUID 3D KINETIC COVERFLOW TRACK                                       */}
+        {/* 3. FLUID 3D KINETIC COVERFLOW TRACK (MOBILE SWIPE ENABLED)                */}
         {/* ========================================================================= */}
-        <div className="relative h-[440px] sm:h-[500px] md:h-[560px] lg:h-[600px] flex items-center justify-center overflow-x-clip overflow-y-visible my-2 py-4">
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="relative h-[380px] sm:h-[500px] md:h-[560px] lg:h-[600px] flex items-center justify-center overflow-x-clip overflow-y-visible my-2 py-4 select-none touch-pan-y"
+        >
           <div className="relative w-full h-full flex items-center justify-center">
             {filteredProjects.map((project, idx) => {
               // Calculate relative offset from currentIndex
@@ -232,6 +267,10 @@ export const FeaturedProjects = ({ projects = [], settings = {} }) => {
 
               const isCenter = offset === 0;
 
+              // Responsive offsets for mobile phones vs desktop screens
+              const step1 = isMobile ? 160 : 270;
+              const step2 = isMobile ? 290 : 470;
+
               // Positioning and 3D depth parameters
               let xOffset = 0;
               let scale = 1;
@@ -241,34 +280,34 @@ export const FeaturedProjects = ({ projects = [], settings = {} }) => {
 
               if (isCenter) {
                 xOffset = 0;
-                scale = 1.14;
+                scale = isMobile ? 1.06 : 1.14;
                 zIndex = 30;
                 opacity = 1;
                 rotateY = 0;
               } else if (offset === 1) {
-                xOffset = 270;
-                scale = 0.88;
+                xOffset = step1;
+                scale = isMobile ? 0.82 : 0.88;
                 zIndex = 20;
-                opacity = 0.85;
-                rotateY = -8;
+                opacity = isMobile ? 0.75 : 0.85;
+                rotateY = isMobile ? -5 : -8;
               } else if (offset === -1) {
-                xOffset = -270;
-                scale = 0.88;
+                xOffset = -step1;
+                scale = isMobile ? 0.82 : 0.88;
                 zIndex = 20;
-                opacity = 0.85;
-                rotateY = 8;
+                opacity = isMobile ? 0.75 : 0.85;
+                rotateY = isMobile ? 5 : 8;
               } else if (offset === 2) {
-                xOffset = 470;
-                scale = 0.72;
+                xOffset = step2;
+                scale = isMobile ? 0.65 : 0.72;
                 zIndex = 10;
-                opacity = 0.35;
-                rotateY = -15;
+                opacity = isMobile ? 0.2 : 0.35;
+                rotateY = isMobile ? -10 : -15;
               } else if (offset === -2) {
-                xOffset = -470;
-                scale = 0.72;
+                xOffset = -step2;
+                scale = isMobile ? 0.65 : 0.72;
                 zIndex = 10;
-                opacity = 0.35;
-                rotateY = 15;
+                opacity = isMobile ? 0.2 : 0.35;
+                rotateY = isMobile ? 10 : 15;
               }
 
               return (

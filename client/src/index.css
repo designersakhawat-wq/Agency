@@ -20,6 +20,8 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: pan-y;
   }
 
   body {
@@ -28,6 +30,16 @@
     overflow-x: hidden;
     letter-spacing: -0.011em;
     line-height: 1.65;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  /* Prevent awkward iOS form input auto-zoom */
+  @media screen and (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
   }
 
   ::selection {
@@ -40,12 +52,15 @@
     @apply font-bold tracking-tight text-white;
     letter-spacing: -0.024em;
     line-height: 1.22;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   p {
     @apply text-zinc-300;
     line-height: 1.68;
     letter-spacing: -0.006em;
+    overflow-wrap: break-word;
   }
 
   /* ========================================================================= */
