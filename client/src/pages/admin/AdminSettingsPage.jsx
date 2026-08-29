@@ -447,6 +447,13 @@ export const AdminSettingsPage = () => {
     }
   };
 
+  // Preview formatted price for Currency preview card
+  const samplePrice = 199;
+  const previewFormatted =
+    settings.currency_code === 'BDT' && settings.currency_mode === 'AUTO_CONVERT'
+      ? `${settings.currency_symbol || '৳'} ${Number(samplePrice * Number(settings.usd_to_bdt_rate || 120)).toLocaleString()}`
+      : `${settings.currency_symbol || '$'} ${samplePrice.toLocaleString()}`;
+
   return (
     <div className="space-y-8 max-w-5xl">
       {/* Header */}
