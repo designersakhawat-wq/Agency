@@ -1,5 +1,7 @@
 const prisma = require('../config/db');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+const cacheService = require('../services/cacheService');
+const backupService = require('../services/backupService');
 
 const parseJsonField = (val) => {
   if (!val) return [];
@@ -18,6 +20,7 @@ const formatPackage = (p) => {
   if (!p) return null;
   return {
     ...p,
+    price: Number(p.price) || 0,
     features: parseJsonField(p.features),
     excludedFeatures: parseJsonField(p.excludedFeatures),
   };
@@ -98,6 +101,10 @@ const createPackage = async (req, res, next) => {
       },
     });
 
+    // Invalidate distributed cache & trigger persistent snapshot
+    cacheService.invalidateTags(['services', 'homepage', 'packages']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
+
     return successResponse(res, formatPackage(pkg), 'Package created successfully.', 201);
   } catch (err) {
     next(err);
@@ -148,6 +155,10 @@ const updatePackage = async (req, res, next) => {
       data: updateData,
     });
 
+    // Invalidate distributed cache & trigger persistent snapshot
+    cacheService.invalidateTags(['services', 'homepage', 'packages']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
+
     return successResponse(res, formatPackage(updated), 'Package updated successfully.');
   } catch (err) {
     next(err);
@@ -162,6 +173,11 @@ const deletePackage = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.package.delete({ where: { id } });
+
+    // Invalidate distributed cache & trigger persistent snapshot
+    cacheService.invalidateTags(['services', 'homepage', 'packages']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
+
     return successResponse(res, null, 'Package deleted successfully.');
   } catch (err) {
     next(err);

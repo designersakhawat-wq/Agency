@@ -623,10 +623,17 @@ const AdminServicesPage = () => {
     try {
       const res = await api.post('/projects/admin', payload);
       if (res && res.success && res.data) {
-        setAllProjects((prev) =>
-          prev.map((p) => (p.id === optimisticProject.id ? res.data : p))
-        );
-        safeSetItem('sakhawat_cached_all_projects', allProjects.map((p) => (p.id === optimisticProject.id ? res.data : p)));
+        setAllProjects((prev) => {
+          const nextList = prev.map((p) => (p.id === optimisticProject.id ? res.data : p));
+          safeSetItem('sakhawat_cached_all_projects', nextList);
+          return nextList;
+        });
+        localStorage.removeItem('sakhawat_cached_homepage');
+        localStorage.removeItem('sakhawat_cached_featured_projects');
+        localStorage.removeItem('sakhawat_cached_projects');
+        api.clearCache();
+        window.dispatchEvent(new CustomEvent('projects-updated'));
+        window.dispatchEvent(new CustomEvent('homepage-updated'));
       }
     } catch (err) {
       console.warn('Background project creation note:', err.message);
@@ -837,6 +844,12 @@ const AdminServicesPage = () => {
         });
 
         await Promise.all([...packagePromises, ...faqPromises]);
+        localStorage.removeItem('sakhawat_cached_homepage');
+        localStorage.removeItem('sakhawat_cached_services');
+        localStorage.removeItem('sakhawat_cached_packages');
+        api.clearCache();
+        window.dispatchEvent(new CustomEvent('services-updated'));
+        window.dispatchEvent(new CustomEvent('homepage-updated'));
         fetchServicesAndSettings();
       } catch (err) {
         console.warn('Background service sync notice:', err.message);
@@ -850,6 +863,12 @@ const AdminServicesPage = () => {
       const res = await api.delete(`/services/admin/${deleteTarget.id}`);
       if (res && res.success) {
         success('Service deleted.');
+        localStorage.removeItem('sakhawat_cached_homepage');
+        localStorage.removeItem('sakhawat_cached_services');
+        localStorage.removeItem('sakhawat_cached_packages');
+        api.clearCache();
+        window.dispatchEvent(new CustomEvent('services-updated'));
+        window.dispatchEvent(new CustomEvent('homepage-updated'));
       }
     } catch (err) {
       console.error('Delete error:', err);

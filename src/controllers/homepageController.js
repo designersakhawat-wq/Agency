@@ -86,11 +86,34 @@ const getHomepageData = async (req, res, next) => {
           settingsMap[item.key] = parsedValue;
         });
 
+        const formatPkg = (p) => ({
+          ...p,
+          price: Number(p.price) || 0,
+          features: typeof p.features === 'string' ? JSON.parse(p.features || '[]') : (p.features || []),
+          excludedFeatures: typeof p.excludedFeatures === 'string' ? JSON.parse(p.excludedFeatures || '[]') : (p.excludedFeatures || []),
+        });
+
+        const formattedServices = (services || []).map((s) => ({
+          ...s,
+          features: typeof s.features === 'string' ? JSON.parse(s.features || '[]') : (s.features || []),
+          deliverables: typeof s.deliverables === 'string' ? JSON.parse(s.deliverables || '[]') : (s.deliverables || []),
+          packages: Array.isArray(s.packages) ? s.packages.map(formatPkg) : [],
+        }));
+
+        const formattedPackages = (packages || []).map(formatPkg);
+
+        const formattedProjects = (featuredProjects || []).map((p) => ({
+          ...p,
+          tags: typeof p.tags === 'string' ? JSON.parse(p.tags || '[]') : (p.tags || []),
+          tools: typeof p.tools === 'string' ? JSON.parse(p.tools || '[]') : (p.tools || []),
+          galleryImages: typeof p.galleryImages === 'string' ? JSON.parse(p.galleryImages || '[]') : (p.galleryImages || []),
+        }));
+
         return {
           settings: settingsMap,
-          projects: featuredProjects,
-          services,
-          packages,
+          projects: formattedProjects,
+          services: formattedServices,
+          packages: formattedPackages,
           testimonials,
           faqs,
           brands,

@@ -130,6 +130,12 @@ export const AdminPackagesPage = () => {
         const res = await api.put(`/packages/admin/${editTarget.id}`, formData);
         if (res.success) {
           success('Package updated successfully.');
+          localStorage.removeItem('sakhawat_cached_homepage');
+          localStorage.removeItem('sakhawat_cached_packages');
+          localStorage.removeItem('sakhawat_cached_services');
+          api.clearCache();
+          window.dispatchEvent(new CustomEvent('packages-updated'));
+          window.dispatchEvent(new CustomEvent('homepage-updated'));
           fetchPackages();
           setModalOpen(false);
         }
@@ -137,6 +143,12 @@ export const AdminPackagesPage = () => {
         const res = await api.post('/packages/admin', formData);
         if (res.success) {
           success('Package created successfully.');
+          localStorage.removeItem('sakhawat_cached_homepage');
+          localStorage.removeItem('sakhawat_cached_packages');
+          localStorage.removeItem('sakhawat_cached_services');
+          api.clearCache();
+          window.dispatchEvent(new CustomEvent('packages-updated'));
+          window.dispatchEvent(new CustomEvent('homepage-updated'));
           fetchPackages();
           setModalOpen(false);
         }
@@ -154,6 +166,12 @@ export const AdminPackagesPage = () => {
       const res = await api.delete(`/packages/admin/${deleteTarget.id}`);
       if (res.success) {
         success('Package deleted.');
+        localStorage.removeItem('sakhawat_cached_homepage');
+        localStorage.removeItem('sakhawat_cached_packages');
+        localStorage.removeItem('sakhawat_cached_services');
+        api.clearCache();
+        window.dispatchEvent(new CustomEvent('packages-updated'));
+        window.dispatchEvent(new CustomEvent('homepage-updated'));
         setPackages((prev) => prev.filter((p) => p.id !== deleteTarget.id));
         setDeleteTarget(null);
       }

@@ -1,5 +1,7 @@
 const prisma = require('../config/db');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+const cacheService = require('../services/cacheService');
+const backupService = require('../services/backupService');
 
 const generateSlug = (title) => {
   return title
@@ -31,6 +33,7 @@ const formatService = (s) => {
     deliverables: parseJsonField(s.deliverables),
     packages: s.packages ? s.packages.map((p) => ({
       ...p,
+      price: Number(p.price) || 0,
       features: parseJsonField(p.features),
       excludedFeatures: parseJsonField(p.excludedFeatures),
     })) : undefined,
@@ -255,6 +258,10 @@ const createService = async (req, res, next) => {
       include: { packages: { orderBy: { order: 'asc' } } },
     });
 
+    // Invalidate distributed cache & trigger persistent snapshot
+    cacheService.invalidateTags(['services', 'homepage', 'packages', 'projects']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
+
     return successResponse(res, formatService(finalCreated || service), 'Service created successfully.', 201);
   } catch (err) {
     next(err);
@@ -331,6 +338,10 @@ const updateService = async (req, res, next) => {
       },
     });
 
+    // Invalidate distributed cache & trigger persistent snapshot
+    cacheService.invalidateTags(['services', 'homepage', 'packages', 'projects']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
+
     return successResponse(res, formatService(finalUpdated || updatedService), 'Service updated successfully.');
   } catch (err) {
     next(err);
@@ -345,6 +356,11 @@ const deleteService = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.service.delete({ where: { id } });
+    
+    // Invalidate distributed cache & trigger persistent snapshot
+    cacheService.invalidateTags(['services', 'homepage', 'packages', 'projects']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
+
     return successResponse(res, null, 'Service deleted successfully.');
   } catch (err) {
     next(err);

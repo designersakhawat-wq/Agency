@@ -3,8 +3,9 @@ const path = require('path');
 const prisma = require('../config/db');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
 const cacheService = require('../services/cacheService');
+const backupService = require('../services/backupService');
 
-// Helper to convert Base64 data URLs to permanent disk files
+// Helper to convert Base64 data URLs to permanent disk files & register in Media Library
 const saveBase64Image = (dataUrl, suggestedName = 'project-image') => {
   if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
     return dataUrl;
@@ -20,8 +21,22 @@ const saveBase64Image = (dataUrl, suggestedName = 'project-image') => {
     const filename = `${cleanName}-${Date.now()}-${Math.round(Math.random() * 1e6)}.${ext}`;
     const filePath = path.join(UPLOADS_DIR, filename);
     fs.writeFileSync(filePath, buffer);
+    const fileUrl = `/uploads/${filename}`;
     console.log(`💾 Saved base64 image directly to disk file: ${filePath}`);
-    return `/uploads/${filename}`;
+
+    // Asynchronously register in Media Library
+    prisma.media.create({
+      data: {
+        fileName: filename,
+        fileUrl: fileUrl,
+        fileType: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+        fileSize: buffer.length,
+        altText: suggestedName || filename,
+        source: 'LOCAL',
+      },
+    }).catch(() => {});
+
+    return fileUrl;
   } catch (e) {
     console.warn('Could not save base64 image to disk:', e.message);
     return dataUrl;
@@ -503,8 +518,9 @@ const updateProject = async (req, res, next) => {
       },
     });
 
-    // Invalidate distributed cache
-    cacheService.invalidateTags(['projects', 'homepage']);
+    // Invalidate distributed cache & trigger persistent snapshot
+    cacheService.invalidateTags(['projects', 'homepage', 'services']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
 
     return successResponse(res, formatProject(updatedProject), 'Project updated successfully.');
   } catch (err) {
@@ -526,7 +542,9 @@ const deleteProject = async (req, res, next) => {
     }
 
     await prisma.project.delete({ where: { id } });
-    cacheService.invalidateTags(['projects', 'homepage']);
+    cacheService.invalidateTags(['projects', 'homepage', 'services']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
+
     return successResponse(res, null, 'Project deleted successfully.');
   } catch (err) {
     next(err);
@@ -553,7 +571,9 @@ const reorderProjects = async (req, res, next) => {
     );
 
     await prisma.$transaction(updates);
-    cacheService.invalidateTags(['projects', 'homepage']);
+    cacheService.invalidateTags(['projects', 'homepage', 'services']);
+    backupService.triggerDebouncedSnapshot(prisma, 1000);
+
     return successResponse(res, null, 'Projects reordered successfully.');
   } catch (err) {
     next(err);
