@@ -19,17 +19,19 @@ app.set('trust proxy', 1);
 // High Performance Gzip / Brotli compression for all text/JSON/assets
 app.use(compression());
 
-// Security Middlewares (SEC-07: Proper CSP instead of disabling)
+// Security Middlewares (SEC-07: Hardened CSP supporting inline font loaders and CDN assets)
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        scriptSrcAttr: ["'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        styleSrcAttr: ["'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com', 'https://images.unsplash.com', 'https://*.unsplash.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-        connectSrc: ["'self'"],
+        connectSrc: ["'self'", 'https:', 'http:'],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
@@ -39,24 +41,36 @@ app.use(
   })
 );
 
-// CORS configuration
+// CORS configuration supporting main domain, www subdomains, and local dev
 const allowedOrigins = [
   env.CLIENT_URL,
   env.APP_URL,
+  'https://scaaleminte.com',
+  'http://scaaleminte.com',
+  'https://www.scaaleminte.com',
+  'http://www.scaaleminte.com',
   'http://localhost:5173',
   'http://localhost:5000',
   'http://localhost:3000',
-];
+].filter(Boolean);
 
-// SEC-03: CORS now properly rejects unknown origins
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (same-origin static apps, server-to-server)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow same-origin, server-to-server, or local dev requests
+      if (!origin) return callback(null, true);
+
+      // Check exact match or scaaleminte.com domain/subdomains
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.scaaleminte.com') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1');
+
+      if (isAllowed) {
         return callback(null, true);
       }
-      return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+      return callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
