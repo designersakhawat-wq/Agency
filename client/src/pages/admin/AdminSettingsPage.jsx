@@ -3,7 +3,7 @@ import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCurrency } from '../../context/CurrencyContext';
-import { useBrand, THEME_PRESETS, getSuggestedSecondColors, getContrastTextColor } from '../../context/BrandContext';
+import { useBrand, THEME_PRESETS, getSuggestedSecondColors, getContrastTextColor, applyGlobalThemeCSS } from '../../context/BrandContext';
 import {
   Settings,
   Save,
