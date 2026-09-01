@@ -112,13 +112,12 @@ const getAllMediaAdmin = async (req, res, next) => {
       prisma.media.count({ where }).catch(() => 0),
     ]);
 
-    // Enrich each media asset with usage count
-    const enrichedItems = await Promise.all(
-      (mediaItems || []).map(async (m) => {
-        const usage = await mediaService.getMediaUsage(m.id, m.fileUrl);
-        return formatMedia(m, usage);
-      })
-    );
+    // PERF-01: Enrich all media assets in a single batch query pass (eliminates N+1 query problem)
+    const usageMap = await mediaService.getBatchMediaUsage(mediaItems || []);
+    const enrichedItems = (mediaItems || []).map((m) => {
+      const usage = usageMap.get(m.id) || { usageCount: 0, usedIn: [] };
+      return formatMedia(m, usage);
+    });
 
     return paginatedResponse(
       res,

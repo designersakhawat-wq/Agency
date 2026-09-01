@@ -91,10 +91,29 @@ class EmailService {
   }
 
   /**
+   * HTML escape helper to prevent email template injection (SEC-09)
+   */
+  escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  /**
    * Dispatch Contact Inquiry Notifications (Admin + Client Confirmation)
    */
   async sendInquiryNotification(inquiry) {
     const adminEmail = env.ADMIN_NOTIFICATION_EMAIL || 'designersakhawat@gmail.com';
+    const safeName = this.escapeHtml(inquiry.name);
+    const safeEmail = this.escapeHtml(inquiry.email);
+    const safePhone = this.escapeHtml(inquiry.phone);
+    const safeService = this.escapeHtml(inquiry.service);
+    const safeBudget = this.escapeHtml(inquiry.budget);
+    const safeMessage = this.escapeHtml(inquiry.message);
 
     // Admin Notification Template
     const adminHtml = `
@@ -107,36 +126,36 @@ class EmailService {
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600; width: 120px;">Sender Name:</td>
-              <td style="padding: 10px 0; color: #fafafa; font-weight: 700;">${inquiry.name}</td>
+              <td style="padding: 10px 0; color: #fafafa; font-weight: 700;">${safeName}</td>
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600;">Email:</td>
-              <td style="padding: 10px 0; color: #818cf8;"><a href="mailto:${inquiry.email}" style="color: #818cf8; text-decoration: none;">${inquiry.email}</a></td>
+              <td style="padding: 10px 0; color: #818cf8;"><a href="mailto:${safeEmail}" style="color: #818cf8; text-decoration: none;">${safeEmail}</a></td>
             </tr>
             ${inquiry.phone ? `
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600;">Phone:</td>
-              <td style="padding: 10px 0; color: #fafafa;">${inquiry.phone}</td>
+              <td style="padding: 10px 0; color: #fafafa;">${safePhone}</td>
             </tr>` : ''}
             ${inquiry.service ? `
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600;">Service:</td>
-              <td style="padding: 10px 0; color: #34d399; font-weight: 600;">${inquiry.service}</td>
+              <td style="padding: 10px 0; color: #34d399; font-weight: 600;">${safeService}</td>
             </tr>` : ''}
             ${inquiry.budget ? `
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600;">Budget:</td>
-              <td style="padding: 10px 0; color: #fbbf24; font-weight: 600;">${inquiry.budget}</td>
+              <td style="padding: 10px 0; color: #fbbf24; font-weight: 600;">${safeBudget}</td>
             </tr>` : ''}
           </table>
 
           <div style="background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 20px; margin-top: 15px;">
             <p style="color: #a1a1aa; margin: 0 0 10px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Message Content:</p>
-            <p style="color: #f4f4f5; line-height: 1.6; margin: 0; white-space: pre-wrap;">${inquiry.message}</p>
+            <p style="color: #f4f4f5; line-height: 1.6; margin: 0; white-space: pre-wrap;">${safeMessage}</p>
           </div>
 
           <div style="text-align: center; margin-top: 30px;">
-            <a href="mailto:${inquiry.email}?subject=Re:%20${encodeURIComponent(inquiry.subject || 'Your inquiry to Md Sakhawat Hossain')}" style="background: #6366f1; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; display: inline-block;">Reply Directly</a>
+            <a href="mailto:${safeEmail}?subject=Re:%20${encodeURIComponent(inquiry.subject || 'Your inquiry to Md Sakhawat Hossain')}" style="background: #6366f1; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; display: inline-block;">Reply Directly</a>
           </div>
         </div>
         <div style="background: #121215; padding: 16px; text-align: center; font-size: 12px; color: #71717a; border-top: 1px solid #27272a;">
@@ -153,13 +172,13 @@ class EmailService {
           <p style="color: #a1a1aa; margin: 8px 0 0 0; font-size: 14px;">Md Sakhawat Hossain • UI/UX & Product Designer</p>
         </div>
         <div style="padding: 28px;">
-          <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${inquiry.name}</strong>,</p>
+          <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${safeName}</strong>,</p>
           <p style="font-size: 15px; line-height: 1.6; color: #3f3f46;">
-            Thank you for contacting me. I have received your message regarding <strong>${inquiry.service || 'your project'}</strong> and will get back to you within 24 hours.
+            Thank you for contacting me. I have received your message regarding <strong>${safeService || 'your project'}</strong> and will get back to you within 24 hours.
           </p>
           <div style="background: #f4f4f5; border-radius: 8px; padding: 16px; margin: 20px 0;">
             <p style="margin: 0; font-size: 14px; color: #71717a;"><strong>Your Message:</strong></p>
-            <p style="margin: 6px 0 0 0; font-size: 14px; color: #27272a; font-style: italic;">"${inquiry.message}"</p>
+            <p style="margin: 6px 0 0 0; font-size: 14px; color: #27272a; font-style: italic;">"${safeMessage}"</p>
           </div>
           <p style="font-size: 14px; color: #71717a;">
             In the meantime, feel free to explore my latest design case studies and live demos.
@@ -196,6 +215,13 @@ class EmailService {
    */
   async sendBookingNotification(booking) {
     const adminEmail = env.ADMIN_NOTIFICATION_EMAIL || 'designersakhawat@gmail.com';
+    const safeName = this.escapeHtml(booking.name);
+    const safeEmail = this.escapeHtml(booking.email);
+    const safePhone = this.escapeHtml(booking.phone);
+    const safeDate = this.escapeHtml(booking.date);
+    const safeSlot = this.escapeHtml(booking.timeSlot);
+    const safeService = this.escapeHtml(booking.serviceName);
+    const safeNotes = this.escapeHtml(booking.notes);
 
     const adminHtml = `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #09090b; color: #f4f4f5; border-radius: 12px; overflow: hidden; border: 1px solid #27272a;">
@@ -207,31 +233,31 @@ class EmailService {
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600; width: 120px;">Client:</td>
-              <td style="padding: 10px 0; color: #fafafa; font-weight: 700;">${booking.name}</td>
+              <td style="padding: 10px 0; color: #fafafa; font-weight: 700;">${safeName}</td>
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600;">Email:</td>
-              <td style="padding: 10px 0; color: #60a5fa;"><a href="mailto:${booking.email}" style="color: #60a5fa; text-decoration: none;">${booking.email}</a></td>
+              <td style="padding: 10px 0; color: #60a5fa;"><a href="mailto:${safeEmail}" style="color: #60a5fa; text-decoration: none;">${safeEmail}</a></td>
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600;">Date & Time:</td>
-              <td style="padding: 10px 0; color: #34d399; font-weight: 700;">${booking.date} at ${booking.timeSlot}</td>
+              <td style="padding: 10px 0; color: #34d399; font-weight: 700;">${safeDate} at ${safeSlot}</td>
             </tr>
             ${booking.serviceName ? `
             <tr>
               <td style="padding: 10px 0; color: #a1a1aa; font-weight: 600;">Service:</td>
-              <td style="padding: 10px 0; color: #fafafa;">${booking.serviceName}</td>
+              <td style="padding: 10px 0; color: #fafafa;">${safeService}</td>
             </tr>` : ''}
           </table>
 
           ${booking.notes ? `
           <div style="background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 18px; margin-top: 15px;">
             <p style="color: #a1a1aa; margin: 0 0 8px 0; font-size: 13px; text-transform: uppercase;">Client Notes:</p>
-            <p style="color: #f4f4f5; line-height: 1.6; margin: 0;">${booking.notes}</p>
+            <p style="color: #f4f4f5; line-height: 1.6; margin: 0;">${safeNotes}</p>
           </div>` : ''}
 
           <div style="text-align: center; margin-top: 30px;">
-            <a href="mailto:${booking.email}?subject=Meeting%20Confirmation%20with%20Md%20Sakhawat%20Hossain" style="background: #3b82f6; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; display: inline-block;">Send Meeting Link</a>
+            <a href="mailto:${safeEmail}?subject=Meeting%20Confirmation%20with%20Md%20Sakhawat%20Hossain" style="background: #3b82f6; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; display: inline-block;">Send Meeting Link</a>
           </div>
         </div>
       </div>
@@ -244,14 +270,14 @@ class EmailService {
           <p style="color: #a1a1aa; margin: 8px 0 0 0; font-size: 14px;">Discovery Consultation with Md Sakhawat Hossain</p>
         </div>
         <div style="padding: 28px;">
-          <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${booking.name}</strong>,</p>
+          <p style="font-size: 16px; line-height: 1.6;">Hello <strong>${safeName}</strong>,</p>
           <p style="font-size: 15px; line-height: 1.6; color: #3f3f46;">
             Your session has been scheduled successfully! Here are your meeting details:
           </p>
           <div style="background: #f4f4f5; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <p style="margin: 0 0 10px 0; font-size: 15px;"><strong>📅 Date:</strong> ${booking.date}</p>
-            <p style="margin: 0 0 10px 0; font-size: 15px;"><strong>⏰ Time:</strong> ${booking.timeSlot}</p>
-            <p style="margin: 0; font-size: 15px;"><strong>🎯 Topic:</strong> ${booking.serviceName || 'Project Consultation'}</p>
+            <p style="margin: 0 0 10px 0; font-size: 15px;"><strong>📅 Date:</strong> ${safeDate}</p>
+            <p style="margin: 0 0 10px 0; font-size: 15px;"><strong>⏰ Time:</strong> ${safeSlot}</p>
+            <p style="margin: 0; font-size: 15px;"><strong>🎯 Topic:</strong> ${safeService || 'Project Consultation'}</p>
           </div>
           <p style="font-size: 14px; color: #71717a;">
             I will send a video meeting link (Google Meet / Zoom) prior to the call. If you need to reschedule, please reply directly to this email.
@@ -268,12 +294,12 @@ class EmailService {
       await Promise.allSettled([
         this.sendMail({
           to: adminEmail,
-          subject: `📅 New Booking: ${booking.name} on ${booking.date} at ${booking.timeSlot}`,
+          subject: `📅 New Booking: ${safeName} on ${safeDate} at ${safeSlot}`,
           html: adminHtml,
         }),
         this.sendMail({
           to: booking.email,
-          subject: `Meeting Scheduled - Md Sakhawat Hossain (${booking.date})`,
+          subject: `Meeting Scheduled - Md Sakhawat Hossain (${safeDate})`,
           html: clientHtml,
         }),
       ]);
@@ -288,7 +314,11 @@ class EmailService {
   async sendMeetingLinkEmail(booking) {
     if (!booking.email) return;
 
-    const meetUrl = booking.meetingLink || 'https://meet.google.com';
+    const meetUrl = this.escapeHtml(booking.meetingLink || 'https://meet.google.com');
+    const safeName = this.escapeHtml(booking.name);
+    const safeDate = this.escapeHtml(booking.date);
+    const safeSlot = this.escapeHtml(booking.timeSlot);
+    const safeService = this.escapeHtml(booking.serviceName);
 
     const clientHtml = `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; color: #18181b; border-radius: 16px; overflow: hidden; border: 1px solid #e4e4e7; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
@@ -303,7 +333,7 @@ class EmailService {
 
         <!-- Content -->
         <div style="padding: 32px 28px;">
-          <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">Hello <strong>${booking.name}</strong>,</p>
+          <p style="font-size: 16px; line-height: 1.6; margin-top: 0;">Hello <strong>${safeName}</strong>,</p>
           <p style="font-size: 15px; line-height: 1.6; color: #3f3f46;">
             I have confirmed your appointment. Below are your meeting details and the direct video call link:
           </p>
@@ -313,15 +343,15 @@ class EmailService {
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
                 <td style="padding: 6px 0; color: #64748b; font-size: 14px; font-weight: 600; width: 110px;">📅 Date:</td>
-                <td style="padding: 6px 0; color: #0f172a; font-size: 15px; font-weight: 700;">${booking.date}</td>
+                <td style="padding: 6px 0; color: #0f172a; font-size: 15px; font-weight: 700;">${safeDate}</td>
               </tr>
               <tr>
                 <td style="padding: 6px 0; color: #64748b; font-size: 14px; font-weight: 600;">⏰ Time:</td>
-                <td style="padding: 6px 0; color: #0f172a; font-size: 15px; font-weight: 700;">${booking.timeSlot}</td>
+                <td style="padding: 6px 0; color: #0f172a; font-size: 15px; font-weight: 700;">${safeSlot}</td>
               </tr>
               <tr>
                 <td style="padding: 6px 0; color: #64748b; font-size: 14px; font-weight: 600;">🎯 Focus:</td>
-                <td style="padding: 6px 0; color: #059669; font-size: 15px; font-weight: 700;">${booking.serviceName || 'Design Consultation'}</td>
+                <td style="padding: 6px 0; color: #059669; font-size: 15px; font-weight: 700;">${safeService || 'Design Consultation'}</td>
               </tr>
             </table>
           </div>

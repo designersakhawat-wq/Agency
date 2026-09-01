@@ -19,10 +19,22 @@ app.set('trust proxy', 1);
 // High Performance Gzip / Brotli compression for all text/JSON/assets
 app.use(compression());
 
-// Security Middlewares
+// Security Middlewares (SEC-07: Proper CSP instead of disabling)
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Disabled for flexible external image hosting (Cloudinary/Unsplash/Google Fonts)
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        imgSrc: ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com', 'https://images.unsplash.com', 'https://*.unsplash.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+        connectSrc: ["'self'"],
+        frameSrc: ["'none'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+      },
+    },
     crossOriginEmbedderPolicy: false,
   })
 );
@@ -36,14 +48,15 @@ const allowedOrigins = [
   'http://localhost:3000',
 ];
 
+// SEC-03: CORS now properly rejects unknown origins
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or same-origin static apps)
+      // Allow requests with no origin (same-origin static apps, server-to-server)
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(null, true); // Allow flexible deployment on Hostinger domains
+      return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -57,8 +70,9 @@ if (env.NODE_ENV === 'development') {
 }
 
 // Request Parsers
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+// PERF-02: Reduced from 20MB to 2MB to prevent memory exhaustion; file uploads use multer separately
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
 // Serve transparent PNG for legacy placeholder requests to eliminate 422/404 errors
 app.get('/placeholder-cleaned.png', (req, res) => {
@@ -71,11 +85,17 @@ app.get('/placeholder-cleaned.png', (req, res) => {
 // Ensure uploads directory exists in persistent storage and serve with browser caching
 const { UPLOADS_DIR } = require('./src/config/persistentStorage');
 const uploadsDir = UPLOADS_DIR;
+// SEC-08: Restrict uploads CORS to known origins; SEC-06: Security headers to block SVG XSS
 app.use(
   '/uploads',
   (req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const requestOrigin = req.headers.origin;
+    if (!requestOrigin || allowedOrigins.includes(requestOrigin)) {
+      res.setHeader('Access-Control-Allow-Origin', requestOrigin || '*');
+    }
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self'; style-src 'none'; script-src 'none'");
     next();
   },
   express.static(uploadsDir, {

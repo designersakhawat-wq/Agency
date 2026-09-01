@@ -20,25 +20,37 @@ const { getHomepageData } = require('../controllers/homepageController');
 const backupService = require('../services/backupService');
 const prisma = require('../config/db');
 
-// API Health Check
+const cacheService = require('../services/cacheService');
+
+// API Health Check with Cache Observability
 router.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     service: 'Md Sakhawat Hossain Portfolio API',
     uptime: process.uptime(),
+    cache: cacheService.getStats(),
+  });
+});
+
+// Dedicated Distributed Cache Telemetry & Hit-Ratio Metrics
+router.get('/health/cache', (req, res) => {
+  res.json({
+    success: true,
+    timestamp: new Date().toISOString(),
+    cache: cacheService.getStats(),
   });
 });
 
 // Consolidated Homepage Bootstrap (1 HTTP request instead of 7)
 router.get('/homepage', getHomepageData);
 
-// Automatic CMS Data Shield: Whenever any data is created/updated/deleted, debounce and snapshot to disk
+// Automatic CMS Data Shield: Whenever any data is created/updated/deleted, debounce and snapshot to disk (PERF-05: 5s debounce)
 router.use((req, res, next) => {
   if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
     res.on('finish', () => {
       if (res.statusCode >= 200 && res.statusCode < 300) {
-        backupService.triggerDebouncedSnapshot(prisma, 1500);
+        backupService.triggerDebouncedSnapshot(prisma, 5000);
       }
     });
   }

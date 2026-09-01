@@ -1,10 +1,10 @@
 const rateLimit = require('express-rate-limit');
 const env = require('../config/env');
 
-// General API rate limiter
+// SEC-13: Tightened from 5000 → 300 requests per 15 minutes
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5000,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -13,15 +13,15 @@ const apiLimiter = rateLimit({
   },
 });
 
-// Authentication & Contact submissions limiter
+// SEC-13: Tightened from 500 → 15 for auth/submission (prevents brute-force)
 const authAndSubmitLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // generous limit for smooth admin access
+  max: 15,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
     success: false,
-    message: 'Too many attempts. Please wait a minute before trying again.',
+    message: 'Too many attempts. Please wait before trying again.',
   },
 });
 

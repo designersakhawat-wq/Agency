@@ -27,44 +27,73 @@ const saveBase64Image = (dataUrl, suggestedName = 'setting-asset') => {
   }
 };
 
+// SEC-05: Keys that must NEVER be returned via the public API
+const PRIVATE_SETTING_KEYS = [
+  'cloudinary_api_secret',
+  'cloudinary_api_key',
+  'cloudinary_cloud_name',
+  'cloudinary_folder',
+  'smtp_pass',
+  'smtp_user',
+  'smtp_host',
+  'smtp_port',
+  'jwt_secret',
+  'admin_password',
+];
+
+const cacheService = require('../services/cacheService');
+
 /**
  * Public: Get all public site settings as key-value map
+ * SEC-05: Sensitive keys (Cloudinary secrets, SMTP creds) are filtered out
+ * Wrapped with Multi-Tier Distributed Cache & Invalidation
  * GET /api/settings
  */
 const getPublicSettings = async (req, res, next) => {
   try {
-    let settings = [];
-    try {
-      settings = await prisma.siteSetting.findMany();
-    } catch (dbErr) {
-      console.warn('Settings DB lookup warning:', dbErr.message);
-    }
-    
-    // Transform into a clean key-value object
-    const settingsMap = {};
-    if (Array.isArray(settings) && settings.length > 0) {
-      settings.forEach((item) => {
-        let parsedValue = item.value;
-        if (typeof parsedValue === 'string' && parsedValue.startsWith('data:image')) {
-          parsedValue = saveBase64Image(parsedValue, item.key);
-        } else if (item.value === 'true') {
-          parsedValue = true;
-        } else if (item.value === 'false') {
-          parsedValue = false;
-        } else {
-          try {
-            if (typeof item.value === 'string' && (item.value.startsWith('{') || item.value.startsWith('['))) {
-              parsedValue = JSON.parse(item.value);
-            }
-          } catch (e) {
-            parsedValue = item.value;
-          }
+    const settingsMap = await cacheService.wrap(
+      'portfolio:settings:public',
+      async () => {
+        let settings = [];
+        try {
+          settings = await prisma.siteSetting.findMany();
+        } catch (dbErr) {
+          console.warn('Settings DB lookup warning:', dbErr.message);
         }
-        settingsMap[item.key] = parsedValue;
-      });
-    }
 
-    return successResponse(res, settingsMap, 'Site settings retrieved.');
+        const map = {};
+        if (Array.isArray(settings) && settings.length > 0) {
+          settings.forEach((item) => {
+            // SEC-05: Skip private/secret keys from public response
+            if (PRIVATE_SETTING_KEYS.includes(item.key.toLowerCase())) {
+              return;
+            }
+
+            let parsedValue = item.value;
+            if (typeof parsedValue === 'string' && parsedValue.startsWith('data:image')) {
+              parsedValue = saveBase64Image(parsedValue, item.key);
+            } else if (item.value === 'true') {
+              parsedValue = true;
+            } else if (item.value === 'false') {
+              parsedValue = false;
+            } else {
+              try {
+                if (typeof item.value === 'string' && (item.value.startsWith('{') || item.value.startsWith('['))) {
+                  parsedValue = JSON.parse(item.value);
+                }
+              } catch (e) {
+                parsedValue = item.value;
+              }
+            }
+            map[item.key] = parsedValue;
+          });
+        }
+        return map;
+      },
+      { ttl: 7200, tags: ['settings'] }
+    );
+
+    return successResponse(res, settingsMap || {}, 'Site settings retrieved.');
   } catch (err) {
     return successResponse(res, {}, 'Fallback empty settings.');
   }
@@ -126,6 +155,9 @@ const updateSettingsBulk = async (req, res, next) => {
         }
       })
     );
+
+    // Invalidate distributed cache immediately
+    cacheService.invalidateTags(['settings', 'homepage']);
 
     // Trigger immediate persistent disk snapshot
     const backupService = require('../services/backupService');

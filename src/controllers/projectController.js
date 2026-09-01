@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const prisma = require('../config/db');
 const { successResponse, errorResponse } = require('../utils/apiResponse');
+const cacheService = require('../services/cacheService');
 
 // Helper to convert Base64 data URLs to permanent disk files
 const saveBase64Image = (dataUrl, suggestedName = 'project-image') => {
@@ -67,67 +68,83 @@ const formatProject = (project) => {
 
 /**
  * Public: Get all active projects with optional filters
+ * Wrapped with Multi-Tier Distributed Cache & Invalidation
  * GET /api/projects
  */
 const getPublicProjects = async (req, res, next) => {
   try {
     const { category, serviceId, serviceSlug, featured, search, limit } = req.query;
 
-    const isValid = (val) => val && val !== 'undefined' && val !== 'null' && typeof val === 'string' && val.trim() !== '';
+    const cacheKey = `portfolio:projects:list:${JSON.stringify({
+      c: category || '',
+      sId: serviceId || '',
+      sSlug: serviceSlug || '',
+      f: featured || '',
+      q: search || '',
+      l: limit || '',
+    })}`;
 
-    const where = { active: true };
+    const formatted = await cacheService.wrap(
+      cacheKey,
+      async () => {
+        const isValid = (val) => val && val !== 'undefined' && val !== 'null' && typeof val === 'string' && val.trim() !== '';
+        const where = { active: true };
 
-    if (isValid(category) && category !== 'All') {
-      where.OR = [
-        { category: category },
-        { category: { contains: category } },
-        { tags: { contains: category } },
-      ];
-    }
+        if (isValid(category) && category !== 'All') {
+          where.OR = [
+            { category: category },
+            { category: { contains: category } },
+            { tags: { contains: category } },
+          ];
+        }
 
-    if (isValid(serviceId)) {
-      where.serviceId = serviceId;
-    } else if (isValid(serviceSlug)) {
-      where.serviceSlug = serviceSlug;
-    }
+        if (isValid(serviceId)) {
+          where.serviceId = serviceId;
+        } else if (isValid(serviceSlug)) {
+          where.serviceSlug = serviceSlug;
+        }
 
-    if (featured === 'true') {
-      where.featured = true;
-    }
+        if (featured === 'true') {
+          where.featured = true;
+        }
 
-    if (isValid(search)) {
-      const s = search.trim();
-      where.OR = [
-        { title: { contains: s } },
-        { summary: { contains: s } },
-        { client: { contains: s } },
-        { category: { contains: s } },
-        { tags: { contains: s } },
-      ];
-    }
+        if (isValid(search)) {
+          const s = search.trim();
+          where.OR = [
+            { title: { contains: s } },
+            { summary: { contains: s } },
+            { client: { contains: s } },
+            { category: { contains: s } },
+            { tags: { contains: s } },
+          ];
+        }
 
-    let projects = [];
-    try {
-      projects = await prisma.project.findMany({
-        where,
-        orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
-        take: limit ? parseInt(limit, 10) : undefined,
-        include: {
-          service: {
-            select: {
-              id: true,
-              title: true,
-              slug: true,
+        let projects = [];
+        try {
+          projects = await prisma.project.findMany({
+            where,
+            orderBy: [{ featured: 'desc' }, { order: 'asc' }, { createdAt: 'desc' }],
+            take: limit ? parseInt(limit, 10) : undefined,
+            include: {
+              service: {
+                select: {
+                  id: true,
+                  title: true,
+                  slug: true,
+                },
+              },
             },
-          },
-        },
-      });
-    } catch (dbErr) {
-      console.warn('Projects DB lookup warning:', dbErr.message);
-    }
+          });
+        } catch (dbErr) {
+          console.warn('Projects DB lookup warning:', dbErr.message);
+        }
 
-    const formatted = Array.isArray(projects) ? projects.map(formatProject) : [];
-    return successResponse(res, formatted, 'Projects retrieved successfully.');
+        return Array.isArray(projects) ? projects.map(formatProject) : [];
+      },
+      { ttl: 1800, tags: ['projects'] }
+    );
+
+    return successResponse(res, formatted || [], 'Projects retrieved successfully.');
   } catch (err) {
     return successResponse(res, [], 'Fallback empty projects.');
   }
@@ -135,54 +152,63 @@ const getPublicProjects = async (req, res, next) => {
 
 /**
  * Public: Get single project by slug
+ * Wrapped with Multi-Tier Distributed Cache & Invalidation
  * GET /api/projects/:slug
  */
 const getProjectBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
 
-    const project = await prisma.project.findUnique({
-      where: { slug },
-      include: {
-        service: true,
-      },
-    });
+    const data = await cacheService.wrap(
+      `portfolio:projects:slug:${slug}`,
+      async () => {
+        const project = await prisma.project.findUnique({
+          where: { slug },
+          include: {
+            service: true,
+          },
+        });
 
-    if (!project || (!project.active && (!req.user || req.user.role !== 'ADMIN'))) {
+        if (!project || (!project.active && (!req.user || req.user.role !== 'ADMIN'))) {
+          return null;
+        }
+
+        // Get related projects from the same service or category
+        const relatedProjects = await prisma.project.findMany({
+          where: {
+            OR: [
+              { serviceId: project.serviceId || undefined },
+              { category: project.category },
+            ],
+            id: { not: project.id },
+            active: true,
+          },
+          take: 3,
+          orderBy: { order: 'asc' },
+          include: {
+            service: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        });
+
+        return {
+          project: formatProject(project),
+          relatedProjects: (relatedProjects || []).map(formatProject),
+        };
+      },
+      { ttl: 3600, tags: ['projects'] }
+    );
+
+    if (!data) {
       return errorResponse(res, 'Project not found.', 404);
     }
 
-    // Get related projects from the same service or category
-    const relatedProjects = await prisma.project.findMany({
-      where: {
-        OR: [
-          { serviceId: project.serviceId || undefined },
-          { category: project.category },
-        ],
-        id: { not: project.id },
-        active: true,
-      },
-      take: 3,
-      orderBy: { order: 'asc' },
-      include: {
-        service: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-          },
-        },
-      },
-    });
-
-    return successResponse(
-      res,
-      {
-        project: formatProject(project),
-        relatedProjects: relatedProjects.map(formatProject),
-      },
-      'Project details retrieved.'
-    );
+    return successResponse(res, data, 'Project details retrieved.');
   } catch (err) {
     next(err);
   }
@@ -330,6 +356,9 @@ const createProject = async (req, res, next) => {
       },
     });
 
+    // Invalidate distributed cache
+    cacheService.invalidateTags(['projects', 'homepage']);
+
     return successResponse(res, formatProject(newProject), 'Project created successfully.', 201);
   } catch (err) {
     next(err);
@@ -474,6 +503,9 @@ const updateProject = async (req, res, next) => {
       },
     });
 
+    // Invalidate distributed cache
+    cacheService.invalidateTags(['projects', 'homepage']);
+
     return successResponse(res, formatProject(updatedProject), 'Project updated successfully.');
   } catch (err) {
     next(err);
@@ -494,6 +526,7 @@ const deleteProject = async (req, res, next) => {
     }
 
     await prisma.project.delete({ where: { id } });
+    cacheService.invalidateTags(['projects', 'homepage']);
     return successResponse(res, null, 'Project deleted successfully.');
   } catch (err) {
     next(err);
@@ -520,6 +553,7 @@ const reorderProjects = async (req, res, next) => {
     );
 
     await prisma.$transaction(updates);
+    cacheService.invalidateTags(['projects', 'homepage']);
     return successResponse(res, null, 'Projects reordered successfully.');
   } catch (err) {
     next(err);

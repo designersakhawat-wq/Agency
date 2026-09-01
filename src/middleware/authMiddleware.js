@@ -5,6 +5,7 @@ const { errorResponse } = require('../utils/apiResponse');
 
 /**
  * Protect routes: require valid JWT token in Authorization header or Bearer cookie
+ * SEC-04: No longer fabricates admin users from JWT claims — DB lookup is mandatory
  */
 const requireAuth = async (req, res, next) => {
   let token;
@@ -34,18 +35,11 @@ const requireAuth = async (req, res, next) => {
           avatar: true,
         },
       });
-    } catch (e) {}
-
-    if (!user && decoded.email) {
-      user = {
-        id: decoded.userId || decoded.id || 'admin_master_1',
-        email: decoded.email,
-        name: decoded.name || 'Md Sakhawat Hossain',
-        role: decoded.role || 'ADMIN',
-        avatar: null,
-      };
+    } catch (e) {
+      return errorResponse(res, 'Authentication service temporarily unavailable.', 503);
     }
 
+    // SEC-04: If user is not found in database, REJECT — never fabricate from JWT claims
     if (!user) {
       return errorResponse(res, 'User session invalid. Account not found.', 401);
     }

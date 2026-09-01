@@ -388,69 +388,91 @@ class MediaService {
   }
 
   /**
-   * Calculate live references & usage locations for a given Media asset
+   * Calculate live references & usage locations for multiple Media assets in ONE single database pass (PERF-01)
    */
-  async getMediaUsage(mediaId, fileUrl) {
-    const usedIn = [];
-    const url = fileUrl || '';
-    const filename = path.basename(url.split('?')[0]);
+  async getBatchMediaUsage(mediaItems = []) {
+    if (!Array.isArray(mediaItems) || mediaItems.length === 0) return new Map();
 
-    if (!url && !mediaId) return { usageCount: 0, usedIn: [] };
+    const usageMap = new Map();
+    mediaItems.forEach((m) => {
+      usageMap.set(m.id, { usageCount: 0, usedIn: [] });
+    });
 
     try {
-      // 1. Projects check
-      const projects = await prisma.project.findMany().catch(() => []);
-      for (const p of projects) {
-        if (p.coverImage && (p.coverImage === url || (filename && p.coverImage.includes(filename)))) {
-          usedIn.push({ module: 'Portfolio', title: p.title, field: 'Cover Image', id: p.id, url: `/portfolio/${p.slug}` });
-        }
-        if (p.galleryImages && (p.galleryImages.includes(url) || (filename && p.galleryImages.includes(filename)))) {
-          usedIn.push({ module: 'Portfolio', title: p.title, field: 'Gallery Image', id: p.id, url: `/portfolio/${p.slug}` });
-        }
-      }
+      const [projects, testimonials, brands, settings, users] = await Promise.all([
+        prisma.project.findMany({ select: { id: true, title: true, slug: true, coverImage: true, galleryImages: true } }).catch(() => []),
+        prisma.testimonial.findMany({ select: { id: true, clientName: true, clientCompany: true, clientAvatar: true, brandLogo: true } }).catch(() => []),
+        prisma.clientBrand.findMany({ select: { id: true, name: true, logoUrl: true } }).catch(() => []),
+        prisma.siteSetting.findMany({ select: { id: true, key: true, value: true } }).catch(() => []),
+        prisma.user.findMany({ select: { id: true, name: true, avatar: true } }).catch(() => []),
+      ]);
 
-      // 2. Testimonials check
-      const testimonials = await prisma.testimonial.findMany().catch(() => []);
-      for (const t of testimonials) {
-        if (t.clientAvatar && (t.clientAvatar === url || (filename && t.clientAvatar.includes(filename)))) {
-          usedIn.push({ module: 'Testimonial', title: `${t.clientName} (${t.clientCompany})`, field: 'Client Avatar', id: t.id });
-        }
-        if (t.brandLogo && (t.brandLogo === url || (filename && t.brandLogo.includes(filename)))) {
-          usedIn.push({ module: 'Testimonial', title: `${t.clientName} (${t.clientCompany})`, field: 'Brand Logo', id: t.id });
-        }
-      }
+      for (const m of mediaItems) {
+        const usedIn = [];
+        const url = m.fileUrl || '';
+        const filename = path.basename(url.split('?')[0]);
 
-      // 3. Client Brands check
-      const brands = await prisma.clientBrand.findMany().catch(() => []);
-      for (const b of brands) {
-        if (b.logoUrl && (b.logoUrl === url || (filename && b.logoUrl.includes(filename)))) {
-          usedIn.push({ module: 'Client Brand', title: b.name, field: 'Brand Logo', id: b.id });
-        }
-      }
+        if (url || m.id) {
+          // 1. Projects
+          for (const p of projects) {
+            if (p.coverImage && (p.coverImage === url || (filename && p.coverImage.includes(filename)))) {
+              usedIn.push({ module: 'Portfolio', title: p.title, field: 'Cover Image', id: p.id, url: `/portfolio/${p.slug}` });
+            }
+            if (p.galleryImages && (p.galleryImages.includes(url) || (filename && p.galleryImages.includes(filename)))) {
+              usedIn.push({ module: 'Portfolio', title: p.title, field: 'Gallery Image', id: p.id, url: `/portfolio/${p.slug}` });
+            }
+          }
 
-      // 4. Site Settings check
-      const settings = await prisma.siteSetting.findMany().catch(() => []);
-      for (const s of settings) {
-        if (s.value && (s.value === url || (filename && typeof s.value === 'string' && s.value.includes(filename)))) {
-          usedIn.push({ module: 'Site Settings', title: s.key.replace(/_/g, ' ').toUpperCase(), field: s.key, id: s.id });
-        }
-      }
+          // 2. Testimonials
+          for (const t of testimonials) {
+            if (t.clientAvatar && (t.clientAvatar === url || (filename && t.clientAvatar.includes(filename)))) {
+              usedIn.push({ module: 'Testimonial', title: `${t.clientName} (${t.clientCompany})`, field: 'Client Avatar', id: t.id });
+            }
+            if (t.brandLogo && (t.brandLogo === url || (filename && t.brandLogo.includes(filename)))) {
+              usedIn.push({ module: 'Testimonial', title: `${t.clientName} (${t.clientCompany})`, field: 'Brand Logo', id: t.id });
+            }
+          }
 
-      // 5. User Avatar check
-      const users = await prisma.user.findMany().catch(() => []);
-      for (const u of users) {
-        if (u.avatar && (u.avatar === url || (filename && u.avatar.includes(filename)))) {
-          usedIn.push({ module: 'Admin User', title: u.name, field: 'Profile Avatar', id: u.id });
+          // 3. Client Brands
+          for (const b of brands) {
+            if (b.logoUrl && (b.logoUrl === url || (filename && b.logoUrl.includes(filename)))) {
+              usedIn.push({ module: 'Client Brand', title: b.name, field: 'Brand Logo', id: b.id });
+            }
+          }
+
+          // 4. Site Settings
+          for (const s of settings) {
+            if (s.value && (s.value === url || (filename && typeof s.value === 'string' && s.value.includes(filename)))) {
+              usedIn.push({ module: 'Site Settings', title: s.key.replace(/_/g, ' ').toUpperCase(), field: s.key, id: s.id });
+            }
+          }
+
+          // 5. User Avatar
+          for (const u of users) {
+            if (u.avatar && (u.avatar === url || (filename && u.avatar.includes(filename)))) {
+              usedIn.push({ module: 'Admin User', title: u.name, field: 'Profile Avatar', id: u.id });
+            }
+          }
         }
+
+        usageMap.set(m.id, {
+          usageCount: usedIn.length,
+          usedIn,
+        });
       }
     } catch (err) {
-      console.warn('Error calculating media usage:', err.message);
+      console.warn('Error calculating batch media usage:', err.message);
     }
 
-    return {
-      usageCount: usedIn.length,
-      usedIn,
-    };
+    return usageMap;
+  }
+
+  /**
+   * Calculate live references & usage locations for a single Media asset
+   */
+  async getMediaUsage(mediaId, fileUrl) {
+    const batchResult = await this.getBatchMediaUsage([{ id: mediaId, fileUrl }]);
+    return batchResult.get(mediaId) || { usageCount: 0, usedIn: [] };
   }
 
   /**

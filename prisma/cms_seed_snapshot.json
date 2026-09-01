@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-29T11:28:53.817Z",
+  "timestamp": "2026-09-01T17:21:53.353Z",
   "version": "1.0.0",
   "data": {
     "settings": [
@@ -1177,7 +1177,6 @@
       {
         "id": "02b58bc1-f4a6-4331-b051-92315723e983",
         "email": "admin@sakhawat.design",
-        "password": "$2b$10$4hsA4Rk8FJd1PXhicpvaaOpRjXS9M76Y7FyECUaDY6Pg3SEdKKhLm",
         "name": "Md Sakhawat Hossain",
         "role": "ADMIN",
         "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",

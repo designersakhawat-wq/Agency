@@ -20,21 +20,21 @@ const storage = multer.diskStorage({
   },
 });
 
-// File filter (Images and PDFs for case study assets)
+// File filter — SEC-06: SVG removed to prevent stored XSS via embedded <script> tags
 const fileFilter = (req, file, cb) => {
   const allowedMimeTypes = [
     'image/jpeg',
     'image/png',
     'image/webp',
     'image/gif',
-    'image/svg+xml',
+    // 'image/svg+xml' — REMOVED: SVG can contain JavaScript leading to stored XSS
     'application/pdf',
   ];
 
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file format. Allowed formats: JPG, PNG, WEBP, GIF, SVG, PDF.'), false);
+    cb(new Error('Invalid file format. Allowed formats: JPG, PNG, WEBP, GIF, PDF.'), false);
   }
 };
 

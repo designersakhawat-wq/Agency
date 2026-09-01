@@ -90,25 +90,9 @@ const handleLocalFallback = async (endpoint, options = {}) => {
   const method = (options.method || 'GET').toUpperCase();
   const body = options.body;
 
-  // 1. Authentication Login
+  // 1. Authentication Login (SEC-15: Auth requests MUST NOT fabricate fake admin sessions)
   if (endpoint.includes('/auth/login') && method === 'POST') {
-    let creds = {};
-    try { creds = typeof body === 'string' ? JSON.parse(body) : body; } catch (e) { }
-    const email = creds.email || 'admin@sakhawat.design';
-    const token = 'session_token_' + Date.now();
-    const user = {
-      id: 'admin-1',
-      name: 'Md Sakhawat Hossain',
-      email: email,
-      role: 'ADMIN',
-    };
-    safeSetItem('sakhawat_admin_token', token);
-    safeSetItem('sakhawat_admin_user', user);
-    return {
-      success: true,
-      message: 'Login successful (High-Speed Session)',
-      data: { token, user },
-    };
+    throw new Error('Authentication server is unreachable. Please verify network connection or server status.');
   }
 
   // 2. Settings Bulk Update
@@ -422,6 +406,11 @@ const request = async (endpoint, options = {}) => {
     }
 
     if (isGet && !endpoint.includes('/admin') && !endpoint.includes('/auth')) {
+      // PERF-07: Evict oldest entry if cache exceeds maximum capacity
+      if (requestCache.size > 100) {
+        const oldestKey = requestCache.keys().next().value;
+        requestCache.delete(oldestKey);
+      }
       requestCache.set(cacheKey, { data, timestamp: Date.now() });
     } else if (!isGet) {
       requestCache.clear();

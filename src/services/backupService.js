@@ -44,11 +44,30 @@ class BackupService {
         prisma.user.findMany().catch(() => []),
       ]);
 
+      const PRIVATE_SETTING_KEYS = [
+        'cloudinary_api_secret',
+        'cloudinary_api_key',
+        'smtp_pass',
+        'jwt_secret',
+        'admin_password',
+      ];
+
+      // SEC-12: Strip password hashes from exported user records
+      const sanitizedUsers = (users || []).map((u) => {
+        const { password, ...safeUser } = u;
+        return safeUser;
+      });
+
+      // SEC-12: Strip sensitive API secrets from exported settings
+      const sanitizedSettings = (settings || []).filter(
+        (s) => !PRIVATE_SETTING_KEYS.includes(s.key.toLowerCase())
+      );
+
       const snapshot = {
         timestamp: new Date().toISOString(),
         version: '1.0.0',
         data: {
-          settings,
+          settings: sanitizedSettings,
           projects,
           services,
           packages,
@@ -56,10 +75,10 @@ class BackupService {
           faqs,
           brands,
           media,
-          users,
+          users: sanitizedUsers,
         },
         counts: {
-          settings: settings.length,
+          settings: sanitizedSettings.length,
           projects: projects.length,
           services: services.length,
           packages: packages.length,
@@ -67,7 +86,7 @@ class BackupService {
           faqs: faqs.length,
           brands: brands.length,
           media: media.length,
-          users: users.length,
+          users: sanitizedUsers.length,
         },
       };
 

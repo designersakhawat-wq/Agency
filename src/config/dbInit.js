@@ -223,6 +223,18 @@ const initDatabaseSchema = async (prisma) => {
         "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
       );`,
       `CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_invoiceNumber_key" ON "Invoice"("invoiceNumber");`,
+
+      // PERF-06: High-performance query indexes
+      `CREATE INDEX IF NOT EXISTS "idx_project_active_featured_order" ON "Project"("active", "featured", "order");`,
+      `CREATE INDEX IF NOT EXISTS "idx_project_category" ON "Project"("category");`,
+      `CREATE INDEX IF NOT EXISTS "idx_project_serviceId" ON "Project"("serviceId");`,
+      `CREATE INDEX IF NOT EXISTS "idx_inquiry_status_created" ON "ContactInquiry"("status", "createdAt");`,
+      `CREATE INDEX IF NOT EXISTS "idx_booking_date_slot" ON "Booking"("date", "timeSlot");`,
+      `CREATE INDEX IF NOT EXISTS "idx_booking_status" ON "Booking"("status");`,
+      `CREATE INDEX IF NOT EXISTS "idx_testimonial_active_order" ON "Testimonial"("active", "order");`,
+      `CREATE INDEX IF NOT EXISTS "idx_package_service_active" ON "Package"("serviceId", "active");`,
+      `CREATE INDEX IF NOT EXISTS "idx_media_fileurl" ON "Media"("fileUrl");`,
+      `CREATE INDEX IF NOT EXISTS "idx_media_source" ON "Media"("source");`,
     ];
 
     for (const sql of createTableStatements) {
